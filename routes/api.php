@@ -12,6 +12,8 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CartDetailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +72,27 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/order-details/order/{orderId}', [OrderDetailController::class, 'byOrder']);
     Route::put('/order-details/{id}', [OrderDetailController::class, 'update']);
     Route::delete('/order-details/{id}', [OrderDetailController::class, 'destroy']);
+
+    // ===== CART (USER + ADMIN) =====
+    Route::get('/carts', [CartController::class, 'index']);
+    Route::get('/carts/{userId}', [CartController::class, 'show']);
+    Route::post('/carts', [CartController::class, 'store']);
+    Route::delete('/carts/{userId}', [CartController::class, 'destroy']);
+
+    // ===== CART DETAILS (USER + ADMIN) =====
+    Route::prefix('cart-details')->group(function () {
+        Route::get('/', [CartDetailController::class, 'index']);
+        Route::get('/{id}', [CartDetailController::class, 'show']);
+        Route::get('/cart/{cartId}', [CartDetailController::class, 'getByCart']);
+
+        Route::post('/', [CartDetailController::class, 'store']);
+        Route::put('/{id}', [CartDetailController::class, 'update']);
+
+        Route::delete('/{id}', [CartDetailController::class, 'destroy']);
+        Route::delete('/cart/{cartId}', [CartDetailController::class, 'clearCart']);
+    });
+
+
     /*
     |--------------------------------------------------------------------------
     | ADMIN ONLY (TOÀN QUYỀN)
