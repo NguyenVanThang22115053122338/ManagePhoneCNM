@@ -53,8 +53,28 @@ class UserController extends Controller
         ]);
     }
 
-    public function getAll()
+
+    public function me(Request $request)
     {
-        return User::all();
+        $jwtUser = $request->attributes->get('jwt_user');
+
+        if (!$jwtUser) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+        $user = User::where('SDT',$jwtUser->sub)
+                ->orWhere('Email',$jwtUser->sub)
+                ->first();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        return response()->json($user);
+
     }
+
+        public function getAll()
+        {
+            return User::all();
+        }
 }
