@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\OrderDetailController;
 
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/login', [UserController::class, 'login']);
+Route::post('/user/login-google', [UserController::class, 'loginWithGoogle']);
 
 /*
 |--------------------------------------------------------------------------
