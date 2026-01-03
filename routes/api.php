@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
+use App\Http\Controllers\Api\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,8 @@ use App\Http\Controllers\Api\OrderDetailController;
 
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/login', [UserController::class, 'login']);
+Route::get('/paypal/return', [PaymentController::class, 'return']);
+Route::get('/paypal/cancel', [PaymentController::class, 'cancel']);
 
 /*
 |--------------------------------------------------------------------------
@@ -70,6 +73,12 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/order-details/order/{orderId}', [OrderDetailController::class, 'byOrder']);
     Route::put('/order-details/{id}', [OrderDetailController::class, 'update']);
     Route::delete('/order-details/{id}', [OrderDetailController::class, 'destroy']);
+
+    // ===== PAYPAL PAYMENTS (USER + ADMIN) =====
+    Route::post('/paypal/create', [PaymentController::class, 'create']);
+    Route::get('/paypal/payment/{orderId}', [PaymentController::class, 'getByOrder']);
+    Route::get('/paypal/payment/full/{orderId}', [PaymentController::class, 'getFull']);
+
     /*
     |--------------------------------------------------------------------------
     | ADMIN ONLY (TOÀN QUYỀN)
