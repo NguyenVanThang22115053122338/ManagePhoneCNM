@@ -24,6 +24,7 @@ Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/login', [UserController::class, 'login']);
 Route::get('/paypal/return', [PaymentController::class, 'return']);
 Route::get('/paypal/cancel', [PaymentController::class, 'cancel']);
+Route::post('/user/login-google', [UserController::class, 'loginWithGoogle']);
 
 /*
 |--------------------------------------------------------------------------
