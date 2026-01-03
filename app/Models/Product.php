@@ -11,7 +11,7 @@ class Product extends Model
 
     protected $table = 'Product';
     protected $primaryKey = 'ProductID';
-    public $timestamps = false; // vì dùng custom timestamps
+    public $timestamps = false;
 
     protected $fillable = [
         'name',

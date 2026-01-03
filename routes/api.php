@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CartDetailController;
+use App\Http\Controllers\Api\ChatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,6 +93,8 @@ Route::middleware(['jwt'])->group(function () {
         Route::delete('/cart/{cartId}', [CartDetailController::class, 'clearCart']);
     });
 
+    Route::post('/chat', [ChatController::class, 'chat']);
+    Route::post('/chat/stream', [ChatController::class, 'stream']);
 
     /*
     |--------------------------------------------------------------------------

@@ -4,24 +4,23 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use App\Domain\Chat\Contracts\AiResponder;
+use App\Infrastructure\OpenAI\OpenAiChatResponder;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
-        //
+        $this->app->bind(AiResponder::class, OpenAiChatResponder::class);
     }
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         //
     }
