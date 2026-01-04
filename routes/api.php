@@ -13,7 +13,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\PaymentController;
-
+use App\Http\Controllers\Api\StockInController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES (KHÔNG CẦN LOGIN)
@@ -125,5 +125,14 @@ Route::middleware(['jwt'])->group(function () {
 
         // ===== USER MANAGEMENT =====
         Route::get('/users', [UserController::class, 'getAll']);
+
+        // ===== STOCK IN =====
+        Route::prefix('stock-ins')->group(function () {
+            Route::get('/', [StockInController::class, 'index']);
+            Route::get('/{id}', [StockInController::class, 'show']);
+            Route::post('/', [StockInController::class, 'store']);
+            Route::put('/{id}', [StockInController::class, 'update']);
+            Route::delete('/{id}', [StockInController::class, 'destroy']);
+        });
     });
 });
