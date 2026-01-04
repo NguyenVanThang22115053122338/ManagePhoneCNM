@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\StockInController;
+use App\Http\Controllers\Api\StockOutController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES (KHÔNG CẦN LOGIN)
@@ -127,12 +128,21 @@ Route::middleware(['jwt'])->group(function () {
         Route::get('/users', [UserController::class, 'getAll']);
 
         // ===== STOCK IN =====
-        Route::prefix('stock-ins')->group(function () {
+        Route::prefix('stockin')->group(function () {
             Route::get('/', [StockInController::class, 'index']);
             Route::get('/{id}', [StockInController::class, 'show']);
             Route::post('/', [StockInController::class, 'store']);
             Route::put('/{id}', [StockInController::class, 'update']);
             Route::delete('/{id}', [StockInController::class, 'destroy']);
+        });
+
+        // ===== STOCK OUT =====
+        Route::prefix('stockout')->group(function () {
+            Route::get('/', [StockOutController::class, 'index']);
+            Route::get('/{id}', [StockOutController::class, 'show']);
+            Route::post('/', [StockOutController::class, 'store']);
+            Route::put('/{id}', [StockOutController::class, 'update']);
+            Route::delete('/{id}', [StockOutController::class, 'destroy']);
         });
     });
 });
