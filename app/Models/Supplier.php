@@ -11,7 +11,8 @@ class Supplier extends Model
 
     protected $table = 'Supplier';
     protected $primaryKey = 'supplierId';
-
+    public $incrementing = true;
+    protected $keyType = 'int';
     protected $fillable = [
         'supplierName'
     ];
