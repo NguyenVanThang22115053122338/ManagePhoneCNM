@@ -13,6 +13,7 @@ use App\Requests\Auth\LoginWithGoogleRequest;
 use App\Requests\Auth\VerifyCodeRequest;
 use App\Requests\Auth\ResendCodeRequest;
 use App\Models\Role;
+use App\Models\User;
 
 class UserController extends Controller
 {
