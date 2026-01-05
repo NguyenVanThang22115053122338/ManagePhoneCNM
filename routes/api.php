@@ -25,7 +25,8 @@ Route::post('/user/login', [UserController::class, 'login']);
 Route::get('/paypal/return', [PaymentController::class, 'return']);
 Route::get('/paypal/cancel', [PaymentController::class, 'cancel']);
 Route::post('/user/login-google', [UserController::class, 'loginWithGoogle']);
-
+Route::post('/user/verify-email', [UserController::class, 'verifyEmail']);
+Route::post('/user/resend-code', [UserController::class, 'resendCode']);
 /*
 |--------------------------------------------------------------------------
 | AUTHENTICATED ROUTES (JWT)
