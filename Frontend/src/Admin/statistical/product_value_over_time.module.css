@@ -1,0 +1,271 @@
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #f3f4f6;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        min-height: 100vh;
+    }
+
+    .sidebar {
+        width: 250px;
+        background: white;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        padding: 10px;
+        height: 100vh;
+        position: fixed;
+        overflow-y: auto;
+    }
+
+        .sidebar h2 {
+            padding: 15px;
+            margin: 0;
+            color: #333;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .sidebar li:hover, .sidebar li.active {
+                background-color: #f0f0f0;
+                border-left: 4px solid #2196F3;
+            }
+
+            .sidebar li i {
+                margin-right: 10px;
+                width: 20px;
+                text-align: center;
+            }
+
+        .sidebar .logout {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            color: #f44336;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+            .sidebar .logout:hover {
+                background-color: #ffebee;
+            }
+
+    .main-content {
+        flex: 1;
+        padding: 20px 20px;
+        min-height: 100vh;
+    }
+
+    /* Top bar (logo + account) */
+    .topbar {
+        display: flex;
+        margin-left: -30px;
+        margin-right: -20px;
+        margin-bottom: 20px;
+        justify-content: right;
+        align-items: center;
+        background: #fff;
+        padding: 12px 32px;
+        border-bottom: 1px solid #ddd;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+
+    .logo {
+        font-size: 20px;
+        font-weight: bold;
+        color: #2196F3;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .user-info img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+        }
+
+    .user-details {
+        display: flex;
+        flex-direction: column;
+        font-size: 13px;
+        text-align: left;
+    }
+
+    .user-name {
+        font-weight: bold;
+    }
+
+    .user-role {
+        color: #888;
+    }
+
+
+    .stats-container {
+        border: 1px solid #000;
+        border-radius: 8px;
+        padding: 24px;
+        overflow-x: auto;
+        background: #fff;
+    }
+
+    /* Navigation tabs */
+    .stats-nav {
+        display: flex;
+        margin-bottom: 24px;
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+        .stats-nav button {
+            padding: 8px 24px;
+            border-right: 1px solid #000;
+            background: none;
+            font-weight: 400;
+            cursor: pointer;
+            color: #000;
+            white-space: nowrap;
+            border: none;
+            border-right: 1px solid #000;
+        }
+
+            .stats-nav button.active {
+                color: #ef4444;
+                font-weight: 600;
+            }
+
+            .stats-nav button:last-child {
+                border-right: none;
+            }
+
+        .stats-nav a {
+            color: inherit; /* Giữ nguyên màu chữ của nút */
+            text-decoration: none; /* Bỏ gạch chân */
+        }
+
+    .table-container {
+        padding: 40px 32px;
+        overflow-x: auto;
+    }
+
+    .product-table {
+        width: 100%;
+        border-collapse: collapse;
+        max-width: 960px;
+        margin: auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+        .product-table th {
+            background-color: #f4f6fa;
+            color: #333;
+            font-weight: 600;
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .product-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 15px;
+        }
+
+        .product-table tr:hover {
+            background-color: #f9fbfd;
+            transition: background 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-table img {
+            border-radius: 50%;
+            height: 48px;
+            width: 48px;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            transition: transform 0.2s;
+        }
+
+            .product-table img:hover {
+                transform: scale(1.05);
+            }
+
+    .view-thongke {
+        display: flex;
+        justify-content: flex-end;
+        padding-right: 32px;
+        margin-bottom: 16px;
+    }
+
+    .btn-thongke {
+        background-color: #2196F3;
+        color: black;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 50px; /* Bo tròn 50% của chiều cao */
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+        .btn-thongke:hover {
+            background-color: #0bd900;
+        }
+
+    .btn-back {
+        background-color: #ff4d4f;
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 25px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+        .btn-back:hover {
+            background-color: #d9363e;
+        }
+
+    .back-button-container {
+        display: none;
+    }
+
+    .sidebar a,
+    .sidebar a:visited,
+    .sidebar a:hover,
+    .sidebar a:active {
+        color: black; /* Hoặc màu nào bạn đang dùng */
+        text-decoration: none; /* Bỏ gạch chân nếu muốn */
+    }
+
+    .chart-container {
+        width: 100%;
+        height: 400px;
+        display: none;
+        padding: 40px 32px;
+    }
+
+    #productChart {
+        width: 100%;
+        height: 100%;
+    }

@@ -1,0 +1,96 @@
+/* ===== PAGE ===== */
+.container {
+  padding: 24px;
+  background: #f6f8fb;
+  min-height: 100vh;
+  color: #111827;
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ===== ADD BUTTON ===== */
+.addBtn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  background: #1d4ed8;
+}
+
+/* ===== TABLE ===== */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
+
+.table th,
+.table td {
+  padding: 14px 16px;
+  text-align: center;
+  font-size: 14px;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+.table tr:hover {
+  background: #f8fafc;
+}
+
+.table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ===== ACTIONS ===== */
+.actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.editBtn,
+.deleteBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.editBtn {
+  color: #2563eb;
+}
+
+.deleteBtn {
+  color: #dc2626;
+}
+
+.editBtn:hover,
+.deleteBtn:hover {
+  opacity: 0.8;
+}

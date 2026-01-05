@@ -1,0 +1,184 @@
+.content-container {
+    flex: 1;
+    padding: 20px 30px;
+    background-color: #f5f7fa;
+}
+
+.content-header {
+    display: flex !important;
+    align-items: center;
+    padding: 20px;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    margin-right: 10px;
+    font-size: 24px;
+    color: #333;
+    cursor: pointer;
+}
+
+.content-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+}
+
+.search-box {
+    position: relative;
+    margin-left: auto;
+}
+
+.search-box input {
+    padding: 10px 15px 10px 40px;
+    border-radius: 30px;
+    border: 1px solid #e0e0e0;
+    width: 220px;
+    font-size: 14px;
+    outline: none;
+    background-color: #fff;
+}
+
+.search-box i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 16px;
+}
+
+.tabs-container {
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 30px;
+}
+
+.tab {
+    padding: 15px 30px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+}
+
+.tab.active {
+    color: #0095ff;
+}
+
+.tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #0095ff;
+}
+
+.tab:not(.active):hover {
+    color: #333;
+}
+
+.form-container {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.form-row {
+    margin-bottom: 25px;
+}
+
+.form-row:last-child {
+    margin-bottom: 0;
+}
+
+.form-row-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    font-weight: 500;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    border-color: #0095ff;
+}
+
+.form-select {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    appearance: none;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    cursor: pointer;
+}
+
+.form-row-2-col {
+    display: flex;
+    gap: 20px;
+}
+
+.form-col {
+    flex: 1;
+}
+
+.form-textarea {
+    width: 100%;
+    height: 150px;
+    padding: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+}
+
+.form-textarea:focus {
+    border-color: #0095ff;
+}
+
+.submit-button {
+    display: block;
+    width: 100%;
+    max-width: 200px;
+    padding: 12px 0;
+    background-color: #0095ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    margin: 30px auto 0;
+    transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #007edb;
+}

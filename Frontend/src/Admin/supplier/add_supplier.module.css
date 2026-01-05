@@ -1,0 +1,96 @@
+body {
+  font-family: "Roboto", sans-serif;
+  background-color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  min-height: 100vh;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  width: 75%;
+  padding: 16px;
+  margin: auto;
+}
+
+.formSection h1 {
+  margin-bottom: 16px;
+}
+
+.formSection form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formSection form > div {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: flex-start;
+}
+
+.formSection form label {
+  width: 150px;
+  text-align: left;
+  font-weight: bold;
+}
+
+.formSection form input,
+.formSection form select,
+.formSection form textarea {
+  width: 300px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: none;
+}
+
+.imageUpload {
+  height: 128px;
+  justify-content: flex-start;
+  padding-left: 8px;
+}
+
+.additionalImages {
+  justify-content: flex-start;
+  padding-left: 158px;
+}
+
+.additionalImages .image {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buttons {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.buttons button {
+  padding: 12px 32px;
+  border-radius: 4px;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.add {
+  background-color: #28a745;
+}
