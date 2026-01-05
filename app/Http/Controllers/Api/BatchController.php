@@ -28,11 +28,11 @@ class BatchController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'ProductID'       => 'nullable|integer',
-            'Quantity'        => 'required|integer|min:1',
-            'PriceIn'         => 'required|numeric|min:0',
-            'ProductionDate'  => 'required|date',
-            'Expiry'          => 'nullable|date',
+            'productID'       => 'nullable|integer',
+            'quantity'        => 'required|integer|min:1',
+            'priceIn'         => 'required|numeric|min:0',
+            'productionDate'  => 'required|date',
+            'expiry'          => 'nullable|date',
         ]);
 
         return $this->service->create($data);
@@ -41,11 +41,11 @@ class BatchController extends Controller
     public function update(Request $request, int $id)
     {
         $data = $request->validate([
-            'ProductID'       => 'nullable|integer',
-            'Quantity'        => 'nullable|integer|min:1',
-            'PriceIn'         => 'nullable|numeric|min:0',
-            'ProductionDate'  => 'nullable|date',
-            'Expiry'          => 'nullable|date',
+            'productID'       => 'nullable|integer',
+            'quantity'        => 'required|integer|min:1',
+            'priceIn'         => 'required|numeric|min:0',
+            'productionDate'  => 'required|date',
+            'expiry'          => 'nullable|date',
         ]);
 
         return $this->service->update($id, $data);

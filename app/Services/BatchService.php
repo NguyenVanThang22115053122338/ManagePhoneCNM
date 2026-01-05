@@ -24,13 +24,13 @@ class BatchService
     {
         $batch = new Batch();
 
-        $batch->Quantity       = $data['Quantity'];
-        $batch->PriceIn        = $data['PriceIn'];
-        $batch->Expiry         = $data['Expiry'] ?? null;
-        $batch->ProductionDate = $data['ProductionDate'];
+        $batch->Quantity       = $data['quantity'];
+        $batch->PriceIn        = $data['priceIn'];
+        $batch->Expiry         = $data['expiry'] ?? null;
+        $batch->ProductionDate = $data['productionDate'];
 
-        if (!empty($data['ProductID'])) {
-            $product = Product::find($data['ProductID']);
+        if (!empty($data['productID'])) {
+            $product = Product::find($data['productID']);
             if (!$product) {
                 throw new RuntimeException('Sản phẩm không tồn tại');
             }

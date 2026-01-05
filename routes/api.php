@@ -115,7 +115,7 @@ Route::middleware(['jwt'])->group(function () {
         Route::put('/brands/{id}', [BrandController::class, 'update']);
         Route::delete('/brands/{id}', [BrandController::class, 'destroy']);
 
-        //===== SUPPLIER (CRUD) =====
+        //===== SUPPLIER (CRUD) =====   
         Route::post('/suppliers', [SupplierController::Class, 'store']);
         Route::put('/suppliers/{id}', [SupplierController::class, 'update']);
         Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);

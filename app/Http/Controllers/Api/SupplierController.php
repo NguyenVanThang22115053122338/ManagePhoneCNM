@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class SupplierController extends Controller
 {
     protected SupplierService $service;
-    
+
     public function __construct(SupplierService $service)
     {
         $this->service = $service;
@@ -30,7 +30,7 @@ class SupplierController extends Controller
         $data = $request->validate([
             'supplierName'    => 'required|string'
         ]);
-
+    
         try {
             return $this->service->create($data);
         } catch (\RuntimeException $e) {
@@ -44,6 +44,7 @@ class SupplierController extends Controller
     public function update(Request $request, int $id)
     {
         $data = $request->validate([
+            'supplierId' => 'required|integer', 
             'supplierName'    => 'required|string'
         ]);
 
