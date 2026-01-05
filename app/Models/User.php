@@ -20,13 +20,19 @@ class User extends Authenticatable
         'Avatar',
         'Password',
         'googleId',
-        'RoleID'
+        'RoleID',
+        'is_verified',
+        'code',
+        'code_expires_at',
     ];
 
     protected $hidden = [
         'Password',
     ];
-
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'code_expires_at' => 'datetime',
+    ];
     // ===== RELATION =====
     public function role()
     {
