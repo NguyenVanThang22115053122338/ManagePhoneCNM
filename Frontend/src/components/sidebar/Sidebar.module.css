@@ -1,0 +1,53 @@
+.lo-sidebar {
+    width: 250px;
+    height: 100vh;
+    background: white;
+    position: fixed;
+    left: 0;
+    top: 0;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.lo-sidebar-header {
+    padding: 10px 20px;
+    font-size: 20px;
+    font-weight: bold;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.lo-menu {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.lo-menu-item {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+}
+
+.lo-menu-item:hover {
+    background-color: #f0f0f0;
+}
+
+.lo-menu-item.lo-active {
+    background-color: #f0f0f0;
+    border-left: 4px solid #2563eb;
+}
+
+.lo-menu-item i {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.lo-logout {
+    margin-top: auto;
+    color: #e11d48;
+    font-weight: 500;
+}
+

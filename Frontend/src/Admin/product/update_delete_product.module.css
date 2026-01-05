@@ -1,0 +1,124 @@
+.main {
+  max-width: 960px;
+  margin: auto;
+  padding: 32px 24px;
+  background: #f9fafb;
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  color: #2563eb;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.backBtn:hover {
+  text-decoration: underline;
+}
+
+.header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ===== FORM ===== */
+.form {
+  background: #ffffff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+/* ===== GROUP ===== */
+.group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.group label {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #0f172a;
+}
+
+.group input,
+.group textarea {
+  font-size: 15px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  transition: border 0.2s ease;
+}
+
+.group input:focus,
+.group textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ===== ROW ===== */
+.row {
+  display: flex;
+  gap: 20px;
+}
+
+/* ===== IMAGES ===== */
+.imageList {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.imageList img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+/* ===== BUTTON ===== */
+.updateBtn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 12px;
+}
+
+.updateBtn:hover {
+  opacity: 0.95;
+}
+
+.updateBtn:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ===== LOADING ===== */
+.loading {
+  text-align: center;
+  padding: 60px;
+  font-size: 16px;
+  color: #475569;
+}

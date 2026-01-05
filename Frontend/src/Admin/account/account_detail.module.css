@@ -1,0 +1,162 @@
+/* ================= CONTAINER ================= */
+.container {
+  max-width: 760px;
+  margin: 40px auto;
+  padding: 32px 36px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+  border-radius: 16px;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.08),
+    0 4px 10px rgba(0, 0, 0, 0.04);
+  animation: fadeIn 0.25s ease;
+}
+
+/* ================= TITLE ================= */
+.container h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 28px;
+  position: relative;
+}
+
+.container h1::after {
+  content: "";
+  width: 56px;
+  height: 4px;
+  background: linear-gradient(90deg, #4c84ff, #3b6fe0);
+  display: block;
+  margin-top: 10px;
+  border-radius: 4px;
+}
+
+/* ================= LABEL ================= */
+.container label {
+  display: block;
+  margin-bottom: 6px;
+  margin-top: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4b5563;
+  letter-spacing: 0.02em;
+}
+
+/* ================= INPUT ================= */
+.container input[type="text"],
+.container input[type="email"],
+.container input:not([type]) {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  background-color: #fff;
+  transition: all 0.2s ease;
+}
+
+.container input::placeholder {
+  color: #9ca3af;
+}
+
+.container input:focus {
+  outline: none;
+  border-color: #4c84ff;
+  box-shadow: 0 0 0 3px rgba(76, 132, 255, 0.18);
+}
+
+/* ================= FILE INPUT ================= */
+.container input[type="file"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px dashed #c7d2fe;
+  background-color: #f8faff;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.container input[type="file"]::file-selector-button {
+  background: linear-gradient(135deg, #4c84ff, #3b6fe0);
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin-right: 14px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.container input[type="file"]::file-selector-button:hover {
+  background: linear-gradient(135deg, #3b6fe0, #345fd1);
+}
+
+/* ================= ACTIONS ================= */
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* ================= BUTTON ================= */
+.actions button {
+  padding: 12px 22px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+/* Save */
+.actions button:first-child {
+  background: linear-gradient(135deg, #4c84ff, #3b6fe0);
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(76, 132, 255, 0.35);
+}
+
+.actions button:first-child:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(76, 132, 255, 0.45);
+}
+
+/* Cancel */
+.actions button:last-child {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.actions button:last-child:hover {
+  background-color: #e5e7eb;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 640px) {
+  .container {
+    padding: 24px;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .actions button {
+    width: 100%;
+  }
+}

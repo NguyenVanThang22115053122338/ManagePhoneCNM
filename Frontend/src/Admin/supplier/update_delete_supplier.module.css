@@ -1,0 +1,93 @@
+.mainContent {
+  padding: 24px 32px;
+  background-color: #f5f6fa;
+  min-height: 100vh;
+}
+
+/* Tiêu đề */
+.mainContent h1 {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #2c3e50;
+}
+
+/* Khối form */
+.formSection {
+  background: #ffffff;
+  padding: 24px 28px;
+  border-radius: 10px;
+  max-width: 520px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Label */
+.formSection label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #34495e;
+}
+
+/* Input */
+.formSection input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #dcdde1;
+  border-radius: 6px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.formSection input:focus {
+  border-color: #3498db;
+}
+
+/* Nút */
+.buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Button update */
+.update {
+  flex: 1;
+  padding: 10px 0;
+  background-color: #3498db;
+  color: #ffffff;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.update:hover {
+  background-color: #2980b9;
+}
+
+/* Button delete */
+.delete {
+  flex: 1;
+  padding: 10px 0;
+  background-color: #e74c3c;
+  color: #ffffff;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.delete:hover {
+  background-color: #c0392b;
+}
+
+/* Disabled */
+button:disabled,
+input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
