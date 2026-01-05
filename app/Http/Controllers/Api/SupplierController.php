@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Services\SupplierService;
+use App\Requests\SupplierRequest;
 use Illuminate\Http\Request;
 
 class SupplierController extends Controller
@@ -25,11 +26,9 @@ class SupplierController extends Controller
         return $this->service->getById($id);
     }
 
-    public function store(Request $request)
+    public function store(SupplierRequest $request)
     {
-        $data = $request->validate([
-            'supplierName'    => 'required|string'
-        ]);
+        $data = $request->validated();
     
         try {
             return $this->service->create($data);
@@ -40,13 +39,9 @@ class SupplierController extends Controller
         }
     }
 
-
-    public function update(Request $request, int $id)
+    public function update(SupplierRequest $request, int $id)
     {
-        $data = $request->validate([
-            'supplierId' => 'required|integer', 
-            'supplierName'    => 'required|string'
-        ]);
+        $data = $request->validated();
 
         return $this->service->update($id, $data);
     }

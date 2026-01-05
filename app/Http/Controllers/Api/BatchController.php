@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\BatchService;
 use Illuminate\Http\Request;
+use App\Requests\BatchRequest;
 
 class BatchController extends Controller
 {
@@ -25,28 +26,16 @@ class BatchController extends Controller
         return $this->service->getById($id);
     }
 
-    public function store(Request $request)
+    public function store(BatchRequest $request)
     {
-        $data = $request->validate([
-            'productID'       => 'nullable|integer',
-            'quantity'        => 'required|integer|min:1',
-            'priceIn'         => 'required|numeric|min:0',
-            'productionDate'  => 'required|date',
-            'expiry'          => 'nullable|date',
-        ]);
+        $data = $request->validated();
 
         return $this->service->create($data);
     }
 
-    public function update(Request $request, int $id)
+    public function update(BatchRequest $request, int $id)
     {
-        $data = $request->validate([
-            'productID'       => 'nullable|integer',
-            'quantity'        => 'required|integer|min:1',
-            'priceIn'         => 'required|numeric|min:0',
-            'productionDate'  => 'required|date',
-            'expiry'          => 'nullable|date',
-        ]);
+         $data = $request->validated();
 
         return $this->service->update($id, $data);
     }
