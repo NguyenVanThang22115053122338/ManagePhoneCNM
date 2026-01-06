@@ -67,7 +67,7 @@ class UserController extends Controller
         ]);
     }
 
-    public function loginWithGoogle(VerifyCodeRequest $request)
+    public function loginWithGoogle(LoginWithGoogleRequest $request)
     {
         // VERIFY ID TOKEN WITH GOOGLE
         $response = Http::withOptions([
