@@ -26,6 +26,25 @@ export const login = async (
     }
 };
 
+export const loginWithGoogle=async(
+  idToken: string
+): Promise<LoginResponse>=>{
+      try {
+          const response = await axiosClient.post<LoginResponse>(
+            'api/user/login-google',
+            { 
+                id_token:idToken
+            }
+          );
+          return response.data;
+      } catch (error: any) {
+        if(axios.isAxiosError(error)&&error.response){
+          throw new Error(error.response.data.message || 'Đăng nhập thất bại');
+        }
+        throw new Error('Đăng nhập thất bại');
+       }
+}
+
 export const register = async (
     userData: IRegisterRequest
 ): Promise<void> => {
