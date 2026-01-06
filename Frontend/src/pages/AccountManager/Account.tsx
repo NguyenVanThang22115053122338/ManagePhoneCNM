@@ -210,7 +210,7 @@ const AccountPage: React.FC = () => {
               </div>
               <div className="info-item">
                 <label>Vai trò</label>
-                <p>{user.role === 1 ? 'Quản trị viên' : 'Khách hàng'}</p>
+                <p>{user.role === 1 ? 'Khách hàng' : 'Quản trị viên'}</p>
               </div>
             </div>
           </div>
