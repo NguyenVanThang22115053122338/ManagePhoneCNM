@@ -61,7 +61,7 @@ const Header = () => {
     () =>
       categories.map(c => ({
         key: `cat-${c.categoryId}`,
-        label: c.description ?? c.categoryName,
+        label: c.categoryName,
         route: `/products`,
       })),
     [categories]

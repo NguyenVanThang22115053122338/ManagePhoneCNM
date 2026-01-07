@@ -45,7 +45,7 @@ export interface IUser {
     email?: string;
     address?: string;
     avatar?: string | null;
-    role: number;
+    role?: number;
 }
 
 
@@ -211,4 +211,33 @@ export interface IReview {
     comment: string;
     photoUrl?: string;
     videoUrl?: string;
+}
+
+export interface Brand {
+  brandId: number;
+  name: string;
+  country: string;
+  description?: string;
+}
+
+export interface BrandCreateRequest {
+  name: string;
+  country: string;
+  description?: string;
+}
+
+export interface OrderResponse {
+  orderID: number;
+  orderDate: string;
+  status: string;
+  paymentMethod?: string;
+  userID?: number;
+  note?: string;
+}
+
+export interface OrderDetailResponse {
+  id: number;
+  orderId: number;
+  productId: number;
+  quantity: number;
 }
