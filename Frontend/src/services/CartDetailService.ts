@@ -4,15 +4,19 @@ import type { CartDetailResponse, AddToCartRequest } from "../services/Interface
 const cartDetailService = {
     getByCartId(cartId: number): Promise<CartDetailResponse[]> {
         return axiosClient
-            .get<CartDetailResponse[]>(`/api/cart-details/cart/${cartId}`)
-            .then(res => res.data);
+            .get(`/api/cart-details/cart/${cartId}`)
+            .then(res => res.data.data);
     },
 
     addToCart(data: AddToCartRequest): Promise<CartDetailResponse> {
         return axiosClient
-            .post<CartDetailResponse>("/api/cart-details", data)
+            .post<CartDetailResponse>("/api/cart-details", {
+                cartId: data.cartId,
+                ProductID: data.ProductID,
+            })
             .then(res => res.data);
     },
+
 
     delete(cartDetailsId: number): Promise<void> {
         return axiosClient.delete(`/api/cart-details/${cartDetailsId}`);

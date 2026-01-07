@@ -10,11 +10,13 @@ class CartDetail extends Model
     use HasFactory;
 
     protected $table = 'cart_details';
-    protected $primaryKey = 'cartDetailsId';
+
+    protected $primaryKey = 'cartDetailsId'; // ← KHỚP DB
+
 
     protected $fillable = [
         'CartID',
-        'ProductID'
+        'ProductID',
     ];
 
     // ===== RELATION =====

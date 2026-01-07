@@ -1,11 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CartPage.css";
+
 import orderService from "../../services/OrderService";
 import orderDetailService from "../../services/OrderDetailService";
+import cartDetailService from "../../services/CartDetailService";
 
 import { useAuth } from "../../context/AuthContext";
-import cartDetailService from "../../services/CartDetailService";
+import { normalizeProduct } from "../../adapter/normalizeProduct";
 
 import type { IProduct, CartDetailResponse } from "../../services/Interface";
 
@@ -22,7 +24,7 @@ const CartPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-
+  // ================= LOAD CART =================
   useEffect(() => {
     const loadCart = async () => {
       const cartIdStr = localStorage.getItem("cartId");
@@ -33,18 +35,21 @@ const CartPage: React.FC = () => {
         return;
       }
 
+      const cartId = Number(cartIdStr);
+      if (Number.isNaN(cartId)) {
+        localStorage.removeItem("cartId");
+        setCartItems([]);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const cartId = Number(cartIdStr);
-        if (Number.isNaN(cartId)) {
-          localStorage.removeItem("cartId");
-          setCartItems([]);
-          return;
-        }
+        const details: CartDetailResponse[] =
+          await cartDetailService.getByCartId(cartId);
 
-        const details = await cartDetailService.getByCartId(cartId);
-
+        // ✅ QUAN TRỌNG: normalize product
         const items: CartItem[] = details.map((detail) => ({
-          ...detail.product,
+          ...normalizeProduct(detail.product),
           quantity: 1,
           cartDetailsId: detail.cartDetailsId,
         }));
@@ -61,7 +66,7 @@ const CartPage: React.FC = () => {
     loadCart();
   }, []);
 
-
+  // ================= UPDATE QUANTITY (FE ONLY) =================
   const updateQuantity = (productId: number, delta: number) => {
     setCartItems((prev) =>
       prev.map((item) =>
@@ -72,17 +77,20 @@ const CartPage: React.FC = () => {
     );
   };
 
+  // ================= REMOVE ITEM =================
   const removeItem = async (cartDetailsId: number) => {
     try {
       await cartDetailService.delete(cartDetailsId);
       setCartItems((prev) =>
         prev.filter((item) => item.cartDetailsId !== cartDetailsId)
       );
-    } catch {
+    } catch (err) {
+      console.error(err);
       alert("Không thể xoá sản phẩm");
     }
   };
 
+  // ================= CONFIRM ORDER =================
   const handleConfirmOrder = async () => {
     if (isPlacingOrder) return;
 
@@ -102,11 +110,11 @@ const CartPage: React.FC = () => {
         return;
       }
 
+      const userObj = JSON.parse(userStr);
       const cartId = Number(cartIdStr);
-      const user = JSON.parse(userStr);
 
       const order = await orderService.create({
-        userID: user.userId,
+        userID: userObj.userId,
         status: "PENDING",
         paymentStatus: "UNPAID",
       });
@@ -127,7 +135,6 @@ const CartPage: React.FC = () => {
       localStorage.removeItem("cartId");
 
       navigate(`/order/${orderId}`);
-
     } catch (err) {
       console.error(err);
       alert("Đặt hàng thất bại");
@@ -136,6 +143,7 @@ const CartPage: React.FC = () => {
     }
   };
 
+  // ================= TOTAL PRICE =================
   const totalPrice = useMemo(
     () =>
       cartItems.reduce(
@@ -147,6 +155,7 @@ const CartPage: React.FC = () => {
 
   if (loading) return <div className="loading">Đang tải giỏ hàng...</div>;
 
+  // ================= RENDER =================
   return (
     <div className="cart-page">
       <div className="cart-container">
@@ -175,11 +184,11 @@ const CartPage: React.FC = () => {
 
                 <div className="quantity-and-price">
                   <div className="quantity-box">
-                    <button onClick={() => updateQuantity(item.productId ?? 0, -1)}>
+                    <button onClick={() => updateQuantity(item.productId!, -1)}>
                       -
                     </button>
                     <span>{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.productId ?? 0, 1)}>
+                    <button onClick={() => updateQuantity(item.productId!, 1)}>
                       +
                     </button>
                   </div>
@@ -217,11 +226,10 @@ const CartPage: React.FC = () => {
         <div className="cart-right">
           <h2>Thông tin đặt hàng</h2>
 
-          <form className="checkout-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Chưa tích hợp đặt hàng");
-            }}>
+          <form
+            className="checkout-form"
+            onSubmit={(e) => e.preventDefault()}
+          >
             <input
               type="text"
               placeholder="Họ và tên *"
@@ -250,6 +258,7 @@ const CartPage: React.FC = () => {
           </form>
         </div>
       </div>
+
       {isPlacingOrder && (
         <div className="fullscreen-loading">
           <div className="loading-box">
