@@ -1,124 +1,180 @@
+/* ================= PAGE ================= */
 .main {
-  max-width: 960px;
-  margin: auto;
-  padding: 32px 24px;
-  background: #f9fafb;
-}
+  min-height: 100vh;
+  padding: 24px;
+  background: #f4f6fb;
 
-/* ===== HEADER ===== */
-.header {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
+  flex-direction: column;  
+  align-items: center;    
 }
 
-.backBtn {
-  background: none;
-  border: none;
-  color: #2563eb;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 4px 0;
-}
-
-.backBtn:hover {
-  text-decoration: underline;
-}
-
-.header h1 {
-  font-size: 26px;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-/* ===== FORM ===== */
-.form {
-  background: #ffffff;
-  padding: 32px;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
-/* ===== GROUP ===== */
-.group {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
-}
-
-.group label {
-  font-size: 15px;
+/* ================= TITLE ================= */
+.main h1 {
+  width: 100%;
+  max-width: 760px;
+  margin-bottom: 18px;
+  font-size: 22px;
   font-weight: 600;
-  margin-bottom: 8px;
-  color: #0f172a;
+  color: #1f2937;
 }
 
-.group input,
-.group textarea {
-  font-size: 15px;
+/* ================= FORM CARD ================= */
+.form {
+  width: 100%;
+  max-width: 760px;
+  background: #ffffff;
+  padding: 28px 32px 34px;
+  border-radius: 16px;
+
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+/* ================= LABEL ================= */
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* ================= INPUT / SELECT / TEXTAREA ================= */
+input,
+select,
+textarea {
+  width: 100% !important;
   padding: 12px 14px;
+  font-size: 14px;
   border-radius: 10px;
-  border: 1px solid #d1d5db;
-  transition: border 0.2s ease;
+
+  border: 1.5px solid #cbd5e1 !important;
+  background-color: #ffffff !important;
+  color: #111827;
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.group input:focus,
-.group textarea:focus {
+/* textarea riêng */
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* focus */
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
-  border-color: #2563eb;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* ===== ROW ===== */
+/* ================= ROW (GIÁ + SỐ LƯỢNG) ================= */
 .row {
-  display: flex;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
 }
 
-/* ===== IMAGES ===== */
+/* ================= FILE INPUT ================= */
+input[type="file"] {
+  padding: 12px 14px;
+  border: 1.5px dashed #93c5fd !important;
+  border-radius: 10px;
+  background: #f8fafc;
+  cursor: pointer;
+}
+
+input[type="file"]:hover {
+  background: #eef2ff;
+}
+
+/* ================= IMAGE LIST ================= */
 .imageList {
   display: flex;
-  gap: 14px;
   flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 12px;
 }
 
+/* ảnh hiện tại + preview */
 .imageList img {
   width: 110px;
   height: 110px;
   object-fit: cover;
   border-radius: 12px;
+
   border: 1px solid #e5e7eb;
-  background: #fff;
+  background: #f9fafb;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* ===== BUTTON ===== */
-.updateBtn {
-  width: 100%;
-  padding: 14px;
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: #ffffff;
-  border: none;
-  border-radius: 12px;
-  font-size: 16px;
+.imageList img:hover {
+  transform: scale(1.04);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
+}
+
+/* ================= UPDATE BUTTON ================= */
+button {
+  margin-top: 22px;
+  padding: 13px 22px;
+  font-size: 15px;
   font-weight: 600;
+  border-radius: 12px, #000000; 
+  border: none;
   cursor: pointer;
-  margin-top: 12px;
+  color: #000000;
+  background: linear-gradient(135deg, #4966a6, #1d4ed8);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
 }
 
-.updateBtn:hover {
-  opacity: 0.95;
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.35);
 }
 
-.updateBtn:disabled {
-  background: #94a3b8;
+button:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }
 
-/* ===== LOADING ===== */
+/* ================= DELETE BUTTON ================= */
+.deleteBtn {
+  margin-top: 10px;
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+}
+
+.deleteBtn:hover {
+  box-shadow: 0 10px 26px rgba(220, 38, 38, 0.35);
+}
+
+/* ================= LOADING ================= */
 .loading {
+  padding: 48px;
   text-align: center;
-  padding: 60px;
-  font-size: 16px;
-  color: #475569;
+  font-size: 15px;
+  color: #6b7280;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .form {
+    padding: 22px 20px;
+  }
+
+  .row {
+    grid-template-columns: 1fr;
+  }
+
+  .imageList img {
+    width: 90px;
+    height: 90px;
+  }
 }
