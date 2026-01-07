@@ -10,6 +10,17 @@ export interface LoginResponse {
     cartId: number;
 }
 
+
+export interface ResendMailResponse {
+    message: string
+}
+
+export interface RegisterResponse {
+    userId: number;
+    is_verified: boolean;
+    need_verify: boolean;
+    message: string;
+}
 export interface IRegisterRequest {
     sdt: string;
     hoVaTen: string;
@@ -18,7 +29,9 @@ export interface IRegisterRequest {
     matKhau: string;
     role?: number;
 }
-
+export interface VerifyMailResponse {
+    message: string
+}
 
 export interface IRole {
     roleId: number;

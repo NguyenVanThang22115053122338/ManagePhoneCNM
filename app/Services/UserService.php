@@ -13,8 +13,36 @@ class UserService
 {
     public function register(array $data)
     {
-        if (User::where('SDT',$data['sdt'])->exists()) {
+        $userByPhone = User::where('SDT', $data['sdt'])->first();
+
+        if (
+            User::where('Email', $data['email'])
+                ->where('SDT', '!=', $data['sdt'])
+                ->exists()
+        ) {
+            throw new \Exception('Email đã tồn tại');
+        }
+
+        if ($userByPhone && $userByPhone->is_verified) {
             throw new \Exception('SĐT đã tồn tại');
+        }
+
+        if ($userByPhone && !$userByPhone->is_verified) {
+            $userByPhone->update([
+                'code' => Str::random(6),
+                'code_expires_at' => now()->addMinutes(2),
+            ]);
+
+            Mail::to($userByPhone->Email)->send(
+                new SendCodeVerifyEmail($userByPhone->code)
+            );
+
+            return [
+                'userId'      => $userByPhone->UserID,
+                'is_verified' => false,
+                'need_verify' => true,
+                'message'     => 'Tài khoản chưa được xác thực. Đã gửi lại mã.',
+            ];
         }
 
         $user = User::create([
@@ -24,18 +52,21 @@ class UserService
             'Email' => $data['email'],
             'Address' => $data['diaChi'],
             'RoleID' => 1,
+            'is_verified' => false,
             'code' => Str::random(6),
-            'code_expires_at' => now()->addMinutes(10),
+            'code_expires_at' => now()->addMinutes(2),
         ]);
 
-        Mail::to($user->Email)->send(new SendCodeVerifyEmail($user->code));
+        Mail::to($user->Email)->send(
+            new SendCodeVerifyEmail($user->code)
+        );
 
-        Cart::create([
-            'UserID'=>$user->UserID,
-            'status'=>'ACTIVE'
-        ]);
-
-        return $user;
+        return [
+            'userId'      => $user->UserID,
+            'is_verified' => false,
+            'need_verify' => true,
+            'message'     => 'Vui lòng xác thực email',
+        ];
     }
 
     public function findByCredentials(string $input)
@@ -106,7 +137,7 @@ class UserService
         }
 
         $code = Str::random(6);
-        $expiresAt = now()->addMinutes(10);
+        $expiresAt = now()->addMinutes(2);
         $user->code = $code;
         $user->code_expires_at = $expiresAt;
         $user->save();

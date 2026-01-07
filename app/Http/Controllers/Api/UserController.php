@@ -29,10 +29,12 @@ class UserController extends Controller
     public function register(RegisterRequest $req)
     {
         try{
-            $this->userService->register($req->all());
-            return response()->json('Đăng ký thành công');
+            $result = $this->userService->register($req->all());
+            return response()->json($result, 200);
         }catch(\Exception $e){
-            return response()->json($e->getMessage(), 400);
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
         }
     }
 
@@ -63,6 +65,7 @@ class UserController extends Controller
             'avatar'=>$user->Avatar,
             'role'=>$user->RoleID,
             'cartId'=>$cart->CartID,
+            'is_verified'=>$user->is_verified,
             'token'=>$token
         ]);
     }
@@ -122,7 +125,7 @@ class UserController extends Controller
                 $request->code
             );
             return response()->json([
-                'message' => 'Email verified successfully',
+                'message' => 'Xác thực Email thành công',
                 'user' => $result['user']
             ]);
         } catch (\Exception $e) {
