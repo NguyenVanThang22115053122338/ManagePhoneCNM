@@ -1,0 +1,101 @@
+/* ===== PAGE ===== */
+.container {
+  padding: 32px 24px;
+  background: #f6f8fb;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  color: #111827;
+}
+
+/* ===== CARD ===== */
+.card {
+  width: 520px;
+  background: #ffffff;
+  padding: 28px 28px 24px;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== TITLE ===== */
+.card h1 {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 18px;
+  color: #111827;
+}
+
+/* ===== FORM ===== */
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  color: #111827;
+  transition: 0.2s;
+  background: #fff;
+}
+
+.form textarea {
+  min-height: 110px;
+  resize: vertical;
+}
+
+.form input::placeholder,
+.form textarea::placeholder {
+  color: #9ca3af;
+}
+
+.form input:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* ===== ACTIONS ===== */
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.actions button {
+  padding: 12px 26px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.actions button:first-child {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.actions button:first-child:hover {
+  background: #1d4ed8;
+}
+
+.cancel {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.cancel:hover {
+  background: #d1d5db;
+}
+
+/* ===== DISABLED (loading) ===== */
+.actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

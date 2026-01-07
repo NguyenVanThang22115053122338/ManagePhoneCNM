@@ -1,0 +1,248 @@
+.payment-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f8f8f8;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #333;
+}
+
+.voucher-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.voucher-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.apply-btn {
+  padding: 0 24px;
+  background-color: #eee;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.summary-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+.summary-row.discount {
+  color: #d70018;
+}
+
+.free-shipping {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 0 12px;
+  border-top: 1px solid #eee;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.total-amount {
+  color: #d70018;
+  font-size: 20px;
+}
+
+.vat-note {
+  font-size: 14px;
+  color: #888;
+  text-align: right;
+  margin-top: 4px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin: 0 0 16px 0;
+  color: #333;
+}
+
+.payment-options .option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.payment-options .option img {
+  width: 32px;
+  height: 20px;
+  border-radius: 4px;
+}
+
+.payment-options .arrow {
+  font-size: 24px;
+  color: #d70018;
+}
+
+.delivery-info {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  font-size: 16px;
+}
+
+.info-row.note {
+  align-items: flex-start;
+}
+
+.customer-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  background-color: #ff4d94;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 20px 0;
+  font-size: 15px;
+}
+
+.terms input[type="checkbox"] {
+  margin-top: 3px;
+  accent-color: #d70018;
+}
+
+.terms-note {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 40px;
+}
+
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  padding: 12px 20px;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.final-total {
+  font-size: 16px;
+}
+
+.final-amount {
+  font-size: 20px;
+  font-weight: bold;
+  color: #d70018;
+}
+
+.pay-button {
+  background-color: #d70018;
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.product-check {
+  text-align: center;
+  padding: 12px;
+  font-size: 15px;
+  color: #007bff;
+  cursor: pointer;
+  margin-top: 80px; /* để tránh bị bottom bar che */
+}
+
+.fullscreen-loading {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-box {
+  background: #fff;
+  padding: 28px 36px;
+  border-radius: 14px;
+  min-width: 280px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+
+.spinner-lg {
+  width: 44px;
+  height: 44px;
+  border: 4px solid #e0e0e0;
+  border-top: 4px solid #111;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

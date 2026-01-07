@@ -1,0 +1,26 @@
+import axiosClient from "./AxiosClient";
+import type { CartDetailResponse, AddToCartRequest } from "../services/Interface";
+
+const cartDetailService = {
+    getByCartId(cartId: number): Promise<CartDetailResponse[]> {
+        return axiosClient
+            .get<CartDetailResponse[]>(`/api/cart-details/cart/${cartId}`)
+            .then(res => res.data);
+    },
+
+    addToCart(data: AddToCartRequest): Promise<CartDetailResponse> {
+        return axiosClient
+            .post<CartDetailResponse>("/api/cart-details", data)
+            .then(res => res.data);
+    },
+
+    delete(cartDetailsId: number): Promise<void> {
+        return axiosClient.delete(`/api/cart-details/${cartDetailsId}`);
+    },
+
+    deleteByCartId(cartId: number): Promise<void> {
+        return axiosClient.delete(`/api/cart-details/cart/${cartId}`);
+    },
+};
+
+export default cartDetailService;

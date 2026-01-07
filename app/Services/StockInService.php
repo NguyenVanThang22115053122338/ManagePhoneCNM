@@ -1,0 +1,101 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\StockIn;
+use App\Models\Batch;
+use App\Models\User;
+use App\Resources\StockInResource;
+use Carbon\Carbon;
+
+class StockInService
+{
+    // Lấy tất cả phiếu nhập
+    public function getAll()
+    {
+        $stockIns = StockIn::all();
+        return StockInResource::collection($stockIns);
+    }
+
+    // Lấy theo ID
+    public function getById($id)
+    {
+        $stockIn = StockIn::findOrFail($id);
+        return new StockInResource($stockIn);
+    }
+
+    // Tạo mới phiếu nhập
+    public function create(array $data, $request)
+    {
+        // Lấy user từ JWT token
+        $jwtUser = $request->attributes->get('jwt_user');
+        $user = User::where('Email', $jwtUser->sub)
+                    ->orWhere('SDT', $jwtUser->sub)
+                    ->first();
+        
+        if (!$user) {
+            throw new \Exception('Người dùng không tồn tại');
+        }
+
+        // Kiểm tra batch nếu có
+        if (!empty($data['BatchID'])) {
+            $batch = Batch::find($data['BatchID']);
+            if (!$batch) {
+                throw new \Exception('Lô hàng không tồn tại');
+            }
+        }
+
+        // Tạo stock in
+        $stockIn = StockIn::create([
+            'BatchID' => $data['BatchID'] ?? null,
+            'UserID' => $user->UserID,
+            'quantity' => $data['quantity'],
+            'note' => $data['note'] ?? null,
+            'date' => $data['date'] ?? Carbon::now()
+        ]);
+
+        return new StockInResource($stockIn);
+    }
+
+    // Cập nhật phiếu nhập
+    public function update($id, array $data, $request)
+    {
+        $stockIn = StockIn::findOrFail($id);
+
+        // Lấy user từ JWT token
+        $jwtUser = $request->attributes->get('jwt_user');
+        $user = User::where('Email', $jwtUser->sub)
+                    ->orWhere('SDT', $jwtUser->sub)
+                    ->first();
+        
+        if (!$user) {
+            throw new \Exception('Người dùng không tồn tại');
+        }
+
+        // Kiểm tra batch nếu có
+        if (!empty($data['BatchID'])) {
+            $batch = Batch::find($data['BatchID']);
+            if (!$batch) {
+                throw new \Exception('Lô hàng không tồn tại');
+            }
+        }
+
+        // Cập nhật
+        $stockIn->update([
+            'BatchID' => $data['BatchID'] ?? $stockIn->BatchID,
+            'UserID' => $user->UserID,
+            'quantity' => $data['quantity'] ?? $stockIn->quantity,
+            'note' => $data['note'] ?? $stockIn->note,
+            'date' => $data['date'] ?? $stockIn->date
+        ]);
+
+        return new StockInResource($stockIn);
+    }
+
+    // Xoá phiếu nhập
+    public function delete($id)
+    {
+        $stockIn = StockIn::findOrFail($id);
+        $stockIn->delete();
+    }
+}
