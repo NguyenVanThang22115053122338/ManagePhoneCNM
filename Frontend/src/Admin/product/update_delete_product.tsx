@@ -1,34 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import styles from "./update_delete_product.module.css";
+import { useNavigate, useParams } from "react-router-dom";
 import productService from "../../services/ProductService";
-import type { ProductImage } from "../../services/Interface";
-
-interface ProductForm {
-  name: string;
-  price: string;
-  stockQuantity: string;
-  description: string;
-  images: File[];
-}
+import type { IProduct } from "../../services/Interface";
+import styles from "./update_delete_product.module.css";
 
 const UpdateDeleteProduct: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id } = useParams();
   const navigate = useNavigate();
   const productId = Number(id);
 
   const [loading, setLoading] = useState(true);
-  const [updating, setUpdating] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState<ProductForm>({
-    name: "",
-    price: "",
-    stockQuantity: "",
-    description: "",
-    images: [],
-  });
+  const [product, setProduct] = useState<IProduct | null>(null);
 
-  const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
+  const [newImages, setNewImages] = useState<File[]>([]);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
 
   // ================= LOAD PRODUCT =================
@@ -37,19 +23,10 @@ const UpdateDeleteProduct: React.FC = () => {
 
     const loadProduct = async () => {
       try {
-        const product = await productService.getProductById(productId);
-
-        setForm({
-          name: product.name,
-          price: String(product.price),
-          stockQuantity: String(product.stockQuantity),
-          description: product.description || "",
-          images: [],
-        });
-
-        setExistingImages(product.productImages || []);
+        const data = await productService.getProductById(productId);
+        setProduct(data);
       } catch (err) {
-        console.error("Load product failed", err);
+        console.error(err);
         alert("Không tải được sản phẩm");
       } finally {
         setLoading(false);
@@ -63,103 +40,139 @@ const UpdateDeleteProduct: React.FC = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
+    if (!product) return;
+
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+
+    setProduct({
+      ...product,
+      [name]:
+        name === "price" || name === "stockQuantity"
+          ? Number(value)
+          : value
+    });
   };
 
-  // ================= HANDLE IMAGE =================
+  // ================= IMAGE UPLOAD =================
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    setForm(prev => ({ ...prev, images: files }));
+    setNewImages(files);
     setPreviewImages(files.map(file => URL.createObjectURL(file)));
   };
 
   // ================= UPDATE =================
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    setUpdating(true);
+    if (!product) return;
 
+    setSaving(true);
     try {
-      await productService.updateProduct(productId, {
-        name: form.name,
-        price: Number(form.price),
-        stockQuantity: Number(form.stockQuantity),
-        description: form.description,
-        brandId: 1,
-        categoryId: 1,
-        specification: null
-        // ❌ KHÔNG gửi productImages
-      });
+      await productService.updateProduct(productId, product);
 
-      if (form.images.length > 0) {
-        await productService.uploadProductImages(productId, form.images);
+      if (newImages.length > 0) {
+        await productService.uploadProductImages(productId, newImages);
       }
 
-      alert("✅ Cập nhật sản phẩm thành công!");
+      alert("✅ Cập nhật sản phẩm thành công");
       navigate("/admin/products");
     } catch (err) {
-      console.error("Update failed", err);
+      console.error(err);
       alert("Cập nhật thất bại");
     } finally {
-      setUpdating(false);
+      setSaving(false);
     }
   };
 
-  if (loading) return <p className={styles.loading}>Đang tải dữ liệu...</p>;
+  // ================= DELETE =================
+  const handleDelete = async () => {
+    if (!window.confirm("Xóa sản phẩm này vĩnh viễn?")) return;
+
+    try {
+      await productService.deleteProduct(productId);
+      alert("Đã xóa sản phẩm");
+      navigate("/admin/products");
+    } catch (err) {
+      console.error(err);
+      alert("Xóa thất bại");
+    }
+  };
+
+  if (loading || !product) {
+    return <p className={styles.loading}>Đang tải dữ liệu…</p>;
+  }
 
   return (
     <main className={styles.main}>
-      <div className={styles.header}>
-        <button className={styles.backBtn} onClick={() => navigate(-1)}>
-          ← Quay lại
-        </button>
-        <h1>Cập nhật sản phẩm</h1>
-      </div>
+      <h1>Cập nhật sản phẩm</h1>
 
       <form onSubmit={handleUpdate} className={styles.form}>
-        <div className={styles.group}>
-          <label>Tên sản phẩm</label>
-          <input name="name" value={form.name} onChange={handleChange} required />
-        </div>
+        <label>Tên sản phẩm</label>
+        <input
+          name="name"
+          value={product.name}
+          onChange={handleChange}
+          required
+        />
 
         <div className={styles.row}>
-          <div className={styles.group}>
+          <div>
             <label>Giá</label>
-            <input type="number" name="price" value={form.price} onChange={handleChange} required />
+            <input
+              type="number"
+              name="price"
+              value={product.price}
+              onChange={handleChange}
+              required
+            />
           </div>
 
-          <div className={styles.group}>
+          <div>
             <label>Số lượng</label>
-            <input type="number" name="stockQuantity" value={form.stockQuantity} onChange={handleChange} required />
+            <input
+              type="number"
+              name="stockQuantity"
+              value={product.stockQuantity}
+              onChange={handleChange}
+              required
+            />
           </div>
         </div>
 
-        <div className={styles.group}>
-          <label>Mô tả</label>
-          <textarea name="description" rows={4} value={form.description} onChange={handleChange} />
+        <label>Mô tả</label>
+        <textarea
+          name="description"
+          value={product.description || ""}
+          onChange={handleChange}
+        />
+
+        {/* Ảnh hiện tại – chỉ hiển thị */}
+        <label>Ảnh hiện tại</label>
+        <div className={styles.imageList}>
+          {product.productImages?.map(img => (
+            <img key={img.id} src={img.url} alt="" />
+          ))}
         </div>
 
-        <div className={styles.group}>
-          <label>Ảnh hiện tại</label>
-          <div className={styles.imageList}>
-            {existingImages.map(img => (
-              <img key={img.id} src={img.url} alt="" />
-            ))}
-          </div>
+        {/* Ảnh mới */}
+        <label>Upload ảnh mới</label>
+        <input type="file" multiple accept="image/*" onChange={handleImageChange} />
+
+        <div className={styles.imageList}>
+          {previewImages.map((src, i) => (
+            <img key={i} src={src} alt="" />
+          ))}
         </div>
 
-        <div className={styles.group}>
-          <label>Upload ảnh mới</label>
-          <input type="file" multiple accept="image/*" onChange={handleImageChange} />
-          <div className={styles.imageList}>
-            {previewImages.map((src, idx) => (
-              <img key={idx} src={src} alt="" />
-            ))}
-          </div>
-        </div>
+        <button type="submit" disabled={saving}>
+          {saving ? "Đang cập nhật…" : "Cập nhật"}
+        </button>
 
-        <button type="submit" className={styles.updateBtn} disabled={updating}>
-          {updating ? "Đang cập nhật..." : "Cập nhật"}
+        <button
+          type="button"
+          className={styles.deleteBtn}
+          onClick={handleDelete}
+        >
+          Xóa sản phẩm
         </button>
       </form>
     </main>
