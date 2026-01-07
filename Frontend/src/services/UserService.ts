@@ -2,7 +2,7 @@ import axios, { isAxiosError } from 'axios';
 import type { LoginResponse } from './Interface';
 import axiosClient from './AxiosClient';
 import type { IUser } from './Interface';
-import type { IRegisterRequest } from './Interface';
+import type { IRegisterRequest, RegisterResponse, VerifyMailResponse, ResendMailResponse  } from './Interface';
 
 export const login = async (
     sdt: string,
@@ -47,15 +47,49 @@ export const loginWithGoogle=async(
 
 export const register = async (
     userData: IRegisterRequest
-): Promise<void> => {
+): Promise<RegisterResponse> => {
     try {
-        await axiosClient.post("/api/user/register", userData);
+      const res = await axiosClient.post("/api/user/register", userData);
+      return res.data;
     } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
             throw new Error(error.response?.data?.message || "Đăng ký thất bại");
         }
         throw new Error("Đăng ký thất bại");
     }
+};
+
+export const verifyMail = async (
+    Email: string,
+    code: string
+): Promise<VerifyMailResponse> => {
+  try {
+    const res = await axiosClient.post("/api/user/verify-email",
+      {
+        Email,
+        code
+      });
+    return res.data;
+  } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+          throw new Error(error.response?.data?.message || "Xác thực thất bại");
+      }
+      throw new Error("Xác thực  thất bại");
+  }
+};
+
+export const ResendMail = async (
+  Email: string
+): Promise<ResendMailResponse> => {
+  try {
+    const res = await axiosClient.post("/api/user/resend-code", {Email});
+    return res.data;
+  } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+          throw new Error(error.response?.data?.message || "Gửi mã thất bại");
+      }
+      throw new Error("Gửi mã thất bại");
+  }
 };
 
 export const getAllUsers = async (): Promise<LoginResponse[]> => {

@@ -10,6 +10,17 @@ export interface LoginResponse {
     cartId: number;
 }
 
+
+export interface ResendMailResponse {
+    message: string
+}
+
+export interface RegisterResponse {
+    userId: number;
+    is_verified: boolean;
+    need_verify: boolean;
+    message: string;
+}
 export interface IRegisterRequest {
     sdt: string;
     hoVaTen: string;
@@ -18,7 +29,9 @@ export interface IRegisterRequest {
     matKhau: string;
     role?: number;
 }
-
+export interface VerifyMailResponse {
+    message: string
+}
 
 export interface IRole {
     roleId: number;
@@ -32,7 +45,7 @@ export interface IUser {
     email?: string;
     address?: string;
     avatar?: string | null;
-    role: number;
+    role?: number;
 }
 
 
@@ -198,4 +211,33 @@ export interface IReview {
     comment: string;
     photoUrl?: string;
     videoUrl?: string;
+}
+
+export interface Brand {
+  brandId: number;
+  name: string;
+  country: string;
+  description?: string;
+}
+
+export interface BrandCreateRequest {
+  name: string;
+  country: string;
+  description?: string;
+}
+
+export interface OrderResponse {
+  orderID: number;
+  orderDate: string;
+  status: string;
+  paymentMethod?: string;
+  userID?: number;
+  note?: string;
+}
+
+export interface OrderDetailResponse {
+  id: number;
+  orderId: number;
+  productId: number;
+  quantity: number;
 }

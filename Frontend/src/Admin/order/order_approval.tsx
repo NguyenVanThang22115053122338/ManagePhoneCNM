@@ -2,203 +2,198 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./order_approval.module.css";
 
-/* ================= TYPES ================= */
-interface DonHang {
-  idDon: number;
-  ngayDat?: string;
-  tenNguoiNhan: string;
-  sdtNguoiNhan: string;
-  trangThai: string;
+import OrderService from "../../services/OrderService";
+import StatusService from "../../services/StatusService";
+import OrderDetailService from "../../services/OrderDetailService";
+import ProductService from "../../services/ProductService";
+
+import type {
+  OrderResponse,
+  IUser,
+} from "../../services/Interface";
+
+/* ================= HELPERS ================= */
+const mapTrangThai = (status: string) => {
+  switch (status) {
+    case "PENDING":
+      return "Chưa duyệt";
+    case "APPROVED":
+      return "Đã duyệt";
+    case "REJECTED":
+      return "Đã từ chối";
+    case "CANCELLED":
+      return "Đã hủy";
+    default:
+      return status;
+  }
+};
+
+const formatDate = (d?: string | null) => {
+  if (!d || typeof d !== "string") return "—";
+  return d.slice(0, 10).split("-").reverse().join("/");
+};
+
+/* ================= VIEW MODEL ================= */
+interface OrderRowVM {
+  orderId: number;
+  orderDate?: string | null;
+  status: string;
+  customerName: string;
+  productName: string;
 }
 
 /* ================= COMPONENT ================= */
-const PendingOrders = () => {
+const OrderApproval = () => {
   const navigate = useNavigate();
 
-  /* ===== STATE ===== */
-  const [orders, setOrders] = useState<DonHang[]>([]);
-  const [search, setSearch] = useState("");
-  const [openStatusId, setOpenStatusId] = useState<number | null>(null);
+  const [orders, setOrders] = useState<OrderRowVM[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  /* ===== MOCK DATA ===== */
-  useEffect(() => {
-    setOrders([
-      {
-        idDon: 101,
-        ngayDat: "2024-09-01",
-        tenNguoiNhan: "Nguyễn Văn A",
-        sdtNguoiNhan: "0981234567",
-        trangThai: "Chưa duyệt",
-      },
-      {
-        idDon: 102,
-        ngayDat: "2024-09-02",
-        tenNguoiNhan: "Trần Thị B",
-        sdtNguoiNhan: "0912345678",
-        trangThai: "Đã duyệt",
-      },
-    ]);
-  }, []);
+  /* ===== PAGINATION ===== */
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
-  /* ===== CLICK OUTSIDE → CLOSE DROPDOWN ===== */
+  /* ================= FETCH ================= */
   useEffect(() => {
-    const handleClickOutside = () => {
-      setOpenStatusId(null);
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+
+        // 1️⃣ lấy tất cả order
+        const rawOrders: OrderResponse[] = await OrderService.getAll();
+
+        // chỉ lấy đơn chưa duyệt
+        const pendingOrders = rawOrders.filter(
+          o => o.status === "PENDING"
+        );
+
+        // 2️⃣ build view model (NHẸ – có guard chống 404)
+        const rows: OrderRowVM[] = await Promise.all(
+          pendingOrders.map(async (order) => {
+            /* ===== USER ===== */
+            let customerName = "—";
+            if (order.userID) {
+              try {
+                const user: IUser = await StatusService.getUserById(order.userID);
+                customerName = user.fullName ?? "—";
+              } catch {}
+            }
+
+            /* ===== PRODUCT (lấy sản phẩm đầu tiên) ===== */
+            let productName = "—";
+            try {
+              const details = await OrderDetailService.getByOrderId(order.orderID);
+              if (details.length > 0 && details[0].productId) {
+                const product = await ProductService.getProductById(details[0].productId);
+                productName = product.name ?? "—";
+              }
+            } catch {}
+
+            return {
+              orderId: order.orderID,
+              orderDate: order.orderDate ?? null,
+              status: order.status,
+              customerName,
+              productName,
+            };
+          })
+        );
+
+        setOrders(rows);
+      } catch (err) {
+        console.error(err);
+        alert("Không tải được danh sách đơn cần duyệt");
+      } finally {
+        setLoading(false);
+      }
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+
+    fetchOrders();
   }, []);
 
-  /* ===== SEARCH FILTER ===== */
-  const filteredOrders = useMemo(() => {
-    if (!search.trim()) return orders;
-    return orders.filter(o =>
-      JSON.stringify(o).toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, orders]);
+  /* ================= PAGED DATA ================= */
+  const totalPages = Math.ceil(orders.length / pageSize);
 
-  /* ===== UPDATE STATUS ===== */
-  const updateTrangThai = (idDon: number, newStatus: string) => {
-    setOrders(prev =>
-      prev.map(o =>
-        o.idDon === idDon ? { ...o, trangThai: newStatus } : o
-      )
-    );
-    setOpenStatusId(null);
-    alert(`✅ Cập nhật trạng thái: ${newStatus}`);
-  };
+  const pagedOrders = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return orders.slice(start, start + pageSize);
+  }, [orders, currentPage]);
 
-  const getStatusClass = (status: string) => {
-  switch (status) {
-    case "Chưa duyệt":
-      return styles.pending;
-    case "Đã duyệt":
-      return styles.approved;
-    case "Đang giao":
-      return styles.shipping;
-    case "Hoàn thành":
-      return styles.completed;
-    case "Đã hủy":
-      return styles.cancelled;
-    case "Đã từ chối":
-      return styles.rejected;
-    default:
-      return styles.pending;
-  }
-};
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [orders.length]);
 
   /* ================= RENDER ================= */
   return (
     <div className={styles.container}>
-      <div className={styles.page}>
-        {/* ===== HEADER ===== */}
-        <div className={styles["content-header"]}>
-          <h1 className={styles["content-title"]}>
-            Danh sách đơn hàng chờ duyệt
-          </h1>
-        </div>
+      <h1 className={styles.title}>Danh sách đơn cần duyệt</h1>
 
-        {/* ===== SEARCH ===== */}
-        <div className={styles["search-bar"]}>
-          <input
-            type="text"
-            className={styles["search-input"]}
-            placeholder="Tìm kiếm đơn hàng"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          <i className={`ri-search-line ${styles["search-icon"]}`}></i>
-        </div>
+      {loading ? (
+        <div className={styles.loading}>Đang tải dữ liệu...</div>
+      ) : (
+        <>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Mã đơn</th>
+                <th>Ngày đặt</th>
+                <th>Khách hàng</th>
+                <th>Sản phẩm</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
 
-        {/* ===== TABLE ===== */}
-        <div className={styles["data-table"]}>
-          <div className={styles["table-header"]}>
-            <div>Mã đơn hàng</div>
-            <div>Ngày đặt</div>
-            <div>Người nhận</div>
-            <div>SĐT</div>
-            <div>Trạng thái</div>
-            <div>Thao tác</div>
+            <tbody>
+              {pagedOrders.length > 0 ? (
+                pagedOrders.map((o) => (
+                  <tr
+                    key={o.orderId}
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      navigate(`/admin/orders/${o.orderId}`)
+                    }
+                  >
+                    <td>#{o.orderId}</td>
+                    <td>{formatDate(o.orderDate)}</td>
+                    <td>{o.customerName}</td>
+                    <td>{o.productName}</td>
+                    <td>{mapTrangThai(o.status)}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className={styles.noData}>
+                    Không có đơn cần duyệt
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {/* ===== PAGINATION ===== */}
+          <div className={styles.pagination}>
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(p => p - 1)}
+            >
+              ◀
+            </button>
+
+            <span>
+              Trang {currentPage} / {totalPages || 1}
+            </span>
+
+            <button
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage(p => p + 1)}
+            >
+              ▶
+            </button>
           </div>
-
-          {filteredOrders.length > 0 ? (
-            filteredOrders.map(don => (
-              <div className={styles["table-row"]} key={don.idDon}>
-                <div>#{don.idDon}</div>
-                <div>
-                  {don.ngayDat
-                    ? new Date(don.ngayDat).toLocaleDateString("vi-VN")
-                    : ""}
-                </div>
-                <div>{don.tenNguoiNhan}</div>
-                <div>{don.sdtNguoiNhan}</div>
-
-                {/* ===== STATUS ===== */}
-                <div className={styles["status-cell"]}>
-                        <span
-                            className={`${styles.statusBadge} ${getStatusClass(don.trangThai)}`}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenStatusId(
-                                    openStatusId === don.idDon ? null : don.idDon
-                                );
-                            }}
-                        >
-                            {don.trangThai}
-                        </span>
-
-
-                  {openStatusId === don.idDon && (
-                    <div
-                      className={styles["status-menu"]}
-                      onClick={e => e.stopPropagation()}
-                    >
-                      <select
-                        value={don.trangThai}
-                        onChange={e =>
-                          updateTrangThai(don.idDon, e.target.value)
-                        }
-                      >
-                        <option>Chưa duyệt</option>
-                        <option>Đã duyệt</option>
-                        <option>Đang giao</option>
-                        <option>Hoàn thành</option>
-                        <option>Đã từ chối</option>
-                        <option>Đã hủy</option>
-                      </select>
-                    </div>
-                  )}
-                </div>
-
-                {/* ===== ACTION ===== */}
-                <div className={styles.action}>
-                        <button
-                            className={styles.viewDetailBtn}
-                            onClick={() => navigate(`/orders/${don.idDon}`)}
-                        >
-                            <i className="ri-eye-line"></i>
-                            Xem chi tiết
-                        </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className={styles["table-row"]}>
-              <div
-                style={{
-                  gridColumn: "1 / -1",
-                  textAlign: "center",
-                  padding: 20,
-                }}
-              >
-                Không có đơn hàng nào chờ duyệt
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };
 
-export default PendingOrders;
+export default OrderApproval;
