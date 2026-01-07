@@ -6,6 +6,8 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Specification;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
+
 
 class ProductService
 {
@@ -22,12 +24,6 @@ class ProductService
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
-
-            /*
-        |--------------------------------------------------------------------------
-        | 1️⃣ CREATE SPECIFICATION TRƯỚC
-        |--------------------------------------------------------------------------
-        */
             $specId = null;
 
             if (!empty($data['specification'])) {
@@ -41,14 +37,9 @@ class ProductService
                     'camera'   => $data['specification']['camera']   ?? null,
                 ]);
 
-                 $specId = $spec->specId; // ⚠️ DB legacy
+                 $specId = $spec->specId;
             }
 
-            /*
-        |--------------------------------------------------------------------------
-        | 2️⃣ CREATE PRODUCT (GÁN SpecID)
-        |--------------------------------------------------------------------------
-        */
             $product = Product::create([
                 'name'           => $data['name'],
                 'price'          => $data['price'],
@@ -59,11 +50,8 @@ class ProductService
                 'SpecID'         => $specId
             ]);
 
-            /*
-        |--------------------------------------------------------------------------
-        | 3️⃣ CREATE PRODUCT IMAGES
-        |--------------------------------------------------------------------------
-        */
+            Cache::tags(['product:' . $product->ProductID])->flush();
+
             if (!empty($data['product_images'])) {
                 foreach ($data['product_images'] as $img) {
                     ProductImage::create([
@@ -97,11 +85,17 @@ class ProductService
             }
         }
 
+        Cache::tags(['product:' . $id])->flush();
+
         return $product->load(['specification', 'images']);
     }
+
 
     public function delete(int $id)
     {
         Product::destroy($id);
+
+        Cache::tags(['product:' . $id])->flush();
     }
+
 }
