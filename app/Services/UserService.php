@@ -89,20 +89,33 @@ class UserService
         ]);
     }
 
-    public function createOrUpdateGoogleUser(array $googleData): User
+    public function handleGoogleLogin(array $googleData): User
     {
-        return User::updateOrCreate(
-            ['Email' => $googleData['email']],
-            [
-                'FullName' => $googleData['fullName'],
-                'Avatar' => $googleData['avatar'],
-                'googleId' => $googleData['googleId'],
-                'RoleID' => 1,
-                'Password' => Hash::make(Str::random(32)),
-                'is_verified' => true,
-            ]
-        );
+        $user = User::where('Email', $googleData['email'])->first();
+
+        if ($user) {
+
+            if (!$user->googleId) {
+                $user->googleId = $googleData['googleId'];
+                $user->Avatar = $googleData['avatar'] ?? $user->Avatar;
+                $user->is_verified = true;
+                $user->save();
+            }
+
+            return $user;
+        }
+
+        return User::create([
+            'Email' => $googleData['email'],
+            'FullName' => $googleData['fullName'],
+            'Avatar' => $googleData['avatar'],
+            'googleId' => $googleData['googleId'],
+            'Password' => Hash::make(Str::random(32)),
+            'RoleID' => 1,
+            'is_verified' => true,
+        ]);
     }
+
 
     public function verifyEmailCode(string $email, string $code)
     {

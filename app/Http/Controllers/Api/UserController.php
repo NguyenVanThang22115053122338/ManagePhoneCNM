@@ -94,7 +94,7 @@ class UserController extends Controller
             ], 401);
         }
 
-        $user = $this->userService->createOrUpdateGoogleUser([
+        $user = $this->userService->handleGoogleLogin([
             'email' => $payload['email'],
             'fullName' => $payload['name'] ?? 'Google User',
             'avatar' => $payload['picture'] ?? null,
@@ -106,13 +106,16 @@ class UserController extends Controller
 
 
         return response()->json([
-            'userId'   => $user->UserID,
-            'fullName' => $user->FullName,
-            'email'    => $user->Email,
-            'avatar'   => $user->Avatar,
-            'cartId'   => $cart->CartID,
-            'role'     => $user->RoleID,
-            'token'    => $token
+            'userId'=>$user->UserID,
+            'sdt'=>$user->SDT,
+            'fullName'=>$user->FullName,
+            'email'=>$user->Email,
+            'address'=>$user->Address,
+            'avatar'=>$user->Avatar,
+            'role'=>$user->RoleID,
+            'cartId'=>$cart->CartID,
+            'is_verified'=>$user->is_verified,
+            'token'=>$token
         ]);
     }
 
