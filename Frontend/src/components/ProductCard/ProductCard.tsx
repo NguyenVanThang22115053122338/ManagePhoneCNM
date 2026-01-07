@@ -9,7 +9,8 @@ const ProductCard: React.FC<{ product: IProduct }> = ({ product }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
 
-  const stock = Number(product.stockQuantity ?? 0);
+  const stock = Number(product.stockQuantity ?? 20);
+  console.log(product.stockQuantity);
   const price = Number(product.price ?? 0);
   const name = product.name ?? "Không tên";
 

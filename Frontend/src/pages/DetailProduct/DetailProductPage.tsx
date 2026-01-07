@@ -94,7 +94,7 @@ export default function ProductDetail() {
     try {
       await cartDetailService.addToCart({
         cartId: Number(cartId),
-        productId: product.productId ?? 0,
+        ProductID: product.productId ?? 0,
       });
 
       alert("Đã thêm sản phẩm vào giỏ hàng");

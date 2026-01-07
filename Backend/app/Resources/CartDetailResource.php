@@ -9,7 +9,7 @@ class CartDetailResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'cartDetailsId' => $this->CartDetailsID,
+            'cartDetailsId' => $this->cartDetailsId,
             'cartId'        => $this->CartID,
             'product'       => new ProductResource($this->product),
         ];

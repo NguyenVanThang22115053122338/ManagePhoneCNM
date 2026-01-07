@@ -50,8 +50,6 @@ class ProductService
                 'SpecID'         => $specId
             ]);
 
-            Cache::tags(['product:' . $product->ProductID])->flush();
-
             if (!empty($data['product_images'])) {
                 foreach ($data['product_images'] as $img) {
                     ProductImage::create([
@@ -85,8 +83,6 @@ class ProductService
             }
         }
 
-        Cache::tags(['product:' . $id])->flush();
-
         return $product->load(['specification', 'images']);
     }
 
@@ -94,8 +90,6 @@ class ProductService
     public function delete(int $id)
     {
         Product::destroy($id);
-
-        Cache::tags(['product:' . $id])->flush();
     }
 
 }
