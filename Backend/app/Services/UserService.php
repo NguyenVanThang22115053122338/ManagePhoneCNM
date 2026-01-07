@@ -16,9 +16,7 @@ class UserService
         $userByPhone = User::where('SDT', $data['sdt'])->first();
 
         if (
-            User::where('Email', $data['email'])
-                ->where('SDT', '!=', $data['sdt'])
-                ->exists()
+            User::where('Email', $data['email'])->exists()
         ) {
             throw new \Exception('Email đã tồn tại');
         }
