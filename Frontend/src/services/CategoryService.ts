@@ -5,20 +5,28 @@ import create from "@ant-design/icons/lib/components/IconFont";
 
 const CategoryService = {
     async getCategories(): Promise<ICategory[]> {
-        try {
-            const response = await axiosClient.get<ICategory[]>("/api/categories");
-            return response.data;
-        } catch (error: unknown) {
-            if (axios.isAxiosError(error)) {
-                const message =
-                    error.response?.data?.message ||
-                    error.message ||
-                    "Không thể lấy thông tin Category";
-                throw new Error(message);
-            }
-            throw new Error("Không thể lấy thông tin Category");
+    try {
+        const response = await axiosClient.get("/api/categories");
+
+        // Laravel Resource Collection => { data: [...] }
+        if (Array.isArray(response.data?.data)) {
+            return response.data.data as ICategory[];
         }
-    },
+
+        console.error("Category API không trả array:", response.data);
+        return [];
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            const message =
+                error.response?.data?.message ||
+                error.message ||
+                "Không thể lấy thông tin Category";
+            throw new Error(message);
+        }
+        throw new Error("Không thể lấy thông tin Category");
+    }
+},
+
 
     async createCategory(
         category: CreateCategoryRequest

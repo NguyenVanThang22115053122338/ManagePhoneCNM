@@ -30,6 +30,10 @@ Route::get('/paypal/cancel', [PaymentController::class, 'cancel']);
 Route::post('/user/login-google', [UserController::class, 'loginWithGoogle']);
 Route::post('/user/verify-email', [UserController::class, 'verifyEmail']);
 Route::post('/user/resend-code', [UserController::class, 'resendCode']);
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
 /*
 |--------------------------------------------------------------------------
 | AUTHENTICATED ROUTES (JWT)
@@ -42,8 +46,7 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/user/me', [UserController::class, 'me']);
 
     // ===== PRODUCT (USER + ADMIN: CHỈ XEM) =====
-    Route::get('/products', [ProductController::class, 'index']);
-    Route::get('/products/{id}', [ProductController::class, 'show']);
+
 
     // ===== BRAND (USER + ADMIN: CHỈ XEM) =====
     Route::get('/brands', [BrandController::class, 'index']);
@@ -55,13 +58,12 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/suppliers', [SupplierController::class, 'index']);
     Route::get('/suppliers/{id}', [SupplierController::class, 'show']);
 
-        // ===== Batch (USER + ADMIN: CHỈ XEM) =====
+    // ===== Batch (USER + ADMIN: CHỈ XEM) =====
     Route::get('/batch', [BatchController::class, 'index']);
     Route::get('/batch/{id}', [BatchController::class, 'show']);
 
     // ===== CATEGORY (USER + ADMIN: CHỈ XEM) =====
-    Route::get('/categories', [CategoryController::class, 'index']);
-    Route::get('/categories/{id}', [CategoryController::class, 'show']);
+
 
     // ===== IMAGE UPLOAD (USER + ADMIN) =====
     Route::post('/images/img-upload', [ImageUploadController::class, 'upload']);
@@ -118,12 +120,12 @@ Route::middleware(['jwt'])->group(function () {
         Route::delete('/brands/{id}', [BrandController::class, 'destroy']);
 
         //===== SUPPLIER (CRUD) =====   
-        Route::post('/suppliers', [SupplierController::Class, 'store']);
+        Route::post('/suppliers', [SupplierController::class, 'store']);
         Route::put('/suppliers/{id}', [SupplierController::class, 'update']);
         Route::delete('/suppliers/{id}', [SupplierController::class, 'destroy']);
 
-         //===== BATCH (CRUD) =====
-        Route::post('/batch', [BatchController::Class, 'store']);
+        //===== BATCH (CRUD) =====
+        Route::post('/batch', [BatchController::class, 'store']);
         Route::put('/batch/{id}', [BatchController::class, 'update']);
         Route::delete('/batch/{id}', [BatchController::class, 'destroy']);
 

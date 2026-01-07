@@ -17,17 +17,21 @@ const productService = {
         `/api/products?${params.toString()}`
       );
 
-      if (!Array.isArray(response.data)) {
-        console.warn("API không trả array, fallback []");
+      // Laravel Resource Collection => { data: [...] }
+      const raw = response.data?.data;
+
+      if (!Array.isArray(raw)) {
+        console.warn("Product API không trả array:", response.data);
         return [];
       }
 
-      return response.data.map(normalizeProduct);
+      return raw.map(normalizeProduct);
     } catch (error) {
       console.error("getAllProducts failed", error);
       return [];
     }
   },
+
 
 
   async getProductById(id: number): Promise<IProduct> {
@@ -63,7 +67,7 @@ const productService = {
       }
     );
 
-    return res.data; 
+    return res.data;
   },
 
   async uploadProductImages(
