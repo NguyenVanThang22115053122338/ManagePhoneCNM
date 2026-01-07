@@ -34,7 +34,7 @@ class CartDetailController extends Controller
     {
         $data = $request->validate([
             'cartId'    => 'required|integer|exists:carts,CartID',
-            'productId' => 'required|integer|exists:products,ProductID',
+            'ProductID' => 'required|integer|exists:product,ProductID',
         ]);
 
         return $this->cartDetailService->create($data);
@@ -44,7 +44,7 @@ class CartDetailController extends Controller
     {
         $data = $request->validate([
             'cartId'    => 'required|integer|exists:carts,CartID',
-            'productId' => 'required|integer|exists:products,ProductID',
+            'ProductID' => 'required|integer|exists:product,ProductID',
         ]);
 
         return $this->cartDetailService->update($id, $data);
