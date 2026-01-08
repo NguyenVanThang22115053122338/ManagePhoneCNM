@@ -38,6 +38,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::post('/ai/phone-chat', [PhoneChatController::class, 'chat']);
 /*
 |--------------------------------------------------------------------------
 | AUTHENTICATED ROUTES (JWT)
@@ -111,8 +112,6 @@ Route::middleware(['jwt'])->group(function () {
         Route::delete('/{id}', [CartDetailController::class, 'destroy']);
         Route::delete('/cart/{cartId}', [CartDetailController::class, 'clearCart']);
     });
-
-    Route::post('/ai/phone-chat', [PhoneChatController::class, 'chat']);
     // ===== PAYPAL PAYMENTS (USER + ADMIN) =====
     Route::post('/paypal/create', [PaymentController::class, 'create']);
     Route::get('/paypal/payment/{orderId}', [PaymentController::class, 'getByOrder']);
