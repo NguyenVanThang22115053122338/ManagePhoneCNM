@@ -1,14 +1,14 @@
+/* add_product.module.css */
+
 /* ================= PAGE ================= */
 .main {
   min-height: 100vh;
   padding: 24px;
   background: #f4f6fb;
-
   display: flex;
   flex-direction: column;  
   align-items: center;    
 }
-
 
 /* ================= TITLE ================= */
 .main h1 {
@@ -20,7 +20,6 @@
   color: #1f2937;
 }
 
-
 /* ================= FORM CARD ================= */
 .form {
   width: 100%;
@@ -31,8 +30,8 @@
   box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
 }
 
-/* ================= LABEL ================= */
-label {
+/* ✅ ĐÚNG - Dùng .form input thay vì input */
+.form label {
   display: block;
   margin-bottom: 6px;
   font-size: 14px;
@@ -40,10 +39,9 @@ label {
   color: #374151;
 }
 
-/* ================= INPUT / SELECT / TEXTAREA ================= */
-input,
-select,
-textarea {
+.form input,
+.form select,
+.form textarea {
   width: 100%;
   padding: 12px 14px;
   font-size: 14px;
@@ -53,27 +51,25 @@ textarea {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-textarea {
+.form textarea {
   resize: vertical;
   min-height: 90px;
 }
 
-/* Focus */
-input:focus,
-select:focus,
-textarea:focus {
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-/* Placeholder */
-input::placeholder,
-textarea::placeholder {
+.form input::placeholder,
+.form textarea::placeholder {
   color: #9ca3af;
 }
 
-/* ================= ROW (GIÁ + SỐ LƯỢNG) ================= */
+/* ================= ROW ================= */
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -81,7 +77,7 @@ textarea::placeholder {
 }
 
 /* ================= FILE INPUT ================= */
-input[type="file"] {
+.form input[type="file"] {
   padding: 12px 14px;
   border: 1.5px dashed #c7d2fe;
   border-radius: 10px;
@@ -89,7 +85,7 @@ input[type="file"] {
   cursor: pointer;
 }
 
-input[type="file"]:hover {
+.form input[type="file"]:hover {
   background: #eef2ff;
 }
 
@@ -109,38 +105,29 @@ input[type="file"]:hover {
   border: 1px solid #e5e7eb;
   background: #f9fafb;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.imageList img:hover {
-  transform: scale(1.04);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
 }
 
 /* ================= SUBMIT BUTTON ================= */
-button {
+.form button {
   margin-top: 22px;
   padding: 13px 22px;
   font-size: 15px;
   font-weight: 600;
-  border-radius: 12px, #000000; 
+  border-radius: 12px;
   border: none;
   cursor: pointer;
-  color: #000000;
+  color: #ffffff;
   background: linear-gradient(135deg, #4966a6, #1d4ed8);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
 }
 
-button:hover {
+.form button:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 26px rgba(37, 99, 235, 0.35);
 }
 
-button:disabled {
+.form button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
 }
 
 /* ================= RESPONSIVE ================= */

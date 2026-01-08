@@ -1,138 +1,143 @@
-   .search-bar {
-        display: flex;
-        align-items: center;
-        background-color: white;
-        border-radius: 50px;
-        padding: 8px 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        width: 300px; /* bạn có thể chỉnh to nhỏ tùy */
-        transition: box-shadow 0.3s ease;
-        margin-left: auto;
-        margin-bottom: 20px;
-        margin-top: 20px;
-    }
+/* ================= SEARCH BAR ================= */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: #ffffff;
+    border-radius: 50px;
+    padding: 8px 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    transition: box-shadow 0.3s ease;
+    margin-left: auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
 
-        .search-bar:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+.search-bar:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
 
-        .search-bar i {
-            color: #888;
-            font-size: 16px;
-            margin-right: 10px;
-        }
+.search-bar i {
+    color: #888;
+    font-size: 16px;
+    margin-right: 10px;
+}
 
-        .search-bar input {
-            border: none;
-            outline: none;
-            font-size: 15px;
-            flex: 1;
-            color: #333;
-            background-color: transparent;
-            padding: 6px 0;
-        }
+.search-bar input {
+    border: none;
+    outline: none;
+    font-size: 15px;
+    flex: 1;
+    color: #333;
+    background-color: transparent;
+    padding: 6px 0;
+}
 
-            .search-bar input::placeholder {
-                color: #aaa;
-                font-style: italic;
-            }
+.search-bar input::placeholder {
+    color: #aaa;
+    font-style: italic;
+}
 
+/* ================= FILTER BUTTON ================= */
+.filter-btn {
+    background: #f3f4f6;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 8px;
+}
 
+/* ================= ADD BUTTON AREA ================= */
+.add-button {
+    display: flex;
+    gap: 20px;
+    padding: 20px 0;
+}
 
-    .filter-btn {
-        background: #f3f4f6;
-        font-size: 0.875rem;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
+/* nút add */
+.add {
+    background-color: #2196F3;
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 50px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-    .add-button {
-        display: flex;
-        gap: 20px;
-        padding: 20px 0;
-    }
+.add:hover {
+    background-color: #1976D2;
+}
 
-    .add {
-        background: #2196F3;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 50px;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
+/* ================= TABLE CONTAINER ================= */
+.table-container {
+    padding: 40px 32px;
+    overflow-x: auto;
+}
 
-    .add {
-        background-color: #1976D2;
-    }
+/* ================= PRODUCT TABLE ================= */
+.product-table {
+    width: 100%;
+    max-width: 960px;
+    margin: auto;
+    border-collapse: collapse;
+    background: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 
-    .table-container {
-        padding: 40px 32px;
-        overflow-x: auto;
-    }
+.product-table th {
+    background-color: #f4f6fa;
+    color: #333;
+    font-weight: 600;
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
 
-    .product-table {
-        width: 100%;
-        border-collapse: collapse;
-        max-width: 960px;
-        margin: auto;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
+.product-table td {
+    padding: 12px;
+    text-align: center;
+    font-size: 15px;
+    border-bottom: 1px solid #eee;
+}
 
-        .product-table th {
-            background-color: #f4f6fa;
-            color: #333;
-            font-weight: 600;
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
+.product-table tr:hover {
+    background-color: #f9fbfd;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
 
-        .product-table td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            font-size: 15px;
-        }
+/* ảnh trong table */
+.product-table img {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+    transition: transform 0.2s ease;
+}
 
-        .product-table tr:hover {
-            background-color: #f9fbfd;
-            transition: background 0.3s ease;
-            cursor: pointer;
-        }
+.product-table img:hover {
+    transform: scale(1.05);
+}
 
-        .product-table img {
-            border-radius: 50%;
-            height: 48px;
-            width: 48px;
-            object-fit: cover;
-            border: 1px solid #ccc;
-            transition: transform 0.2s;
-        }
+/* ================= ROUNDED IMAGE (DÙNG CHUNG) ================= */
+.rounded-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    transition: transform 0.2s ease-in-out;
+}
 
-            .product-table img:hover {
-                transform: scale(1.05);
-            }
-
-    .rounded-img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 2px solid #ddd;
-    }
-
-    .rounded-img {
-        transition: transform 0.2s ease-in-out;
-    }
-
-        .rounded-img:hover {
-            transform: scale(1.1);
-        }
+.rounded-img:hover {
+    transform: scale(1.1);
+}
