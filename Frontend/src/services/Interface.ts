@@ -10,6 +10,17 @@ export interface LoginResponse {
     cartId: number;
 }
 
+
+export interface ResendMailResponse {
+    message: string
+}
+
+export interface RegisterResponse {
+    userId: number;
+    is_verified: boolean;
+    need_verify: boolean;
+    message: string;
+}
 export interface IRegisterRequest {
     sdt: string;
     hoVaTen: string;
@@ -18,7 +29,9 @@ export interface IRegisterRequest {
     matKhau: string;
     role?: number;
 }
-
+export interface VerifyMailResponse {
+    message: string
+}
 
 export interface IRole {
     roleId: number;
@@ -43,8 +56,8 @@ export interface ICategory {
 }
 
 export interface CreateCategoryRequest {
-  categoryName: string;
-  description: string;
+    categoryName: string;
+    description: string;
 }
 
 export interface ISpecification {
@@ -105,7 +118,7 @@ export interface IProduct {
 
 export interface CartDetailRequestDTO {
     cartId: number;
-    productId: number;
+    ProductID: number;
 }
 
 export interface CartDetailResponse {
@@ -156,13 +169,13 @@ export interface PayPalCreateResponse {
 }
 
 export interface Notification {
-  notificationId: number;
-  title: string;
-  notificationType: 'PERSONAL' | 'PROMOTION' | 'SYSTEM' | 'ORDER'; // thêm type nếu backend mở rộng
-  content: string;           // message thực tế
-  isRead: boolean;
-  // createdAt có thể có hoặc không, tùy backend trả về
-  // createdAt?: string;
+    notificationId: number;
+    title: string;
+    notificationType: 'PERSONAL' | 'PROMOTION' | 'SYSTEM' | 'ORDER'; // thêm type nếu backend mở rộng
+    content: string;           // message thực tế
+    isRead: boolean;
+    // createdAt có thể có hoặc không, tùy backend trả về
+    // createdAt?: string;
 }
 export interface OrderProduct {
     productID: number;

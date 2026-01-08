@@ -75,10 +75,10 @@ const ProductList: React.FC = () => {
   return (
     <div className="product-list-page">
       <div className="product-container">
-<div className="page-header">
-  <h1 className="page-title">Tất cả sản phẩm</h1>
-  <span className="product-count">{products.length} sản phẩm</span>
-</div>
+        <div className="page-header">
+          <h1 className="page-title">Tất cả sản phẩm</h1>
+          <span className="product-count">{products.length} sản phẩm</span>
+        </div>
 
 
         <div className="filter-bar">

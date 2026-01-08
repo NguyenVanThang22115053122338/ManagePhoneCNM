@@ -35,9 +35,11 @@ const productService = {
 
 
   async getProductById(id: number): Promise<IProduct> {
-    const res = await axiosClient.get<IProduct>(`/api/products/${id}`);
-    return res.data;
+    const res = await axiosClient.get(`/api/products/${id}`);
+
+    return normalizeProduct(res.data.data);
   },
+
 
   async createProduct(product: IProduct): Promise<IProduct> {
     const res = await axiosClient.post("/api/products", product);

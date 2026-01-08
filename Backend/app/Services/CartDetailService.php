@@ -35,7 +35,7 @@ class CartDetailService
     public function create(array $data)
     {
         $cart = Cart::findOrFail($data['cartId']);
-        $product = Product::findOrFail($data['productId']);
+        $product = Product::findOrFail($data['ProductID']);
 
         $cartDetail = CartDetail::create([
             'CartID'    => $cart->CartID,
@@ -50,7 +50,7 @@ class CartDetailService
         $cartDetail = CartDetail::findOrFail($id);
 
         $cart = Cart::findOrFail($data['cartId']);
-        $product = Product::findOrFail($data['productId']);
+        $product = Product::findOrFail($data['ProductID']);
 
         $cartDetail->update([
             'CartID'    => $cart->CartID,
