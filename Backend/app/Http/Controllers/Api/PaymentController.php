@@ -16,14 +16,14 @@ class PaymentController extends Controller
     public function create(CreatePayPalPaymentRequest $request)
     {
         $approvalUrl = $this->service->createPayment(
-            $request->validated()['orderId']
-        );
+                $request->validated()['orderId']
+            );
 
         return response()->json([
             'approvalUrl' => $approvalUrl
         ]);
-    }
 
+    }
     public function getByOrder(int $orderId)
     {
         $payment = $this->service->getByOrderId($orderId);

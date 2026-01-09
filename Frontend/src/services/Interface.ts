@@ -241,3 +241,7 @@ export interface OrderDetailResponse {
   productId: number;
   quantity: number;
 }
+
+export interface ApiResponse<T> {
+    data: T;
+}

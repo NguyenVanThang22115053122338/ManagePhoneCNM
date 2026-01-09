@@ -11,7 +11,7 @@ class OrderPaymentResource extends JsonResource
         return [
             'payment' => new PaymentResource($this['payment']),
             'order' => [
-                'OrderID' => $this['order']->OrderID,
+                'orderId' => $this['order']->OrderID,
                 'status' => $this['order']->Status,
                 'paymentStatus' => $this['order']->PaymentStatus,
                 'details' => $this['order']->orderDetails
