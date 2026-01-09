@@ -15,6 +15,7 @@ import OrderHistoryPage from "./pages/OrderHistory/OrderHistoryPage";
 import NotificationsPage from "./pages/Notification/NotificationPage";
 import OrderPage from "./pages/Order/OrderPage";
 import ProductReviewPage from "./pages/ReviewPage/ProductReviewPage";
+import AboutPage from "./pages/About/AboutPage";
 
 /* ===== ADMIN ===== */
 import Category from "./Admin/category/category";
@@ -73,6 +74,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/laptop" element={<LaptopPage />} />
+          <Route path="/about" element={<AboutPage />} />
           <Route path="/product-detail/:id" element={<ProductDetail />} />
           <Route path="/payment" element={<OrderPage />} />
           <Route path="/payment/:orderId" element={<PaymentPage />} />
