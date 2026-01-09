@@ -36,12 +36,26 @@ const DanhMucEdit: React.FC = () => {
     e.preventDefault();
     if (!category) return;
 
+    if (!name.trim()) {
+      alert("Tên danh mục không được để trống!");
+      return;
+    }
+
     setLoading(true);
-    await categoryService.updateCategory(category.categoryId, {
-      categoryName: name,
-      description: description,
-    });
-    navigate("/admin/category");
+    try {
+      await categoryService.updateCategory(category.categoryId, {
+        categoryName: name.trim(),
+        description: description.trim(),
+      });
+      alert("Cập nhật danh mục thành công!");
+      navigate("/admin/category");
+    } catch (error: any) {
+      console.error("Update category error:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Không thể cập nhật danh mục";
+      alert(`Lỗi: ${errorMessage}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   /* ===== DELETE ===== */
@@ -49,8 +63,18 @@ const DanhMucEdit: React.FC = () => {
     if (!category) return;
 
     setLoading(true);
-    await categoryService.deleteCategory(category.categoryId);
-    navigate("/admin/category");
+    try {
+      await categoryService.deleteCategory(category.categoryId);
+      alert("Xóa danh mục thành công!");
+      navigate("/admin/category");
+    } catch (error: any) {
+      console.error("Delete category error:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Không thể xóa danh mục";
+      alert(`Lỗi: ${errorMessage}`);
+      setShowDelete(false);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!category) return <p className={styles.loading}>⏳ Đang tải dữ liệu...</p>;
