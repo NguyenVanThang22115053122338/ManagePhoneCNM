@@ -3,8 +3,8 @@ import type { Notification } from "./Interface";
 
 export const notificationService = {
   getAll: async (): Promise<Notification[]> => {
-    const res = await axiosClient.get<Notification[]>("/api/notifications");
-    return res.data;
+    const res = await axiosClient.get<any>("/api/notifications");
+    return Array.isArray(res.data) ? res.data : res.data?.data ?? [];
   },
 
   create: async (payload: {
@@ -29,15 +29,13 @@ export const notificationService = {
     return axiosClient.put(`/api/notifications/${id}`, payload);
   },
 
-
   delete: async (notificationId: number) => {
     return axiosClient.delete(`/api/notifications/${notificationId}`);
   },
 
-  /* ================= USER ================= */
   getUserNotifications: async (userId: number): Promise<Notification[]> => {
     const res = await axiosClient.get(`/api/notifications/user/${userId}`);
-    return res.data;
+    return Array.isArray(res.data) ? res.data : res.data?.data ?? [];
   },
 
   markAsRead: async (id: number) => {
@@ -52,4 +50,3 @@ export const notificationService = {
     return axiosClient.delete(`/api/notifications/${id}`);
   }
 };
-
