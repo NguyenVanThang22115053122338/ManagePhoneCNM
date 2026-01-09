@@ -214,30 +214,39 @@ export interface IReview {
 }
 
 export interface Brand {
-  brandId: number;
-  name: string;
-  country: string;
-  description?: string;
+    brandId: number;
+    name: string;
+    country: string;
+    description?: string;
 }
 
 export interface BrandCreateRequest {
-  name: string;
-  country: string;
-  description?: string;
+    name: string;
+    country: string;
+    description?: string;
 }
 
 export interface OrderResponse {
-  orderID: number;
-  orderDate: string;
-  status: string;
-  paymentMethod?: string;
-  userID?: number;
-  note?: string;
+    orderID: number;
+    orderDate: string;
+    status: string;
+    paymentMethod?: string;
+    userID?: number;
+    note?: string;
 }
 
 export interface OrderDetailResponse {
-  id: number;
-  orderId: number;
-  productId: number;
-  quantity: number;
+    id: number;
+    orderId: number;
+    productId: number;
+    quantity: number;
+}
+
+export interface IBatch {
+    batchID: number;
+    productID: number;
+    productionDate: string;
+    quantity: number;
+    priceIn: number;
+    expiry: string;
 }

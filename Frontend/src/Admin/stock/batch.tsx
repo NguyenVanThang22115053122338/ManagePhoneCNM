@@ -1,61 +1,45 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./batch.module.css";
-
-/* ================= TYPES ================= */
-interface SanPham {
-  idSanPham: number;
-  tenSanPham: string;
-  donGia: number;
-}
-
-interface LoHang {
-  idLo: number;
-  idSanPham: number;
-  sanPham: SanPham;
-  ngaySanXuat?: string;
-  hanSuDung?: string;
-  soLuong: number;
-}
+import BatchService from "../../services/BatchService";
+import type { IBatch } from "../../services/Interface";
 
 /* ================= COMPONENT ================= */
 const Batch = () => {
   /* ===== DATA ===== */
-  const [data, setData] = useState<LoHang[]>([]);
+  const [data, setData] = useState<IBatch[]>([]);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
 
   /* ===== PAGINATION ===== */
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  /* ===== MOCK DATA (thay API sau) ===== */
+  /* ===== FETCH DATA FROM API ===== */
   useEffect(() => {
-    setData([
-      {
-        idLo: 1,
-        idSanPham: 101,
-        sanPham: { idSanPham: 101, tenSanPham: "iPhone 15", donGia: 32990000 },
-        ngaySanXuat: "2024-01-01",
-        hanSuDung: "2026-01-01",
-        soLuong: 50,
-      },
-      {
-        idLo: 2,
-        idSanPham: 102,
-        sanPham: { idSanPham: 102, tenSanPham: "Samsung S24", donGia: 25990000 },
-        ngaySanXuat: "2024-02-10",
-        hanSuDung: "2026-02-10",
-        soLuong: 30,
-      },
-    ]);
+    fetchBatches();
   }, []);
 
-  /* ===== SEARCH FILTER (GIỐNG JS GỐC – chỉ tìm tên SP) ===== */
+  const fetchBatches = async () => {
+    setLoading(true);
+    try {
+      const batches = await BatchService.getBatches();
+      setData(batches);
+    } catch (error: any) {
+      console.error("Fetch batches error:", error);
+      alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ===== SEARCH FILTER ===== */
   const filteredData = useMemo(() => {
     if (!search.trim()) return data;
+    const searchLower = search.toLowerCase();
     return data.filter(item =>
-      item.sanPham.tenSanPham
-        .toLowerCase()
-        .includes(search.toLowerCase())
+      item.productID.toString().includes(searchLower) ||
+      item.batchID.toString().includes(searchLower) ||
+      item.quantity.toString().includes(searchLower)
     );
   }, [search, data]);
 
@@ -99,53 +83,53 @@ const Batch = () => {
 
       {/* ===== TABLE ===== */}
       <div className={styles.container}>
-        <div className={styles["accounts-table"]}>
-          <table>
-            <thead>
-              <tr>
-                <th>ID Lô</th>
-                <th>ID Sản Phẩm</th>
-                <th>Tên sản phẩm</th>
-                <th>Giá bán</th>
-                <th>Ngày sản xuất</th>
-                <th>Hạn sử dụng</th>
-                <th>Số lượng</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {pageData.length > 0 ? (
-                pageData.map(item => (
-                  <tr key={item.idLo}>
-                    <td>{item.idLo}</td>
-                    <td>{item.idSanPham}</td>
-                    <td>{item.sanPham.tenSanPham}</td>
-                    <td>
-                      {item.sanPham.donGia.toLocaleString("vi-VN")}
-                    </td>
-                    <td>
-                      {item.ngaySanXuat
-                        ? new Date(item.ngaySanXuat).toLocaleDateString("vi-VN")
-                        : ""}
-                    </td>
-                    <td>
-                      {item.hanSuDung
-                        ? new Date(item.hanSuDung).toLocaleDateString("vi-VN")
-                        : ""}
-                    </td>
-                    <td>{item.soLuong}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr className={styles["no-data-row"]}>
-                  <td colSpan={7} className={styles["no-data"]}>
-                    Không tìm thấy dữ liệu phù hợp
-                  </td>
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "40px" }}>
+            <p>⏳ Đang tải dữ liệu...</p>
+          </div>
+        ) : (
+          <div className={styles["accounts-table"]}>
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Lô</th>
+                  <th>ID Sản Phẩm</th>
+                  <th>Giá nhập</th>
+                  <th>Ngày sản xuất</th>
+                  <th>Hạn sử dụng</th>
+                  <th>Số lượng</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              <tbody>
+                {pageData.length > 0 ? (
+                  pageData.map(item => (
+                    <tr key={item.batchID}>
+                      <td>{item.batchID}</td>
+                      <td>{item.productID}</td>
+                      <td>
+                        {item.priceIn.toLocaleString("vi-VN")} đ
+                      </td>
+                      <td>
+                        {new Date(item.productionDate).toLocaleDateString("vi-VN")}
+                      </td>
+                      <td>
+                        {new Date(item.expiry).toLocaleDateString("vi-VN")}
+                      </td>
+                      <td>{item.quantity}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className={styles["no-data-row"]}>
+                    <td colSpan={6} className={styles["no-data"]}>
+                      Không tìm thấy dữ liệu phù hợp
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* ===== PAGINATION ===== */}
         <div className={styles["pagination-container"]}>
