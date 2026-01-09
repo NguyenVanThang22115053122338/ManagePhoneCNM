@@ -2,7 +2,7 @@ import axios, { isAxiosError } from 'axios';
 import type { LoginResponse } from './Interface';
 import axiosClient from './AxiosClient';
 import type { IUser } from './Interface';
-import type { IRegisterRequest, RegisterResponse, VerifyMailResponse, ResendMailResponse  } from './Interface';
+import type { IRegisterRequest, RegisterResponse, VerifyMailResponse, ResendMailResponse ,UpdateUserResponse } from './Interface';
 
 export const login = async (
     sdt: string,
@@ -104,40 +104,54 @@ export const getAllUsers = async (): Promise<LoginResponse[]> => {
   return res.data;
 };
 
-export const userService = {
-  updateUser: async (
-    userId: number,
-    data: {
-      fullName?: string;
-      email?: string;
-      address?: string;
-    },
-    avatarFile?: File | null
-  ): Promise<IUser> => {
+export const updateUser = async (
+  sdt: string,
+  data: {
+    fullName?: string;
+    email?: string;
+    address?: string;
+  },
+  avatarFile?: File | null
+): Promise<UpdateUserResponse> => {
+  try {
     const formData = new FormData();
 
-    // Tạo DTO chỉ chứa các field cần cập nhật
-    // Nếu không thay đổi → gửi undefined → backend sẽ bỏ qua (giữ nguyên giá trị cũ)
-    const dto: {
-      fullName?: string | null;
-      email?: string    | null;
-      address?: string | null;
-    } = {};
-
-    if (data.fullName !== undefined) dto.fullName = data.fullName.trim() || null;
-    if (data.email !== undefined) dto.email = data.email.trim() || null;
-    if (data.address !== undefined) dto.address = data.address.trim() || null;
-
-    // BẮT BUỘC append key "data" dưới dạng JSON string
-    formData.append('data', JSON.stringify(dto));
-
-    // Append avatar nếu có
-    if (avatarFile) {
-      formData.append('avatar', avatarFile, avatarFile.name);
+    if (data.fullName !== undefined) {
+      formData.append('fullName', data.fullName.trim());
     }
 
-    const response = await axiosClient.put<IUser>(`/api/user/${userId}`, formData);
+    if (data.email !== undefined) {
+      formData.append('email', data.email.trim());
+    }
 
-    return response.data;
-  },
+    if (data.address !== undefined) {
+      formData.append('address', data.address.trim());
+    }
+
+    if (avatarFile) {
+      formData.append('avatar', avatarFile);
+    }
+
+    // debug
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    // 🔥 ĐỔI put → post
+    const res = await axiosClient.post<UpdateUserResponse>(
+      `/api/user/${sdt}`,
+      formData
+    );
+
+    return res.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Cập nhật người dùng thất bại'
+      );
+    }
+    throw new Error('Cập nhật người dùng thất bại');
+  }
 };
+
+

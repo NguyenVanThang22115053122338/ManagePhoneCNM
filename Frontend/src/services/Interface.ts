@@ -48,7 +48,10 @@ export interface IUser {
     role?: number;
 }
 
-
+export interface UpdateUserResponse {
+    user: IUser;
+    message: string;
+  }
 export interface ICategory {
     categoryId: number;
     categoryName: string;

@@ -49,6 +49,7 @@ Route::middleware(['jwt'])->group(function () {
 
     // ===== USER INFO =====
     Route::get('/user/me', [UserController::class, 'me']);
+    Route::post('/user/{sdt}', [UserController::class, 'updateUser']);
 
     // ===== PRODUCT (USER + ADMIN: CHỈ XEM) =====
 
