@@ -120,7 +120,7 @@ const CartPage: React.FC = () => {
       });
 
       const orderId = order.orderID;
-
+  
       for (const item of cartItems) {
         await orderDetailService.create({
           orderID: orderId,

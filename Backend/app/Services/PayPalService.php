@@ -49,8 +49,9 @@ class PayPalService
     {
         $token = $this->getAccessToken();
 
-        $returnUrl = rtrim(env('FE_BASE_URL'), '/') . '/payment/success';
-        $cancelUrl = rtrim(env('FE_BASE_URL'), '/') . '/payment/cancel';
+        $base = rtrim(env('FE_BASE_URL', 'http://localhost:5173'), '/');
+        $returnUrl = $base . '/payment/success';
+        $cancelUrl = $base . '/payment/cancel';
 
         // Nếu bạn muốn dùng APP_BASE_URL riêng:
         $appBaseUrl = env('APP_BASE_URL');

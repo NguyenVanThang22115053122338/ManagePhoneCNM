@@ -3,6 +3,7 @@ import type {
     OrderRequest,
     OrderResponse,
     OrderFullResponse,
+    ApiResponse,
 } from "../services/Interface";
 
 const orderService = {
@@ -14,14 +15,14 @@ const orderService = {
 
     getById(orderId: number) {
         return axiosClient
-            .get<OrderResponse>(`/api/order/${orderId}`)
-            .then(res => res.data);
+            .get<ApiResponse<OrderResponse>>(`/api/order/${orderId}`)
+            .then(res => res.data.data);
     },
 
     getByUser(userId: number) {
         return axiosClient
-            .get<OrderFullResponse[]>(`/api/order/user/${userId}`)
-            .then(res => res.data);
+            .get<ApiResponse<OrderFullResponse[]>>(`/api/order/user/${userId}`)
+            .then(res => res.data.data);
     },
 
     getAll() {
