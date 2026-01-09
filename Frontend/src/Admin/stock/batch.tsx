@@ -77,7 +77,7 @@ const Batch = () => {
       {/* ===== HEADER ===== */}
       <div className={styles["content-header"]}>
         <div className={styles["content-title-container"]}>
-          <a href="/stock_management">
+          <a href="/Admin/stock_management">
             <h1 className={styles["content-title"]}>Quản lý kho</h1>
           </a>
           <h1 className={`${styles["content-title"]} ${styles.active}`}>|</h1>
