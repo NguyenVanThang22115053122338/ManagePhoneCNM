@@ -7,19 +7,19 @@ import type {
 const paymentService = {
     createPayPalPayment(orderId: number): Promise<PayPalCreateResponse> {
         return axiosClient
-            .post<PayPalCreateResponse>(`/paypal/create?orderId=${orderId}`)
+            .post<PayPalCreateResponse>(`api/paypal/create?orderId=${orderId}`)
             .then(res => res.data);
     },
 
     getPaymentByOrderId(orderId: number) {
         return axiosClient
-            .get(`/paypal/payment/${orderId}`)
+            .get(`api/paypal/payment/${orderId}`)
             .then(res => res.data);
     },
 
     getFullPayment(orderId: number) {
         return axiosClient
-            .get(`/paypal/payment/full/${orderId}`)
+            .get(`api/paypal/payment/full/${orderId}`)
             .then(res => res.data);
     }
 };

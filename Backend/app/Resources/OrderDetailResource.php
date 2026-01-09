@@ -9,8 +9,8 @@ class OrderDetailResource extends JsonResource
     {
         return [
             'id'        => $this->OrderDetailID,
-            'orderID'   => $this->OrderID,
-            'productID' => $this->ProductID,
+            'orderId'   => $this->OrderID,
+            'productId' => $this->ProductID,
             'quantity'  => $this->Quantity
         ];
     }

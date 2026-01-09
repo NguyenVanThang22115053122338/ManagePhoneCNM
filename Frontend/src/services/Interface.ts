@@ -250,3 +250,7 @@ export interface IBatch {
     priceIn: number;
     expiry: string;
 }
+
+export interface ApiResponse<T> {
+    data: T;
+}

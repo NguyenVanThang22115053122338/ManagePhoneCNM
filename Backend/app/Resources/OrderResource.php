@@ -2,7 +2,7 @@
 namespace App\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
-
+use App\Resources\OrderProductResource;
 class OrderResource extends JsonResource
 {
     public function toArray($request)
@@ -13,6 +13,9 @@ class OrderResource extends JsonResource
             'status'        => $this->Status,
             'paymentStatus' => $this->PaymentStatus,
             'userID'        => $this->UserID,
+            'products'      => OrderProductResource::collection(
+                $this->orderDetails ?? collect()
+            ),
         ];
     }
 }

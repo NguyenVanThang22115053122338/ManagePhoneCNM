@@ -13,9 +13,9 @@ class OrderDetailRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'OrderID'   => 'required|exists:order,OrderID',
-            'ProductID' => 'required|exists:product,ProductID',
-            'Quantity'  => 'required|integer|min:1'
+            'orderID'   => 'required|exists:order,OrderID',
+            'productID' => 'required|exists:product,ProductID',
+            'quantity'  => 'required|integer|min:1'
         ];
     }
 }
