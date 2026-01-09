@@ -126,7 +126,8 @@ Route::middleware(['jwt'])->group(function () {
         // ===== NOTIFICATIONS (CRUD) =====
         Route::post('/notifications', [NotificationController::class, 'store']);
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
-
+        Route::put('/notifications/{id}', [NotificationController::class, 'update']);
+        
         // ===== PRODUCT (CRUD) =====
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
