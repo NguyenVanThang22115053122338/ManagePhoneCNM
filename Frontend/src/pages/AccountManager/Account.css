@@ -1,7 +1,7 @@
 .account-container {
-  background: #f5f5f5;
+  background: #f6f6f6;
   min-height: 100vh;
-  padding: 30px 0;
+  padding: 60px 16px 30px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -9,92 +9,105 @@
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
-  gap: 30px;
+  gap: 0;
   background: white;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
-/* Sidebar */
+/* ================= Sidebar ================= */
 .account-sidebar {
   width: 280px;
-  background: #fafafa;
-  padding: 30px 20px;
+  background: #fff;
+  padding: 32px 20px;
   text-align: center;
   border-right: 1px solid #eee;
 }
 
 .avatar-section .avatar {
-  width: 100px;
-  height: 100px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
-  background: #2e7d32;
+  background: #d32f2f;
   color: white;
-  font-size: 40px;
-  font-weight: bold;
+  font-size: 36px;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
 }
 
 .avatar-section h3 {
-  margin: 0 0 8px;
-  font-size: 20px;
+  margin: 0 0 4px;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .avatar-section p {
-  color: #666;
+  color: #777;
   font-size: 14px;
 }
 
 .account-menu {
-  margin-top: 40px;
+  margin-top: 36px;
   text-align: left;
 }
 
 .account-menu a {
   display: block;
-  padding: 12px 20px;
+  padding: 12px 16px;
   color: #333;
   text-decoration: none;
   border-radius: 6px;
-  margin-bottom: 4px;
-  transition: all 0.2s;
+  margin-bottom: 6px;
+  transition: 0.25s;
 }
 
-.account-menu a:hover,
+.account-menu a:hover {
+  background: #fdecea;
+  color: #d32f2f;
+}
+
 .account-menu a.active {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: #d32f2f;
+  color: white;
   font-weight: 500;
 }
 
-/* Main content */
+/* ================= Main ================= */
 .account-main {
   flex: 1;
-  padding: 30px;
+  padding: 32px;
+}
+
+.account-main .page-title {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  -webkit-text-fill-color: initial !important;
+
+  color: #333 !important;
 }
 
 .page-title {
-  font-size: 28px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 30px;
+  font-size: 26px;
+  font-weight: 600;
+  color: #d32f2f !important;
+  margin-bottom: 28px;
 }
 
+/* ================= Card ================= */
 .info-card {
-  background: #fff;
+  background: white;
   border: 1px solid #eee;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  overflow: hidden;
+  border-radius: 10px;
+  margin-bottom: 28px;
 }
 
 .card-header {
-  padding: 20px 24px;
-  background: #f9f9f9;
+  padding: 18px 22px;
+  background: #fafafa;
   border-bottom: 1px solid #eee;
   display: flex;
   justify-content: space-between;
@@ -103,29 +116,35 @@
 
 .card-header h3 {
   margin: 0;
-  font-size: 18px;
-  color: #333;
+  font-size: 17px;
+  font-weight: 600;
 }
 
+/* ================= Buttons ================= */
 .edit-btn,
 .save-btn {
-  padding: 8px 20px;
-  background: #1976d2;
+  padding: 8px 18px;
+  background: #d32f2f;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
+  transition: 0.25s;
+}
+
+.edit-btn:hover,
+.save-btn:hover {
+  background: #b71c1c;
 }
 
 .cancel-btn {
-  padding: 8px 20px;
+  padding: 8px 18px;
   background: #eee;
   color: #333;
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  margin-right: 10px;
 }
 
 .edit-actions {
@@ -133,8 +152,9 @@
   gap: 10px;
 }
 
+/* ================= Info ================= */
 .info-grid {
-  padding: 24px;
+  padding: 22px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
@@ -151,30 +171,37 @@
 
 .info-item label {
   font-weight: 500;
-  color: #555;
-  margin-bottom: 8px;
+  color: #666;
+  margin-bottom: 6px;
   font-size: 14px;
 }
 
 .info-item p {
   margin: 0;
   color: #333;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .info-item input,
 .info-item textarea {
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 15px;
 }
 
-.info-item input.readonly {
-  background: #f5f5f5;
-  color: #666;
+.info-item input:focus,
+.info-item textarea:focus {
+  border-color: #d32f2f;
+  outline: none;
 }
 
+.info-item input.readonly {
+  background: #f5f5f5;
+  color: #777;
+}
+
+/* ================= Avatar ================= */
 .profile-header {
   text-align: center;
 }
@@ -183,10 +210,10 @@
   position: relative;
   width: 120px;
   height: 120px;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
   border-radius: 50%;
   overflow: hidden;
-  border: 4px solid #e0e0e0;
+  border: 3px solid #eee;
   background: #f0f0f0;
 }
 
@@ -202,39 +229,41 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
-  font-weight: bold;
-  color: #666;
-  background: #ddd;
+  font-size: 34px;
+  font-weight: 600;
+  color: #777;
+  background: #e0e0e0;
 }
 
 .avatar-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(211, 47, 47, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
-  transition: opacity 0.3s;
+  transition: 0.3s;
   color: white;
-  font-size: 24px;
+  font-size: 22px;
 }
 
 .avatar-large:hover .avatar-overlay {
   opacity: 1;
 }
 
-/* Responsive */
+/* ================= Responsive ================= */
 @media (max-width: 768px) {
   .account-wrapper {
     flex-direction: column;
   }
+
   .account-sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid #eee;
   }
+
   .info-grid {
     grid-template-columns: 1fr;
   }

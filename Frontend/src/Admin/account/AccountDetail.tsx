@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { userService } from "../../services/UserService";
+import { updateUser } from "../../services/UserService";
 import type { LoginResponse } from "../../services/Interface";
 import styles from "./account_detail.module.css";
 
@@ -19,8 +19,8 @@ const AccountDetail = () => {
     const handleUpdate = async () => {
     if (!account) return;
 
-    await userService.updateUser(
-        account.userId,
+    await updateUser(
+        account.sdt,
         { fullName, email, address },
         avatarFile
     );
