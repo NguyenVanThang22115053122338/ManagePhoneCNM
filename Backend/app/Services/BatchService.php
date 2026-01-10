@@ -9,9 +9,9 @@ use RuntimeException;
 
 class BatchService
 {
-    public function getAll()
+    public function getAll(int $perPage)
     {
-        return BatchResource::collection(Batch::all());
+        return BatchResource::collection(Batch::paginate($perPage));
     }
 
     public function getById(int $id)

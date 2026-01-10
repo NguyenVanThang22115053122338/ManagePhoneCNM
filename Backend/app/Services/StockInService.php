@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\DB;
 class StockInService
 {
     // Lấy tất cả phiếu nhập
-    public function getAll()
+    public function getAll(int $perPage)
     {
-        $stockIns = StockIn::all();
+        $stockIns = StockIn::paginate($perPage);
         return StockInResource::collection($stockIns);
     }
 

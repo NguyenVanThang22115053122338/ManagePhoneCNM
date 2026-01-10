@@ -16,9 +16,9 @@ class BatchController extends Controller
         $this->service = $service;
     }
 
-    public function index()
+    public function index(int $perPage = 5)
     {
-        return $this->service->getAll();
+        return $this->service->getAll($perPage);
     }
 
     public function show(int $id)

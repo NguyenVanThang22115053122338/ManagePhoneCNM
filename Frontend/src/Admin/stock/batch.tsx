@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./batch.module.css";
 import BatchService from "../../services/BatchService";
 import type { IBatch } from "../../services/Interface";
@@ -10,50 +10,43 @@ const Batch = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* ===== PAGINATION ===== */
+  /* ===== PAGINATION FROM BACKEND ===== */
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [from, setFrom] = useState(0);
+  const [to, setTo] = useState(0);
 
   /* ===== FETCH DATA FROM API ===== */
   useEffect(() => {
     fetchBatches();
-  }, []);
+  }, [currentPage, search]);
 
   const fetchBatches = async () => {
     setLoading(true);
     try {
-      const batches = await BatchService.getBatches();
-      setData(batches);
+      const response = await BatchService.getBatches(currentPage, search);
+
+      setData(response.data || []);
+      setCurrentPage(response.meta.current_page || 1);
+      setLastPage(response.meta.last_page || 1);
+      setTotal(response.meta.total || 0);
+      setFrom(response.meta.from || 0);
+      setTo(response.meta.to || 0);
     } catch (error: any) {
       console.error("Fetch batches error:", error);
       alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+      setData([]);
     } finally {
       setLoading(false);
     }
   };
 
-  /* ===== SEARCH FILTER ===== */
-  const filteredData = useMemo(() => {
-    if (!search.trim()) return data;
-    const searchLower = search.toLowerCase();
-    return data.filter(item =>
-      item.productID.toString().includes(searchLower) ||
-      item.batchID.toString().includes(searchLower) ||
-      item.quantity.toString().includes(searchLower)
-    );
-  }, [search, data]);
-
-  /* ===== PAGINATION LOGIC ===== */
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-
-  const pageData = filteredData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search]);
+  /* ===== SEARCH HANDLER ===== */
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+    setCurrentPage(1); // Reset to page 1 when searching
+  };
 
   /* ================= RENDER ================= */
   return (
@@ -76,7 +69,7 @@ const Batch = () => {
             type="text"
             placeholder="Tìm kiếm"
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={e => handleSearchChange(e.target.value)}
           />
         </div>
       </div>
@@ -102,8 +95,8 @@ const Batch = () => {
               </thead>
 
               <tbody>
-                {pageData.length > 0 ? (
-                  pageData.map(item => (
+                {data.length > 0 ? (
+                  data.map((item: IBatch) => (
                     <tr key={item.batchID}>
                       <td>{item.batchID}</td>
                       <td>{item.productID}</td>
@@ -134,9 +127,9 @@ const Batch = () => {
         {/* ===== PAGINATION ===== */}
         <div className={styles["pagination-container"]}>
           <div className={styles["page-info"]}>
-            {filteredData.length === 0
-              ? "Trang 0/0"
-              : `Trang ${currentPage}/${totalPages}`}
+            {total === 0
+              ? "Không có dữ liệu"
+              : `Hiển thị ${from} - ${to} của ${total} kết quả`}
           </div>
 
           <div className={styles["pagination-controls"]}>
@@ -148,9 +141,13 @@ const Batch = () => {
               <i className="fas fa-chevron-left"></i>
             </button>
 
+            <span className={styles["page-number"]}>
+              Trang {currentPage} / {lastPage}
+            </span>
+
             <button
               className={styles["pagination-button"]}
-              disabled={currentPage >= totalPages || totalPages === 0}
+              disabled={currentPage >= lastPage || lastPage === 0}
               onClick={() => setCurrentPage(p => p + 1)}
             >
               <i className="fas fa-chevron-right"></i>

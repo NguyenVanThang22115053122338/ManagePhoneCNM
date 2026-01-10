@@ -12,9 +12,9 @@ use App\Models\Product;
 class StockOutService
 {
     // Lấy tất cả phiếu xuất
-    public function getAll()
+    public function getAll(int $perPage)
     {
-        $stockOuts = StockOut::all();
+        $stockOuts = StockOut::paginate($perPage);
         return StockOutResource::collection($stockOuts);
     }
 
