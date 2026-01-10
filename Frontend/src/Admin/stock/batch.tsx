@@ -3,21 +3,21 @@ import styles from "./batch.module.css";
 import BatchService from "../../services/BatchService";
 import type { IBatch } from "../../services/Interface";
 
-/* ================= COMPONENT ================= */
+
 const Batch = () => {
-  /* ===== DATA ===== */
+
   const [data, setData] = useState<IBatch[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /* ===== PAGINATION FROM BACKEND ===== */
+
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [from, setFrom] = useState(0);
   const [to, setTo] = useState(0);
 
-  /* ===== FETCH DATA FROM API ===== */
+
   useEffect(() => {
     fetchBatches();
   }, [currentPage, search]);
@@ -42,16 +42,16 @@ const Batch = () => {
     }
   };
 
-  /* ===== SEARCH HANDLER ===== */
+
   const handleSearchChange = (value: string) => {
     setSearch(value);
-    setCurrentPage(1); // Reset to page 1 when searching
+    setCurrentPage(1);
   };
 
-  /* ================= RENDER ================= */
+
   return (
     <div className={styles["main-content"]}>
-      {/* ===== HEADER ===== */}
+
       <div className={styles["content-header"]}>
         <div className={styles["content-title-container"]}>
           <a href="/Admin/stock_management">
@@ -74,7 +74,6 @@ const Batch = () => {
         </div>
       </div>
 
-      {/* ===== TABLE ===== */}
       <div className={styles.container}>
         {loading ? (
           <div style={{ textAlign: "center", padding: "40px" }}>
@@ -124,7 +123,7 @@ const Batch = () => {
           </div>
         )}
 
-        {/* ===== PAGINATION ===== */}
+
         <div className={styles["pagination-container"]}>
           <div className={styles["page-info"]}>
             {total === 0

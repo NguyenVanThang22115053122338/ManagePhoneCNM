@@ -1,20 +1,38 @@
 import axios from "axios";
-import type { IStockOut } from "./Interface";
+import type { IStockOut, LaravelPaginationResponse } from "./Interface";
 import axiosClient from "./AxiosClient";
 import type { IStockOutRequest } from "./Interface";
 
 const StockOutService = {
 
-    async getStockOuts(): Promise<IStockOut[]> {
+    async getStockOuts(page: number, search: string): Promise<LaravelPaginationResponse<IStockOut>> {
         try {
-            const response = await axiosClient.get("/api/stockout");
+            const response = await axiosClient.get("/api/stockout", { params: { page, search } });
 
             if (response.data?.data && Array.isArray(response.data.data)) {
-                return response.data.data as IStockOut[];
+                return response.data as LaravelPaginationResponse<IStockOut>;
             }
 
             console.error("Stockout API không trả đúng format:", response.data);
-            return [];
+            return {
+                data: [],
+                links: {
+                    first: "",
+                    last: "",
+                    prev: null,
+                    next: null
+                },
+                meta: {
+                    current_page: 1,
+                    from: 0,
+                    last_page: 1,
+                    links: [],
+                    path: "",
+                    per_page: 5,
+                    to: 0,
+                    total: 0
+                }
+            };
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 const message =

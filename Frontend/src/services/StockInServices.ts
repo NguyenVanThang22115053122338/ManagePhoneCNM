@@ -1,19 +1,37 @@
 import axios from "axios";
-import type { IStockIn, IStockInRequest } from "./Interface";
+import type { IStockIn, IStockInRequest, LaravelPaginationResponse } from "./Interface";
 import axiosClient from "./AxiosClient";
 
 const StockInService = {
 
-    async getStockIns(): Promise<IStockIn[]> {
+    async getStockIns(page: number, search: string): Promise<LaravelPaginationResponse<IStockIn>> {
         try {
-            const response = await axiosClient.get("/api/stockin");
+            const response = await axiosClient.get("/api/stockin", { params: { page, search } });
 
             if (response.data?.data && Array.isArray(response.data.data)) {
-                return response.data.data as IStockIn[];
+                return response.data as LaravelPaginationResponse<IStockIn>;
             }
 
             console.error("StockIn API không trả đúng format:", response.data);
-            return [];
+            return {
+                data: [],
+                links: {
+                    first: "",
+                    last: "",
+                    prev: null,
+                    next: null
+                },
+                meta: {
+                    current_page: 1,
+                    from: 0,
+                    last_page: 1,
+                    links: [],
+                    path: "",
+                    per_page: 5,
+                    to: 0,
+                    total: 0
+                }
+            }
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 const message =

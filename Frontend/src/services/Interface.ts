@@ -300,7 +300,6 @@ export interface ApiResponse<T> {
     data: T;
 }
 
-// Laravel Pagination Response (API Resource format)
 export interface LaravelPaginationResponse<T> {
     data: T[];
     links: {

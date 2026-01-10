@@ -11,7 +11,8 @@ class BatchService
 {
     public function getAll(int $perPage)
     {
-        return BatchResource::collection(Batch::paginate($perPage));
+        $batch = Batch::orderBy('batchID', 'desc')->paginate($perPage);
+        return BatchResource::collection($batch);
     }
 
     public function getById(int $id)

@@ -16,7 +16,7 @@ class StockInService
     // Lấy tất cả phiếu nhập
     public function getAll(int $perPage)
     {
-        $stockIns = StockIn::paginate($perPage);
+        $stockIns = StockIn::orderBy('StockInID', 'desc')->paginate($perPage);
         return StockInResource::collection($stockIns);
     }
 

@@ -13,8 +13,6 @@ const BatchService = {
 
             const response = await axiosClient.get("/api/batch", { params });
 
-            // Laravel pagination response structure (API Resource format)
-            // Response structure: { data: [], links: {}, meta: {} }
             if (response.data) {
                 return response.data;
             }

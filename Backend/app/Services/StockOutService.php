@@ -14,7 +14,7 @@ class StockOutService
     // Lấy tất cả phiếu xuất
     public function getAll(int $perPage)
     {
-        $stockOuts = StockOut::paginate($perPage);
+        $stockOuts = StockOut::orderBy('StockOutID', 'desc')->paginate($perPage);
         return StockOutResource::collection($stockOuts);
     }
 
