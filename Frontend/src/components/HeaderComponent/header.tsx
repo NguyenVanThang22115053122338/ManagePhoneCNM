@@ -163,48 +163,52 @@ const Header = () => {
               </div>
 
               {/* Search Suggestions Dropdown */}
-              {showSuggestions && searchSuggestions.length > 0 && (
+              {keyword.trim() && (
                 <div className="search-dropdown">
-                  <div className="search-dropdown-header">
-                    <span>Gợi ý sản phẩm</span>
-                  </div>
-                  <div className="search-dropdown-list">
-                    {searchSuggestions.map((product) => (
-                      <div
-                        key={product.productId}
-                        className="search-dropdown-item"
-                        onClick={() => handleSuggestionClick(product.productId!)}
-                      >
-                        <img
-                          src={product.productImages?.[0]?.url || Logo}
-                          alt={product.name}
-                          className="search-item-img"
-                        />
-                        <div className="search-item-info">
-                          <p className="search-item-name">{product.name}</p>
-                          <p className="search-item-price">
-                            {product.price?.toLocaleString('vi-VN')}đ
-                          </p>
-                        </div>
+                  {isSearching ? (
+                    <div className="search-loading">
+                      Đang tìm kiếm...
+                    </div>
+                  ) : showSuggestions && searchSuggestions.length > 0 ? (
+                    <>
+                      <div className="search-dropdown-header">
+                        <span>Gợi ý sản phẩm</span>
                       </div>
-                    ))}
-                  </div>
-                  <div className="search-dropdown-footer">
-                    <button
-                      className="search-view-all"
-                      onClick={handleSearchClick}
-                    >
-                      Xem tất cả kết quả cho "{keyword}"
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {isSearching && keyword.trim() && (
-                <div className="search-dropdown">
-                  <div className="search-loading">
-                    Đang tìm kiếm...
-                  </div>
+                      <div className="search-dropdown-list">
+                        {searchSuggestions.map((product) => (
+                          <div
+                            key={product.productId}
+                            className="search-dropdown-item"
+                            onClick={() => handleSuggestionClick(product.productId!)}
+                          >
+                            <img
+                              src={product.productImages?.[0]?.url || Logo}
+                              alt={product.name}
+                              className="search-item-img"
+                            />
+                            <div className="search-item-info">
+                              <p className="search-item-name">{product.name}</p>
+                              <p className="search-item-price">
+                                {product.price?.toLocaleString('vi-VN')}đ
+                              </p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="search-dropdown-footer">
+                        <button
+                          className="search-view-all"
+                          onClick={handleSearchClick}
+                        >
+                          Xem tất cả kết quả cho "{keyword}"
+                        </button>
+                      </div>
+                    </>
+                  ) : showSuggestions && searchSuggestions.length === 0 ? (
+                    <div className="search-loading">
+                      Không tìm thấy sản phẩm
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

@@ -17,19 +17,18 @@ class ProductController extends Controller
         $this->service = $service;
     }
 
-    /**
-     * GET /api/products
-     */
-    public function index()
+
+    public function index(Request $request)
     {
-        $products = $this->service->getAll();
+        $keyword = $request->query('keyword');
+        $categoryId = $request->query('categoryId');
+
+        $products = $this->service->getAll($keyword, $categoryId);
 
         return ProductResource::collection($products);
     }
 
-    /**
-     * GET /api/products/{id}
-     */
+
     public function show(int $id)
     {
         $product = $this->service->getById($id);
@@ -37,9 +36,7 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
-    /**
-     * POST /api/products
-     */
+
     public function store(Request $request)
     {
         $product = $this->service->create($request->all());
@@ -47,9 +44,7 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
-    /**
-     * PUT /api/products/{id}
-     */
+
     public function update(Request $request, int $id)
     {
         $product = $this->service->update($id, $request->all());
@@ -57,9 +52,7 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
-    /**
-     * DELETE /api/products/{id}
-     */
+
     public function destroy(int $id)
     {
         $this->service->delete($id);
