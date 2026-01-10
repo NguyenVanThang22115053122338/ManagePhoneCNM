@@ -124,6 +124,8 @@ const StockManagement = () => {
               <tr>
                 <th>{currentTab === "nhap" ? "ID Nhập" : "ID Xuất"}</th>
                 <th>ID Lô</th>
+                <th>{currentTab === "nhap" ? "Người nhập" : "Người xuất"}</th>
+                <th>Tên sản phẩm</th>
                 <th>Số lượng</th>
                 <th>Ngày</th>
                 <th>Ghi chú</th>
@@ -142,6 +144,8 @@ const StockManagement = () => {
                     <td>
                       <span className={styles["phone-badge"]}>{item.batchID}</span>
                     </td>
+                    <td>{item.userName ?? ""}</td>
+                    <td>{item.name ?? ""}</td>
                     <td>
                       <span
                         className={`${styles["quantity-badge"]} ${currentTab === "nhap"

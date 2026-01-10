@@ -264,7 +264,9 @@ export interface IBatch {
 export interface IStockIn {
     stockInID: number;
     batchID: number;
+    name: string;
     quantity: number;
+    userName: string;
     date: string;
     note: string;
 }
@@ -272,7 +274,9 @@ export interface IStockIn {
 export interface IStockOut {
     stockOutID: number;
     batchID: number;
+    name: string;
     quantity: number;
+    userName: string;
     date: string;
     note: string;
 }

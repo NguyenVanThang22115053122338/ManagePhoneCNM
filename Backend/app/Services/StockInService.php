@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\StockIn;
+use App\Models\Product;
 use App\Models\Batch;
 use App\Models\User;
 use App\Resources\StockInResource;
@@ -54,7 +55,7 @@ class StockInService
             'date' => $data['date'] ?? Carbon::now()
         ]);
 
-        return new StockInResource($stockIn);
+        return new StockIn($stockIn);
     }
 
     // Cập nhật phiếu nhập

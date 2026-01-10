@@ -11,9 +11,10 @@ class StockInResource extends JsonResource
         return [
             'stockInID' => $this->stockInID,
             'batchID' => $this->batch?->BatchID,
+            'name' => $this->batch?->Product?->name,
             'quantity' => $this->quantity,
             'note' => $this->note,
-            'userId' => $this->user?->UserID,
+            'userName' => $this->user?->FullName,
             'date' => $this->date,
         ];
     }
