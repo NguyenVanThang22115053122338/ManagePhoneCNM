@@ -51,7 +51,7 @@ export interface IUser {
 export interface UpdateUserResponse {
     user: IUser;
     message: string;
-  }
+}
 export interface ICategory {
     categoryId: number;
     categoryName: string;
@@ -117,7 +117,7 @@ export interface IProduct {
 
     supplierId: number;
     categoryId: number;
-    specification: Specification ;
+    specification: Specification;
     productImages?: ProductImage[];
 }
 
@@ -241,20 +241,15 @@ export interface OrderResponse {
 }
 
 export interface OrderDetailResponse {
-  id: number;
-  orderId: number;
-  productId: number;
-  quantity: number;
-}
-
-export interface ISupplier {
-  supplierId: number;
-  supplierName: string;
-}
     id: number;
     orderId: number;
     productId: number;
     quantity: number;
+}
+
+export interface ISupplier {
+    supplierId: number;
+    supplierName: string;
 }
 
 export interface IBatch {
