@@ -5,6 +5,7 @@ import type { IUser } from "../services/Interface";
 type AuthContextType = {
   user: IUser | null;
   setUser: (user: IUser | null) => void;
+  updateUserContext: (newUser: IUser) => void;
   logout: () => void;
   loading: boolean;
 };
@@ -47,6 +48,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   }, []);
 
+  // ✅ FIX: Tạo object mới hoàn toàn để trigger re-render
+  const updateUserContext = (newUser: IUser) => {
+    const updatedUser = { ...newUser }; // Tạo reference mới
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser); // ✅ Set state với object mới
+  };
 
   const logout = () => {
     localStorage.removeItem("accessToken");
@@ -60,7 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, updateUserContext, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
