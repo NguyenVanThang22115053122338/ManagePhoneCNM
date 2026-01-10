@@ -43,12 +43,13 @@ const productService = {
 
   async createProduct(product: IProduct): Promise<IProduct> {
     const res = await axiosClient.post("/api/products", product);
-    return normalizeProduct(res.data);
+    return normalizeProduct(res.data.data); // 🔥 FIX
   },
+
 
   async updateProduct(id: number, product: IProduct): Promise<IProduct> {
     const res = await axiosClient.put(`/api/products/${id}`, product);
-    return normalizeProduct(res.data);
+    return normalizeProduct(res.data.data); // 🔥 FIX
   },
 
   async deleteProduct(id: number): Promise<void> {
@@ -76,10 +77,12 @@ const productService = {
     productId: number,
     files: File[]
   ): Promise<ProductImage[]> {
-    const formData = new FormData();
+    const token = localStorage.getItem("accessToken");
+    if (!token) throw new Error("Missing token");
 
+    const formData = new FormData();
     files.forEach(file => {
-      formData.append("files", file);
+      formData.append("files[]", file); // 👈 chuẩn Laravel
     });
 
     const res = await axiosClient.post(
@@ -87,7 +90,9 @@ const productService = {
       formData,
       {
         headers: {
+          Authorization: `Bearer ${token}`, // 🔥 BẮT BUỘC
           "Content-Type": "multipart/form-data",
+          Accept: "application/json",
         },
       }
     );

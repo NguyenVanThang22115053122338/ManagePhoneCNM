@@ -97,7 +97,7 @@ export interface ProductImage {
 }
 
 export interface Specification {
-    specId: number;
+    specId?: number;
     screen: string;
     cpu: string;
     ram: string;
@@ -114,8 +114,10 @@ export interface IProduct {
     stockQuantity: number;
     description?: string;
     brandId: number;
+
+    supplierId: number;
     categoryId: number;
-    specification?: Specification | null;
+    specification: Specification ;
     productImages?: ProductImage[];
 }
 
@@ -239,6 +241,16 @@ export interface OrderResponse {
 }
 
 export interface OrderDetailResponse {
+  id: number;
+  orderId: number;
+  productId: number;
+  quantity: number;
+}
+
+export interface ISupplier {
+  supplierId: number;
+  supplierName: string;
+}
     id: number;
     orderId: number;
     productId: number;

@@ -38,6 +38,8 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
+
+
 Route::post('/ai/phone-chat', [PhoneChatController::class, 'chat']);
 /*
 |--------------------------------------------------------------------------
@@ -72,7 +74,16 @@ Route::middleware(['jwt'])->group(function () {
 
 
     // ===== IMAGE UPLOAD (USER + ADMIN) =====
-    Route::post('/images/img-upload', [ImageUploadController::class, 'upload']);
+Route::prefix('images')->group(function () {
+        // upload 1 ảnh
+        Route::post('/img-upload', [ImageUploadController::class, 'uploadSingle']);
+
+        // ✅ upload ảnh theo productId
+        Route::post('/{productId}', [ImageUploadController::class, 'uploadProductImages'])
+            ->whereNumber('productId');
+    });
+
+
 
     // ===== NOTIFICATIONS (USER + ADMIN: CHỈ XEM) =====
     Route::get('/notifications', [NotificationController::class, 'index']);

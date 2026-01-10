@@ -22,9 +22,8 @@ class Specification extends Model
         'os'
     ];
 
-    // ===== RELATION =====
     public function product()
     {
-        return $this->hasOne(Product::class, 'specId', 'specId');
+        return $this->hasOne(Product::class, 'SpecID', 'specId');
     }
 }

@@ -7,13 +7,32 @@ export const brandService = {
   /* ================= GET ================= */
   getAll: async (): Promise<Brand[]> => {
     const res = await axiosClient.get(API_URL);
-    return res.data;
+
+    // BACKEND trả object -> bóc mảng ra
+    if (Array.isArray(res.data)) return res.data;
+
+    if (Array.isArray(res.data.data)) return res.data.data;
+
+    if (Array.isArray(res.data.content)) return res.data.content;
+
+    console.warn("Brand API không trả mảng, fallback []", res.data);
+    return [];
   },
+
 
   getById: async (id: number): Promise<Brand> => {
     const res = await axiosClient.get(`${API_URL}/${id}`);
-    return res.data;
+
+    const raw = res.data?.data ?? res.data;
+
+    return {
+      brandId: raw.brandId ?? raw.id,
+      name: raw.name ?? raw.brand_name ?? "",
+      country: raw.country ?? raw.nation ?? "",
+      description: raw.description ?? "",
+    };
   },
+
 
   searchByName: async (name: string): Promise<Brand[]> => {
     const res = await axiosClient.get(`${API_URL}/search`, {

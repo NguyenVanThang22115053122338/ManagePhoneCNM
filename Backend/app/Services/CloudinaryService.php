@@ -20,30 +20,48 @@ class CloudinaryService
         ]);
     }
 
-    public function uploadImage(UploadedFile $file, string $folder): string
+    public function uploadImage(UploadedFile $file, string $folder): array
     {
         $res = $this->cloudinary->uploadApi()->upload(
             $file->getRealPath(),
-            ['folder' => $folder, 'resource_type' => 'image']
+            [
+                'folder' => $folder,
+                'resource_type' => 'image',
+                'unique_filename' => true,
+                'overwrite' => false,
+            ]
         );
 
-        return $res['secure_url'];
+        return [
+            'url' => $res['secure_url'],
+            'public_id' => $res['public_id'],
+        ];
     }
 
-    public function uploadVideo(UploadedFile $file, string $folder): string
+    public function uploadVideo(UploadedFile $file, string $folder): array
     {
         $res = $this->cloudinary->uploadApi()->upload(
             $file->getRealPath(),
-            ['folder' => $folder, 'resource_type' => 'video']
+            [
+                'folder' => $folder,
+                'resource_type' => 'video',
+                'unique_filename' => true,
+                'overwrite' => false,
+            ]
         );
 
-        return $res['secure_url'];
+        return [
+            'url' => $res['secure_url'],
+            'public_id' => $res['public_id'],
+        ];
     }
 
-    public function deleteFile(string $publicId, string $resourceType = 'image')
+    public function deleteFile(string $publicId, string $resourceType = 'image'): bool
     {
-        return $this->cloudinary->uploadApi()->destroy($publicId, [
-            'resource_type' => $resourceType
+        $res = $this->cloudinary->uploadApi()->destroy($publicId, [
+            'resource_type' => $resourceType,
         ]);
+
+        return ($res['result'] ?? null) === 'ok';
     }
 }

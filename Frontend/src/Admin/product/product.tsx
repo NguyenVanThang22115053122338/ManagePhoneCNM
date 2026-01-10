@@ -2,24 +2,29 @@ import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./product.module.css";
 
-import productService  from "../../services/ProductService";
+import productService from "../../services/ProductService";
 import type { IProduct } from "../../services/Interface";
+
+const PAGE_SIZE = 10;
 
 const SanPhamPage: React.FC = () => {
   const navigate = useNavigate();
-  const [sanPhams, setSanPhams] = useState<IProduct[]>([]);
+
+  const [products, setProducts] = useState<IProduct[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
+  /* ================= FETCH ================= */
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await productService.getAllProducts(); // Dùng đúng hàm đã có
-        setSanPhams(data);
+        const data = await productService.getAllProducts();
+        setProducts(data);
       } catch (error) {
         console.error("Lỗi tải danh sách sản phẩm", error);
-        setSanPhams([]);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -28,13 +33,23 @@ const SanPhamPage: React.FC = () => {
     fetchData();
   }, []);
 
-  const filteredRows = useMemo(() => {
+  /* ================= SEARCH ================= */
+  const filteredProducts = useMemo(() => {
     const lower = search.toLowerCase();
-    return sanPhams.filter((sp) =>
-      sp.name.toLowerCase().includes(lower)
+    return products.filter(p =>
+      p.name.toLowerCase().includes(lower)
     );
-  }, [sanPhams, search]);
+  }, [products, search]);
 
+  /* ================= PAGINATION ================= */
+  const totalPages = Math.ceil(filteredProducts.length / PAGE_SIZE);
+
+  const pagedProducts = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filteredProducts.slice(start, start + PAGE_SIZE);
+  }, [filteredProducts, page]);
+
+  /* ================= HANDLERS ================= */
   const handleEdit = (id: number) => {
     navigate(`/admin/products/edit/${id}`);
   };
@@ -43,7 +58,6 @@ const SanPhamPage: React.FC = () => {
     navigate("/admin/products/create");
   };
 
-  // Lấy ảnh đầu tiên (ưu tiên img_index = 0) hoặc placeholder
   const getProductImage = (images?: IProduct["productImages"]) => {
     if (!images || images.length === 0) {
       return "/uploads/placeholder.jpg";
@@ -52,47 +66,59 @@ const SanPhamPage: React.FC = () => {
     return primary.url;
   };
 
+  /* ================= STATES ================= */
   if (loading) {
     return (
-      <main className={styles["main-content"]}>
-        <div>Đang tải sản phẩm...</div>
+      <main className={styles["productPage-root"]}>
+        <section className={styles["productPage-content"]}>
+          <h1>Quản lý sản phẩm</h1>
+          <p>Đang tải dữ liệu...</p>
+        </section>
       </main>
     );
   }
 
+  /* ================= RENDER ================= */
   return (
-    <main className={styles["main-content"]}>
-      {/* Search */}
-      <div className={styles["search-bar"]}>
-        <i className="fas fa-search"></i>
-        <input
-          type="text"
-          placeholder="Tìm kiếm"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+    <main className={styles["productPage-root"]}>
+      <section className={styles["productPage-content"]}>
+        {/* HEADER */}
+        <header className={styles["productPage-header"]}>
+          <h1 className={styles["productPage-title"]}>
+            Quản lý sản phẩm
+          </h1>
 
-      <div className={styles.Title}>
-        <h1>QUẢN LÝ SẢN PHẨM</h1>
-      </div>
+          <div className={styles["productPage-actionsTop"]}>
+            {/* SEARCH */}
+            <div className={styles["productPage-search"]}>
+              <i className="fa fa-search"></i>
+              <input
+                type="text"
+                placeholder="Tìm kiếm sản phẩm..."
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
 
-      {/* Filter + Add */}
-      <div className={styles["add-button"]}>
-        <button className={styles["filter-btn"]}>
-          Tất cả ({filteredRows.length})
-        </button>
-        <button className={styles.add} onClick={handleAdd}>
-          Thêm mới &nbsp;&nbsp;&nbsp;<span className={styles["plus-sign"]}>+</span>
-        </button>
-      </div>
+            {/* ADD */}
+            <button
+              className={styles["productPage-addBtn"]}
+              onClick={handleAdd}
+            >
+              <i className="fa fa-plus"></i>
+              <span>Thêm sản phẩm</span>
+            </button>
+          </div>
+        </header>
 
-      {/* Table */}
-      <section className={styles["table-container"]}>
-        <table className={styles["product-table"]}>
+        {/* TABLE */}
+        <table className={styles["productPage-table"]}>
           <thead>
             <tr>
-              <th>Mã</th>
+              <th>ID</th>
               <th>Ảnh</th>
               <th>Tên sản phẩm</th>
               <th>Số lượng</th>
@@ -100,32 +126,80 @@ const SanPhamPage: React.FC = () => {
               <th>Mô tả</th>
             </tr>
           </thead>
+
           <tbody>
-            {filteredRows.map((item) => (
-              <tr
-                key={item.productId}
-                onClick={() => handleEdit(item.productId!)}
-                style={{ cursor: "pointer" }}
-              >
-                <td>{item.productId}</td>
-                <td>
-                  <img
-                    src={getProductImage(item.productImages)}
-                    alt={item.name}
-                    className={styles["rounded-img"]}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/uploads/placeholder.jpg";
-                    }}
-                  />
+            {pagedProducts.length > 0 ? (
+              pagedProducts.map(item => (
+                <tr
+                  key={item.productId}
+                  onClick={() => handleEdit(item.productId!)}
+                >
+                  <td>{item.productId}</td>
+                  <td>
+                    <img
+                      src={getProductImage(item.productImages)}
+                      alt={item.name}
+                      className={styles["productPage-img"]}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "/uploads/placeholder.jpg";
+                      }}
+                    />
+                  </td>
+                  <td className={styles["productPage-name"]}>
+                    {item.name}
+                  </td>
+                  <td>{item.stockQuantity}</td>
+                  <td>
+                    {item.price.toLocaleString("vi-VN")} ₫
+                  </td>
+                  <td className={styles["productPage-desc"]}>
+                    {item.description || "-"}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className={styles["productPage-empty"]}>
+                  Không có sản phẩm nào
                 </td>
-                <td>{item.name}</td>
-                <td>{item.stockQuantity}</td>
-                <td>{item.price.toLocaleString("vi-VN")} ₫</td>
-                <td>{item.description || "-"}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
+
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <nav className={styles["productPage-pagination"]}>
+            <button
+              disabled={page === 1}
+              onClick={() => setPage(p => p - 1)}
+            >
+              <i className="fa fa-chevron-left"></i>
+            </button>
+
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                className={
+                  page === i + 1
+                    ? styles["productPage-pageActive"]
+                    : ""
+                }
+                onClick={() => setPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              disabled={page === totalPages}
+              onClick={() => setPage(p => p + 1)}
+            >
+              <i className="fa fa-chevron-right"></i>
+            </button>
+          </nav>
+        )}
       </section>
     </main>
   );

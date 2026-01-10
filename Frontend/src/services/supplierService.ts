@@ -7,12 +7,15 @@ const supplierService = {
     try {
       const res = await axiosClient.get('/api/suppliers');
 
-      if (!Array.isArray(res.data)) {
-        console.warn('API không trả array, fallback []');
+      // Laravel Resource / Collection
+      const raw = res.data?.data ?? res.data;
+
+      if (!Array.isArray(raw)) {
+        console.warn('Supplier API không trả array:', res.data);
         return [];
       }
 
-      return res.data;
+      return raw;
     } catch (error) {
       console.error('getAllSuppliers failed', error);
       return [];
@@ -20,8 +23,14 @@ const supplierService = {
   },
 
   async getSupplierById(id: number): Promise<ISupplier> {
-    const res = await axiosClient.get<ISupplier>(`/api/suppliers/${id}`);
-    return res.data;
+    const res = await axiosClient.get(`/api/suppliers/${id}`);
+
+    const raw = res.data?.data ?? res.data;
+
+    return {
+      supplierId: raw.supplierId ?? raw.id,
+      supplierName: raw.supplierName ?? raw.name ?? "",
+    };
   },
 
   async createSupplier(supplierName: string): Promise<ISupplier> {
