@@ -261,6 +261,22 @@ export interface IBatch {
     expiry: string;
 }
 
+export interface IStockIn {
+    stockInID: number;
+    batchID: number;
+    quantity: number;
+    date: string;
+    note: string;
+}
+
+export interface IStockOut {
+    stockOutID: number;
+    batchID: number;
+    quantity: number;
+    date: string;
+    note: string;
+}
+
 export interface ApiResponse<T> {
     data: T;
 }
