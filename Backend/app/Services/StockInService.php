@@ -66,6 +66,10 @@ class StockInService
         $product->Stock_Quantity += $stockIn->quantity;
         $product->save();
 
+        // 4. Update giá sản phẩm
+        $product->Price = $batch->PriceIn;
+        $product->save();
+        
         DB::commit();
 
         return [
