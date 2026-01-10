@@ -11,6 +11,8 @@ use App\Mail\SendCodeVerifyEmail;
 
 class UserService
 {
+
+    // Auth
     public function register(array $data)
     {
         $userByPhone = User::where('SDT', $data['sdt'])->first();
@@ -155,4 +157,45 @@ class UserService
 
         Mail::to($user->Email)->send(new SendCodeVerifyEmail($code));
     }
+
+    //User
+    public function updateUser(string $sdt, array $data)
+    {
+        $user = User::where('SDT', $sdt)->first();
+    
+        if (!$user) {
+            throw new \Exception("User không tồn tại");
+        }
+    
+        $updateData = [];
+    
+        if (array_key_exists('fullName', $data)) {
+            $updateData['FullName'] = $data['fullName'];
+        }
+    
+        if (array_key_exists('email', $data)) {
+            $updateData['Email'] = $data['email'];
+        }
+    
+        if (array_key_exists('address', $data)) {
+            $updateData['Address'] = $data['address'];
+        }
+    
+        if (array_key_exists('avatar', $data)) {
+            $updateData['Avatar'] = $data['avatar'];
+        }
+    
+        if (!empty($updateData)) {
+            $user->update($updateData);
+        }
+    
+        return [
+            'user' => $user->fresh(),
+            'message' => 'Cập nhật thành công'
+        ];
+    }
+    
+
+    
+
 }

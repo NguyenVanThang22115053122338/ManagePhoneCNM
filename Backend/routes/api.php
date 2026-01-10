@@ -40,6 +40,7 @@ Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 
 
+Route::post('/ai/phone-chat', [PhoneChatController::class, 'chat']);
 /*
 |--------------------------------------------------------------------------
 | AUTHENTICATED ROUTES (JWT)
@@ -50,6 +51,7 @@ Route::middleware(['jwt'])->group(function () {
 
     // ===== USER INFO =====
     Route::get('/user/me', [UserController::class, 'me']);
+    Route::post('/user/{sdt}', [UserController::class, 'updateUser']);
 
     // ===== PRODUCT (USER + ADMIN: CHỈ XEM) =====
 
@@ -122,8 +124,6 @@ Route::prefix('images')->group(function () {
         Route::delete('/{id}', [CartDetailController::class, 'destroy']);
         Route::delete('/cart/{cartId}', [CartDetailController::class, 'clearCart']);
     });
-
-    Route::post('/ai/phone-chat', [PhoneChatController::class, 'chat']);
     // ===== PAYPAL PAYMENTS (USER + ADMIN) =====
     Route::post('/paypal/create', [PaymentController::class, 'create']);
     Route::get('/paypal/payment/{orderId}', [PaymentController::class, 'getByOrder']);
@@ -138,7 +138,8 @@ Route::prefix('images')->group(function () {
         // ===== NOTIFICATIONS (CRUD) =====
         Route::post('/notifications', [NotificationController::class, 'store']);
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
-
+        Route::put('/notifications/{id}', [NotificationController::class, 'update']);
+        
         // ===== PRODUCT (CRUD) =====
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);

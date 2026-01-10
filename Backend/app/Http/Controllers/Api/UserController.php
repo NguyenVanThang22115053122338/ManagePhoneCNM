@@ -12,6 +12,7 @@ use App\Requests\Auth\RegisterRequest;
 use App\Requests\Auth\LoginWithGoogleRequest;
 use App\Requests\Auth\VerifyCodeRequest;
 use App\Requests\Auth\ResendCodeRequest;
+use App\Requests\User\UpdateUserRequest;
 use App\Models\Role;
 use App\Models\User;
 
@@ -25,7 +26,7 @@ class UserController extends Controller
         $this->userService = $userService;
         $this->jwtService = $jwtService;
     }
-
+    //Auth
     public function register(RegisterRequest $req)
     {
         try{
@@ -163,6 +164,35 @@ class UserController extends Controller
 
     }
 
+    //User
+    public function updateUser(UpdateUserRequest $req, $sdt)
+{
+    try {
+        
+        $data = $req->validated();
+
+        // xử lý avatar tại controller
+        if ($req->hasFile('avatar')) {
+            $file = $req->file('avatar');
+            $fileName = time().'_'.$file->getClientOriginalName();
+            $file->move(public_path('avatars'), $fileName);
+
+            $data['avatar'] = '/avatars/'.$fileName;
+        }
+
+        $result = $this->userService->updateUser($sdt, $data);
+
+        return response()->json($result, 200);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => $e->getMessage()
+        ], 400);
+    }
+}
+
+
+    
     public function getAll()
     {
         return User::all();

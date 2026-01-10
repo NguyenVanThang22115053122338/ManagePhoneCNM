@@ -106,7 +106,7 @@ const StockManagement = () => {
             Quản lý kho
           </h1>
           <h1 className={`${styles["content-title"]} ${styles.active}`}>|</h1>
-          <a href="/batches">
+          <a href="/Admin/batches">
             <h1 className={styles["content-title"]}>Xem lô hàng</h1>
           </a>
         </div>
@@ -125,9 +125,8 @@ const StockManagement = () => {
       {/* FILTER TABS */}
       <div className={styles["filter-tabs"]}>
         <button
-          className={`${styles["filter-tab"]} ${
-            currentTab === "nhap" ? styles.active : ""
-          }`}
+          className={`${styles["filter-tab"]} ${currentTab === "nhap" ? styles.active : ""
+            }`}
           onClick={() => setCurrentTab("nhap")}
         >
           <i className="fas fa-arrow-down"></i>
@@ -136,9 +135,8 @@ const StockManagement = () => {
         </button>
 
         <button
-          className={`${styles["filter-tab"]} ${
-            currentTab === "xuat" ? styles.active : ""
-          }`}
+          className={`${styles["filter-tab"]} ${currentTab === "xuat" ? styles.active : ""
+            }`}
           onClick={() => setCurrentTab("xuat")}
         >
           <i className="fas fa-arrow-up"></i>
@@ -183,11 +181,10 @@ const StockManagement = () => {
                     <td>{item.tenSanPham}</td>
                     <td>
                       <span
-                        className={`${styles["quantity-badge"]} ${
-                          currentTab === "nhap"
+                        className={`${styles["quantity-badge"]} ${currentTab === "nhap"
                             ? styles.import
                             : styles.export
-                        }`}
+                          }`}
                       >
                         {currentTab === "nhap"
                           ? item.soLuongNhap
@@ -197,8 +194,8 @@ const StockManagement = () => {
                     <td>
                       {item.ngayNhap || item.ngayXuat
                         ? new Date(
-                            item.ngayNhap ?? item.ngayXuat
-                          ).toLocaleDateString("vi-VN")
+                          item.ngayNhap ?? item.ngayXuat
+                        ).toLocaleDateString("vi-VN")
                         : "N/A"}
                     </td>
                     <td>{item.ghiChu ?? ""}</td>
@@ -255,19 +252,19 @@ const StockManagement = () => {
           </div>
 
           <button
-              className={styles["add-account-btn"]}
-              onClick={() => {
-                if (currentTab === "nhap") {
-                    navigate("/admin/stockin_receipt");
-                } else {
-                    navigate("/admin/stockout_receipt");
-                }
-                }}
-                >
-                    <i className="fas fa-plus"></i>
-                    {currentTab === "nhap"
-                    ? "Thêm phiếu nhập"
-                    : "Thêm phiếu xuất"}
+            className={styles["add-account-btn"]}
+            onClick={() => {
+              if (currentTab === "nhap") {
+                navigate("/admin/stockin_receipt");
+              } else {
+                navigate("/admin/stockout_receipt");
+              }
+            }}
+          >
+            <i className="fas fa-plus"></i>
+            {currentTab === "nhap"
+              ? "Thêm phiếu nhập"
+              : "Thêm phiếu xuất"}
           </button>
 
         </div>

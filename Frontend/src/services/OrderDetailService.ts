@@ -1,5 +1,6 @@
 import axiosClient from "./AxiosClient";
 import type {
+    ApiResponse,
     CreateOrderDetailRequest,
     OrderDetailResponse
 } from "../services/Interface";
@@ -15,9 +16,12 @@ const orderDetailService = {
 
     getByOrderId(orderId: number) {
         return axiosClient
-            .get<OrderDetailResponse[]>(`/api/order-details/order/${orderId}`)
-            .then(res => res.data);
+            .get<ApiResponse<OrderDetailResponse[]>>(
+                `/api/order-details/order/${orderId}`
+            )
+            .then(res => res.data.data);
     }
+
 
 };
 

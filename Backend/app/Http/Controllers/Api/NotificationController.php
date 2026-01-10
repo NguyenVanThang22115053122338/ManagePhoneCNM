@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
-
+use App\Requests\NotificationsRequest;
 class NotificationController extends Controller
 {
     protected $service;
@@ -34,9 +34,19 @@ class NotificationController extends Controller
     }
 
     // POST /api/notifications
-    public function store(Request $request)
+     public function store(NotificationsRequest $request)
     {
-        return $this->service->create($request->all());
+        $data = $request->validated();
+
+        return $this->service->create($data);
+    }
+
+    // PUT /api/notifications
+    public function update( int $id,NotificationsRequest $request)
+    {
+         $data = $request->validated();
+
+        return $this->service->update($id, $data);
     }
 
     // DELETE /api/notifications/{id}

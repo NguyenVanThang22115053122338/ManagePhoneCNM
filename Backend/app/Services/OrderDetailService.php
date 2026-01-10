@@ -10,13 +10,13 @@ class OrderDetailService
     // CREATE
     public function create(array $data): OrderDetail
     {
-        Order::where('OrderID', $data['OrderID'])->firstOrFail();
-        Product::where('ProductID', $data['ProductID'])->firstOrFail();
+        Order::where('OrderID', $data['orderID'])->firstOrFail();
+        Product::where('ProductID', $data['productID'])->firstOrFail();
 
         return OrderDetail::create([
-            'OrderID'   => $data['OrderID'],
-            'ProductID' => $data['ProductID'],
-            'Quantity'  => $data['Quantity']
+            'OrderID'   => $data['orderID'],
+            'ProductID' => $data['productID'],
+            'Quantity'  => $data['quantity']
         ]);
     }
 
@@ -43,18 +43,18 @@ class OrderDetailService
     {
         $detail = $this->getById($id);
 
-        if (isset($data['Quantity'])) {
-            $detail->Quantity = $data['Quantity'];
+        if (isset($data['quantity'])) {
+            $detail->Quantity = $data['quantity'];
         }
 
-        if (isset($data['OrderID'])) {
-            Order::where('OrderID', $data['OrderID'])->firstOrFail();
-            $detail->OrderID = $data['OrderID'];
+        if (isset($data['orderID'])) {
+            Order::where('OrderID', $data['orderID'])->firstOrFail();
+            $detail->OrderID = $data['orderID'];
         }
 
-        if (isset($data['ProductID'])) {
-            Product::where('ProductID', $data['ProductID'])->firstOrFail();
-            $detail->ProductID = $data['ProductID'];
+        if (isset($data['productID'])) {
+            Product::where('ProductID', $data['productID'])->firstOrFail();
+            $detail->ProductID = $data['productID'];
         }
 
         $detail->save();
