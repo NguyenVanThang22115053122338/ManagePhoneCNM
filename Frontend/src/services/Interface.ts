@@ -281,6 +281,24 @@ export interface IStockOut {
     note: string;
 }
 
+export interface IStockInRequest {
+    productId: number;
+    productionDate: string;
+    quantity: number;
+    priceIn: number;
+    expiry: string;
+    note: string;
+}
+
+export interface IStockOutRequest {
+    productId: number;
+    productionDate: string;
+    quantity: number;
+    priceIn: number;
+    expiry: string;
+    note: string;
+}
+
 export interface ApiResponse<T> {
     data: T;
 }

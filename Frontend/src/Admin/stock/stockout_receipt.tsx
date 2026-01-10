@@ -36,7 +36,7 @@ const StockoutReceipt = () => {
       <div className={styles["content-header"]}>
         <div
           className={styles["content-header"]}
-          onClick={() => navigate("/stock_management")}
+          onClick={() => navigate("/admin/stock_management")}
           style={{ cursor: "pointer" }}
         >
           <div className={styles["back-button"]}>
