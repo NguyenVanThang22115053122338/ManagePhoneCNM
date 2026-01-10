@@ -7,6 +7,7 @@ use App\Models\Batch;
 use App\Models\User;
 use App\Resources\StockOutResource;
 use Carbon\Carbon;
+use App\Models\Product;
 
 class StockOutService
 {
@@ -37,14 +38,6 @@ class StockOutService
             throw new \Exception('Người dùng không tồn tại');
         }
 
-        // Kiểm tra batch nếu có
-        if (!empty($data['BatchID'])) {
-            $batch = Batch::find($data['BatchID']);
-            if (!$batch) {
-                throw new \Exception('Lô hàng không tồn tại');
-            }
-        }
-
         // Tạo stock out
         $stockOut = StockOut::create([
             'BatchID' => $data['BatchID'] ?? null,
@@ -53,6 +46,16 @@ class StockOutService
             'note' => $data['note'] ?? null,
             'date' => $data['date'] ?? Carbon::now()
         ]);
+
+        // Update số lượng lô hàng
+        $batch = Batch::findOrFail($data['BatchID']);
+        $batch->Quantity -= $data['quantity'];
+        $batch->save();
+
+        // Update số lượng sản phẩm
+        $product = Product::findOrFail($batch->ProductID);
+        $product->Stock_Quantity -= $data['quantity'];
+        $product->save();
 
         return new StockOutResource($stockOut);
     }
