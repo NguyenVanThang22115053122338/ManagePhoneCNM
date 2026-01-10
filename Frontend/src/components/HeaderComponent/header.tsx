@@ -1,9 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { UserCog, ShoppingCart, History, LogOut, Bell, Search, Filter, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CategoryService from "../../services/CategoryService";
-import type { ICategory } from "../../services/Interface";
+import productService from "../../services/ProductService";
+import type { ICategory, IProduct } from "../../services/Interface";
 import './header.css'
 import Logo from "../../assets/img/logo.png"
 
@@ -14,6 +15,10 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [searchSuggestions, setSearchSuggestions] = useState<IProduct[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   const displayName = useMemo(
     () => user?.fullName || "Người dùng",
@@ -31,28 +36,63 @@ const Header = () => {
       .catch(err => console.error("GetCategory error:", err.message));
   }, []);
 
+  // Search suggestions with debounce
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      const params = new URLSearchParams(location.search);
+    if (!keyword.trim()) {
+      setSearchSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
 
-      if (keyword.trim()) {
-        params.set("keyword", keyword.trim());
-      } else {
-        params.delete("keyword");
+    setIsSearching(true);
+    const timeout = setTimeout(async () => {
+      try {
+        const results = await productService.getAllProducts(keyword.trim());
+        setSearchSuggestions(results.slice(0, 4)); // Lấy 4 sản phẩm đầu
+        setShowSuggestions(true);
+      } catch (error) {
+        console.error("Search error:", error);
+        setSearchSuggestions([]);
+      } finally {
+        setIsSearching(false);
       }
-
-      navigate(`/products?${params.toString()}`, { replace: true });
-    }, 400);
+    }, 1000);
 
     return () => clearTimeout(timeout);
   }, [keyword]);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const params = new URLSearchParams();
       if (keyword.trim()) params.set("keyword", keyword.trim());
       navigate(`/products?${params.toString()}`);
+      setShowSuggestions(false);
     }
+  };
+
+  const handleSearchClick = () => {
+    const params = new URLSearchParams();
+    if (keyword.trim()) params.set("keyword", keyword.trim());
+    navigate(`/products?${params.toString()}`);
+    setShowSuggestions(false);
+  };
+
+  const handleSuggestionClick = (productId: number) => {
+    navigate(`/product-detail/${productId}`);
+    setShowSuggestions(false);
+    setKeyword("");
   };
 
   const handleLogout = () => {
@@ -97,7 +137,7 @@ const Header = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="header-search">
+            <div className="header-search" ref={searchRef}>
               <div className="search-wrapper">
                 <Search className="search-icon" size={20} />
                 <input
@@ -107,19 +147,66 @@ const Header = () => {
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={handleSearch}
+                  onFocus={() => {
+                    if (searchSuggestions.length > 0) {
+                      setShowSuggestions(true);
+                    }
+                  }}
                 />
                 <button
                   type="button"
                   className="search-btn"
-                  onClick={() => {
-                    const params = new URLSearchParams();
-                    if (keyword.trim()) params.set("keyword", keyword.trim());
-                    navigate(`/products?${params.toString()}`);
-                  }}
+                  onClick={handleSearchClick}
                 >
                   <Search size={18} />
                 </button>
               </div>
+
+              {/* Search Suggestions Dropdown */}
+              {showSuggestions && searchSuggestions.length > 0 && (
+                <div className="search-dropdown">
+                  <div className="search-dropdown-header">
+                    <span>Gợi ý sản phẩm</span>
+                  </div>
+                  <div className="search-dropdown-list">
+                    {searchSuggestions.map((product) => (
+                      <div
+                        key={product.productId}
+                        className="search-dropdown-item"
+                        onClick={() => handleSuggestionClick(product.productId!)}
+                      >
+                        <img
+                          src={product.productImages?.[0]?.url || Logo}
+                          alt={product.name}
+                          className="search-item-img"
+                        />
+                        <div className="search-item-info">
+                          <p className="search-item-name">{product.name}</p>
+                          <p className="search-item-price">
+                            {product.price?.toLocaleString('vi-VN')}đ
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="search-dropdown-footer">
+                    <button
+                      className="search-view-all"
+                      onClick={handleSearchClick}
+                    >
+                      Xem tất cả kết quả cho "{keyword}"
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {isSearching && keyword.trim() && (
+                <div className="search-dropdown">
+                  <div className="search-loading">
+                    Đang tìm kiếm...
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Hotline */}
