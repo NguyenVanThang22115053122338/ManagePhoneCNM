@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\UserService;
 use App\Services\JwtService;
+use App\Services\CloudinaryService; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Requests\Auth\LoginRequest;
@@ -20,11 +21,13 @@ class UserController extends Controller
 {
     protected UserService $userService;
     protected JwtService $jwtService;
+    protected CloudinaryService $cloudinaryService;
 
-    public function __construct(UserService $userService, JwtService $jwtService)
+    public function __construct(UserService $userService, JwtService $jwtService,CloudinaryService $cloudinaryService)
     {
         $this->userService = $userService;
         $this->jwtService = $jwtService;
+        $this->cloudinaryService = $cloudinaryService;
     }
     //Auth
     public function register(RegisterRequest $req)
@@ -166,30 +169,30 @@ class UserController extends Controller
 
     //User
     public function updateUser(UpdateUserRequest $req, $sdt)
-{
-    try {
-        
-        $data = $req->validated();
+    {
+        try {
+            $data = $req->validated();
 
-        // xử lý avatar tại controller
-        if ($req->hasFile('avatar')) {
-            $file = $req->file('avatar');
-            $fileName = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('avatars'), $fileName);
+            // ✅ Upload ảnh lên Cloudinary (không xóa ảnh cũ)
+            if ($req->hasFile('avatar')) {
+                $uploadResult = $this->cloudinaryService->uploadImage(
+                    $req->file('avatar'),
+                    'avatars'
+                );
 
-            $data['avatar'] = '/avatars/'.$fileName;
+                $data['avatar'] = $uploadResult['url'];
+            }
+
+            $result = $this->userService->updateUser($sdt, $data);
+
+            return response()->json($result, 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
         }
-
-        $result = $this->userService->updateUser($sdt, $data);
-
-        return response()->json($result, 200);
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => $e->getMessage()
-        ], 400);
     }
-}
 
 
     

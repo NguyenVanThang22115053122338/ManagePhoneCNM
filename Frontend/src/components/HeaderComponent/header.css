@@ -76,6 +76,7 @@
 }
 
 .header-search {
+  position: relative;
   flex: 1;
   max-width: 500px;
 }
@@ -132,6 +133,132 @@
   flex-shrink: 0;
 }
 
+/* Search Dropdown */
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+.search-dropdown-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #666;
+  background: #fafafa;
+}
+
+.search-dropdown-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.search-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.search-dropdown-item:hover {
+  background-color: #f8f8f8;
+}
+
+.search-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.search-item-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.search-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.search-item-name {
+  font-size: 14px;
+  color: #333;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-item-price {
+  font-size: 15px;
+  font-weight: 600;
+  color: #d70018;
+  margin: 0;
+}
+
+.search-dropdown-footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.search-view-all {
+  width: 100%;
+  padding: 10px;
+  background: white;
+  border: 1px solid #d70018;
+  border-radius: 4px;
+  color: #d70018;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.search-view-all:hover {
+  background: #d70018;
+  color: white;
+}
+
+.search-loading {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Scrollbar for dropdown */
+.search-dropdown-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.search-dropdown-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.search-dropdown-list::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 3px;
+}
+
+.search-dropdown-list::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
 .hotline {
   background-color: #d70018;
   color: white;
@@ -184,12 +311,11 @@
 .user-trigger {
   width: 37px;
   height: 37px;
-  border-radius: 50%; /* TRÒN */
-  background-color: transparent; /* bỏ nền đỏ ngoài */
+  border-radius: 50%;
+  background-color: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -200,23 +326,19 @@
   height: 100%;
   border-radius: 50%;
   overflow: hidden;
-
   background-color: #fff;
-  border: 1.5px solid #e5e7eb; /* viền xám nhạt */
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12); /* nổi nhẹ */
-
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-
 .user-avatar img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* ảnh không méo */
+  object-fit: cover;
 }
-
 
 .dropdown-overlay {
   position: fixed;
@@ -361,6 +483,26 @@
     order: 4;
     flex-basis: 100%;
     max-width: 100%;
+  }
+
+  .search-dropdown {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: auto;
+  }
+
+  .search-item-img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .search-item-name {
+    font-size: 13px;
+  }
+
+  .search-item-price {
+    font-size: 14px;
   }
 
   .nav-content {

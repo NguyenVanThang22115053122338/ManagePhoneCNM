@@ -11,9 +11,28 @@ use Illuminate\Support\Facades\Cache;
 
 class ProductService
 {
-    public function getAll()
+    /**
+     * Get all products with optional search filters
+     * 
+     * @param string|null $keyword - Search in product name
+     * @param string|null $categoryId - Filter by category
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getAll($keyword = null, $categoryId = null)
     {
-        return Product::with(['specification', 'images'])->get();
+        $query = Product::with(['specification', 'images']);
+
+        // Search by keyword in product name
+        if (!empty($keyword)) {
+            $query->where('name', 'LIKE', '%' . $keyword . '%');
+        }
+
+        // Filter by category
+        if (!empty($categoryId)) {
+            $query->where('CategoryID', $categoryId);
+        }
+
+        return $query->get();
     }
 
     public function getById(int $id)
@@ -39,10 +58,9 @@ class ProductService
                 'description'    => $data['description'] ?? null,
                 'BrandID'        => $data['brandId'] ?? null,
                 'CategoryID'     => $data['categoryId'] ?? null,
-                'SupplierID'     => $data['supplierId'] ?? null, // ✅ thêm
+                'SupplierID'     => $data['supplierId'] ?? null,
                 'SpecID'         => $specId
             ]);
-
 
             if (!empty($data['productImages'])) {
                 foreach ($data['productImages'] as $img) {
@@ -57,8 +75,6 @@ class ProductService
         });
     }
 
-
-
     public function update(int $id, array $data)
     {
         return DB::transaction(function () use ($id, $data) {
@@ -72,9 +88,8 @@ class ProductService
                 'description'    => $data['description'] ?? null,
                 'BrandID'        => $data['brandId'] ?? null,
                 'CategoryID'     => $data['categoryId'] ?? null,
-                'SupplierID'     => $data['supplierId'] ?? null, // ✅ thêm
+                'SupplierID'     => $data['supplierId'] ?? null,
             ]);
-
 
             // ===== SPEC =====
             if (isset($data['specification'])) {

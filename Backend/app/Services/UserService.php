@@ -161,7 +161,12 @@ class UserService
     //User
     public function updateUser(string $sdt, array $data)
     {
+        // ✅ Tìm theo SDT trước, nếu không có thì tìm theo Email
         $user = User::where('SDT', $sdt)->first();
+        
+        if (!$user) {
+            $user = User::where('Email', $sdt)->first();
+        }
     
         if (!$user) {
             throw new \Exception("User không tồn tại");
@@ -194,7 +199,6 @@ class UserService
             'message' => 'Cập nhật thành công'
         ];
     }
-    
 
     
 
