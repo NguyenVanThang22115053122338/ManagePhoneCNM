@@ -291,11 +291,8 @@ export interface IStockInRequest {
 }
 
 export interface IStockOutRequest {
-    productId: number;
-    productionDate: string;
+    BatchID: number;
     quantity: number;
-    priceIn: number;
-    expiry: string;
     note: string;
 }
 

@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { IStockOut } from "./Interface";
 import axiosClient from "./AxiosClient";
+import type { IStockOutRequest } from "./Interface";
 
 const StockOutService = {
 
@@ -23,6 +24,22 @@ const StockOutService = {
                 throw new Error(message);
             }
             throw new Error("Không thể lấy danh sách xuất hàng");
+        }
+    },
+
+    async createStockOut(payload: IStockOutRequest): Promise<IStockOutRequest> {
+        try {
+            const response = await axiosClient.post("/api/stockout", payload);
+            return response.data.data as IStockOutRequest;
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                const message =
+                    error.response?.data?.message ||
+                    error.message ||
+                    "Không thể tạo phiếu xuất hàng";
+                throw new Error(message);
+            }
+            throw new Error("Không thể tạo phiếu xuất hàng");
         }
     },
 };

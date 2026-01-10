@@ -1,27 +1,41 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./stockout_receipt.module.css";
+import type { IStockOutRequest } from "../../services/Interface";
+import StockOutService from "../../services/StockOutServices";
 
 const StockoutReceipt = () => {
   const navigate = useNavigate();
 
   /* ===== FORM STATE ===== */
-  const [idLo, setIdLo] = useState("");
-  const [soLuong, setSoLuong] = useState<number>(1);
-  const [ghiChu, setGhiChu] = useState("");
-
+  const [BatchID, setBatchID] = useState<number>(0);
+  const [quantity, setQuantity] = useState<number>(1);
+  const [note, setNote] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   /* ===== SUBMIT ===== */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
-      idLo,
-      soLuong,
-      ghiChu,
+    const payload: IStockOutRequest = {
+      BatchID,
+      quantity,
+      note,
     };
+
 
     console.log("Phiếu xuất kho:", payload);
 
+    setIsLoading(true);
+    try {
+      await StockOutService.createStockOut(payload);
+      alert("✅ Thêm phiếu xuất kho thành công!");
+      navigate("/Admin/stock_management");
+    } catch (error: any) {
+      console.error("Error creating stock in:", error);
+      alert(`❌ Lỗi: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
     // TODO: call API
     // axios.post("/QuanLyKho/ThemPhieuXuat", payload)
 
@@ -71,8 +85,8 @@ const StockoutReceipt = () => {
                 <input
                   type="text"
                   className={styles["form-input"]}
-                  value={idLo}
-                  onChange={e => setIdLo(e.target.value)}
+                  value={BatchID}
+                  onChange={e => setBatchID(Number(e.target.value))}
                   required
                 />
               </div>
@@ -85,8 +99,8 @@ const StockoutReceipt = () => {
                   type="number"
                   className={styles["form-input"]}
                   min={1}
-                  value={soLuong}
-                  onChange={e => setSoLuong(Number(e.target.value))}
+                  value={quantity}
+                  onChange={e => setQuantity(Number(e.target.value))}
                   required
                 />
               </div>
@@ -98,8 +112,8 @@ const StockoutReceipt = () => {
               </label>
               <textarea
                 className={styles["form-textarea"]}
-                value={ghiChu}
-                onChange={e => setGhiChu(e.target.value)}
+                value={note}
+                onChange={e => setNote(e.target.value)}
               />
             </div>
 
