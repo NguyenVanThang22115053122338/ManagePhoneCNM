@@ -11,9 +11,10 @@ class StockOutResource extends JsonResource
         return [
             'stockOutID' => $this->stockOutID,
             'batchID' => $this->batch?->BatchID,
+            'name' => $this->batch?->Product?->name,
             'quantity' => $this->quantity,
             'note' => $this->note,
-            'userID' => $this->user?->UserID,
+            'userName' => $this->user?->FullName,
             'date' => $this->date,
         ];
     }

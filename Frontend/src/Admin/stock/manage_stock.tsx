@@ -1,28 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./manage_stock.module.css";
 import { useNavigate } from "react-router-dom";
-
-
-/* ================= TYPES ================= */
-interface NhapKho {
-  idNhap: number;
-  sdt: string;
-  hoVaTen: string;
-  tenSanPham: string;
-  soLuongNhap: number;
-  ngayNhap?: string;
-  ghiChu?: string;
-}
-
-interface XuatKho {
-  idXuat: number;
-  sdt: string;
-  hoVaTen: string;
-  tenSanPham: string;
-  soLuongXuat: number;
-  ngayXuat?: string;
-  ghiChu?: string;
-}
+import StockInService from "../../services/StockInServices";
+import type { IStockIn } from "../../services/Interface";
+import StockOutService from "../../services/StockOutServices";
+import type { IStockOut } from "../../services/Interface";
 
 type TabType = "nhap" | "xuat";
 
@@ -35,44 +17,33 @@ const StockManagement = () => {
   const recordsPerPage = 5;
   const navigate = useNavigate();
 
-  const [nhapData, setNhapData] = useState<NhapKho[]>([]);
-  const [xuatData, setXuatData] = useState<XuatKho[]>([]);
-
-  /* ===== MOCK DATA (thay API sau) ===== */
+  const [nhapData, setNhapData] = useState<IStockIn[]>([]);
+  const [xuatData, setXuatData] = useState<IStockOut[]>([]);
+  /* ===== FETCH DATA FROM API ===== */
   useEffect(() => {
-    setNhapData([
-      {
-        idNhap: 1,
-        sdt: "0981111111",
-        hoVaTen: "Nguyễn Văn A",
-        tenSanPham: "iPhone 15",
-        soLuongNhap: 10,
-        ngayNhap: "2025-06-01",
-        ghiChu: "",
-      },
-      {
-        idNhap: 2,
-        sdt: "0982222222",
-        hoVaTen: "Trần Thị B",
-        tenSanPham: "Samsung S24",
-        soLuongNhap: 5,
-        ngayNhap: "2025-06-02",
-        ghiChu: "Nhập bổ sung",
-      },
-    ]);
-
-    setXuatData([
-      {
-        idXuat: 101,
-        sdt: "0912345678",
-        hoVaTen: "Nguyễn Văn Thắng",
-        tenSanPham: "iPhone 15",
-        soLuongXuat: 2,
-        ngayXuat: "2025-06-10",
-        ghiChu: "",
-      },
-    ]);
+    fetchStockin();
+    fetchStockout();
   }, []);
+
+  const fetchStockin = async () => {
+    try {
+      const stockIn = await StockInService.getStockIns();
+      setNhapData(stockIn);
+    } catch (error: any) {
+      console.error("Fetch stockin error:", error);
+      alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+    }
+  };
+
+  const fetchStockout = async () => {
+    try {
+      const stockOut = await StockOutService.getStockOuts();
+      setXuatData(stockOut);
+    } catch (error: any) {
+      console.error("Fetch stockout error:", error);
+      alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+    }
+  };
 
   /* ===== FILTER + SEARCH ===== */
   const sourceData = currentTab === "nhap" ? nhapData : xuatData;
@@ -152,9 +123,9 @@ const StockManagement = () => {
             <thead>
               <tr>
                 <th>{currentTab === "nhap" ? "ID Nhập" : "ID Xuất"}</th>
-                <th>SDT</th>
-                <th>Họ tên</th>
-                <th>Sản phẩm</th>
+                <th>ID Lô</th>
+                <th>{currentTab === "nhap" ? "Người nhập" : "Người xuất"}</th>
+                <th>Tên sản phẩm</th>
                 <th>Số lượng</th>
                 <th>Ngày</th>
                 <th>Ghi chú</th>
@@ -164,41 +135,37 @@ const StockManagement = () => {
             <tbody>
               {pageData.length > 0 ? (
                 pageData.map((item: any) => (
-                  <tr key={item.idNhap ?? item.idXuat}>
+                  <tr key={item.stockInID ?? item.stockOutID}>
                     <td>
                       <span className={styles["id-badge"]}>
-                        #{item.idNhap ?? item.idXuat}
+                        #{item.stockInID ?? item.stockOutID}
                       </span>
                     </td>
                     <td>
-                      <span className={styles["phone-badge"]}>{item.sdt}</span>
+                      <span className={styles["phone-badge"]}>{item.batchID}</span>
                     </td>
-                    <td>
-                      <span className={styles["name-badge"]}>
-                        {item.hoVaTen}
-                      </span>
-                    </td>
-                    <td>{item.tenSanPham}</td>
+                    <td>{item.userName ?? ""}</td>
+                    <td>{item.name ?? ""}</td>
                     <td>
                       <span
                         className={`${styles["quantity-badge"]} ${currentTab === "nhap"
-                            ? styles.import
-                            : styles.export
+                          ? styles.import
+                          : styles.export
                           }`}
                       >
                         {currentTab === "nhap"
-                          ? item.soLuongNhap
-                          : item.soLuongXuat}
+                          ? item.quantity
+                          : item.quantity}
                       </span>
                     </td>
                     <td>
-                      {item.ngayNhap || item.ngayXuat
+                      {item.date
                         ? new Date(
-                          item.ngayNhap ?? item.ngayXuat
+                          item.date
                         ).toLocaleDateString("vi-VN")
                         : "N/A"}
                     </td>
-                    <td>{item.ghiChu ?? ""}</td>
+                    <td>{item.note ?? ""}</td>
                   </tr>
                 ))
               ) : (
