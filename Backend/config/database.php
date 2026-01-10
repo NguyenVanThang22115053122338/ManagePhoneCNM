@@ -60,8 +60,9 @@ return [
             'engine' => null,
             //dùng cho db deploy
             'options' => extension_loaded('pdo_mysql') ? [
+                PDO::ATTR_PERSISTENT => true,
                 PDO::MYSQL_ATTR_SSL_CA => storage_path('certs/isrgrootx1.pem'),
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => true,
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
             ] : [],
             // dùng cho db local 
             // 'options' => extension_loaded('pdo_mysql') ? array_filter([

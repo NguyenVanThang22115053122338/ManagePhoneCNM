@@ -17,11 +17,8 @@ class ProductImage extends Model
         'product_id'
     ];
 
-    protected $hidden = [
-        'product'
-    ];
+    protected $hidden = ['product'];
 
-    // ===== RELATION =====
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'ProductID');

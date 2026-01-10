@@ -1,180 +1,117 @@
-/* ================= PAGE ================= */
-.main {
+.pdEdit__page {
   min-height: 100vh;
-  padding: 24px;
-  background: #f4f6fb;
-
+  background: #f5f6fa;
   display: flex;
-  flex-direction: column;  
-  align-items: center;    
+  justify-content: center;
+  padding: 40px 16px;
 }
 
-/* ================= TITLE ================= */
-.main h1 {
+.pdEdit__card {
   width: 100%;
-  max-width: 760px;
-  margin-bottom: 18px;
-  font-size: 22px;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-/* ================= FORM CARD ================= */
-.form {
-  width: 100%;
-  max-width: 760px;
-  background: #ffffff;
-  padding: 28px 32px 34px;
+  max-width: 980px;
+  background: #fff;
   border-radius: 16px;
-
-  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.08);
-  position: relative;
-  z-index: 1;
+  padding: 32px 36px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.08);
 }
 
-/* ================= LABEL ================= */
-label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 14px;
-  font-weight: 600;
-  color: #374151;
+.pdEdit__title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
 }
 
-/* ================= INPUT / SELECT / TEXTAREA ================= */
-input,
-select,
-textarea {
-  width: 100% !important;
-  padding: 12px 14px;
-  font-size: 14px;
-  border-radius: 10px;
-
-  border: 1.5px solid #cbd5e1 !important;
-  background-color: #ffffff !important;
-  color: #111827;
-
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-/* textarea riêng */
-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-/* focus */
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: #2563eb !important;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-/* ================= ROW (GIÁ + SỐ LƯỢNG) ================= */
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.pdEdit__form {
+  display: flex;
+  flex-direction: column;
   gap: 18px;
 }
 
-/* ================= FILE INPUT ================= */
-input[type="file"] {
-  padding: 12px 14px;
-  border: 1.5px dashed #93c5fd !important;
-  border-radius: 10px;
-  background: #f8fafc;
-  cursor: pointer;
-}
-
-input[type="file"]:hover {
-  background: #eef2ff;
-}
-
-/* ================= IMAGE LIST ================= */
-.imageList {
+.pdEdit__field {
   display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 12px;
+  flex-direction: column;
 }
 
-/* ảnh hiện tại + preview */
-.imageList img {
-  width: 110px;
-  height: 110px;
-  object-fit: cover;
-  border-radius: 12px;
-
-  border: 1px solid #e5e7eb;
-  background: #f9fafb;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.imageList img:hover {
-  transform: scale(1.04);
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16);
-}
-
-/* ================= UPDATE BUTTON ================= */
-button {
-  margin-top: 22px;
-  padding: 13px 22px;
-  font-size: 15px;
+.pdEdit__field label {
+  font-size: 13px;
   font-weight: 600;
-  border-radius: 12px, #000000; 
+  margin-bottom: 6px;
+}
+
+.pdEdit__field input,
+.pdEdit__field textarea,
+.pdEdit__field select {
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+.pdEdit__field textarea {
+  height: 90px;
+  padding: 10px 12px;
+}
+
+.pdEdit__row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.pdEdit__section {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.pdEdit__specGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.pdEdit__imageList {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pdEdit__imageList img {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+}
+
+.pdEdit__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.pdEdit__submit {
+  background: #2563eb;
+  color: white;
+  padding: 0 22px;
+  height: 40px;
+  border-radius: 8px;
   border: none;
-  cursor: pointer;
-  color: #000000;
-  background: linear-gradient(135deg, #4966a6, #1d4ed8);
-  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s;
+  font-weight: 600;
 }
 
-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 10px 26px rgba(37, 99, 235, 0.35);
+.pdEdit__delete {
+  background: #ef4444;
+  color: white;
+  padding: 0 22px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
 }
 
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-
-/* ================= DELETE BUTTON ================= */
-.deleteBtn {
-  margin-top: 10px;
-  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
-}
-
-.deleteBtn:hover {
-  box-shadow: 0 10px 26px rgba(220, 38, 38, 0.35);
-}
-
-/* ================= LOADING ================= */
-.loading {
-  padding: 48px;
+.pdEdit__loading {
+  padding: 40px;
   text-align: center;
-  font-size: 15px;
-  color: #6b7280;
-}
-
-/* ================= RESPONSIVE ================= */
-@media (max-width: 768px) {
-  .form {
-    padding: 22px 20px;
-  }
-
-  .row {
-    grid-template-columns: 1fr;
-  }
-
-  .imageList img {
-    width: 90px;
-    height: 90px;
-  }
 }

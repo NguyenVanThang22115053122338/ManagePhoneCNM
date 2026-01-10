@@ -1,138 +1,187 @@
-   .search-bar {
-        display: flex;
-        align-items: center;
-        background-color: white;
-        border-radius: 50px;
-        padding: 8px 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        width: 300px; /* bạn có thể chỉnh to nhỏ tùy */
-        transition: box-shadow 0.3s ease;
-        margin-left: auto;
-        margin-bottom: 20px;
-        margin-top: 20px;
-    }
+/* ===== ROOT ===== */
+.productPage-root {
+  width: 100%;
+  background: #f5f7fb;
+}
 
-        .search-bar:hover {
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+/* ===== CONTENT ===== */
+.productPage-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
 
-        .search-bar i {
-            color: #888;
-            font-size: 16px;
-            margin-right: 10px;
-        }
+/* ===== HEADER ===== */
+.productPage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
 
-        .search-bar input {
-            border: none;
-            outline: none;
-            font-size: 15px;
-            flex: 1;
-            color: #333;
-            background-color: transparent;
-            padding: 6px 0;
-        }
+.productPage-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
 
-            .search-bar input::placeholder {
-                color: #aaa;
-                font-style: italic;
-            }
+/* ===== TOP ACTIONS ===== */
+.productPage-actionsTop {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1; /* cho phép giãn */
+  justify-content: flex-end;
+}
 
+.productPage-search {
+  display: flex;
+  align-items: center;
 
+  height: 40px;              
+  min-width: 360px;
+  max-width: 480px;         
 
-    .filter-btn {
-        background: #f3f4f6;
-        font-size: 0.875rem;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
+  background: #fff;
+  border-radius: 999px;
+  padding: 0 14px;           
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
 
-    .add-button {
-        display: flex;
-        gap: 20px;
-        padding: 20px 0;
-    }
+/* icon */
+.productPage-search i {
+  font-size: 14px;
+  color: #888;
+  margin-right: 8px;
+}
 
-    .add {
-        background: #2196F3;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 50px;
-        font-size: 16px;
-        border: none;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
+/* input */
+.productPage-search input {
+  height: 100%;
+  width: 100%;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  background: transparent;
+}
 
-    .add {
-        background-color: #1976D2;
-    }
+/* placeholder */
+.productPage-search input::placeholder {
+  color: #9ca3af;
+}
 
-    .table-container {
-        padding: 40px 32px;
-        overflow-x: auto;
-    }
+.productPage-search input::placeholder {
+  color: #9ca3af;
+}
 
-    .product-table {
-        width: 100%;
-        border-collapse: collapse;
-        max-width: 960px;
-        margin: auto;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-    }
+.productPage-search i {
+  color: #888;
+  margin-right: 8px;
+}
 
-        .product-table th {
-            background-color: #f4f6fa;
-            color: #333;
-            font-weight: 600;
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-        }
+/* ===== ADD BUTTON ===== */
+.productPage-addBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
 
-        .product-table td {
-            padding: 12px;
-            text-align: center;
-            border-bottom: 1px solid #eee;
-            font-size: 15px;
-        }
+.productPage-addBtn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
 
-        .product-table tr:hover {
-            background-color: #f9fbfd;
-            transition: background 0.3s ease;
-            cursor: pointer;
-        }
+/* ===== TABLE ===== */
+.productPage-table {
+  width: 100%;
+  background: #fff;
+  border-radius: 12px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+}
 
-        .product-table img {
-            border-radius: 50%;
-            height: 48px;
-            width: 48px;
-            object-fit: cover;
-            border: 1px solid #ccc;
-            transition: transform 0.2s;
-        }
+.productPage-table th,
+.productPage-table td {
+  padding: 14px 16px;
+  text-align: center;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+}
 
-            .product-table img:hover {
-                transform: scale(1.05);
-            }
+.productPage-table th {
+  background: #2493f2;
+  color: #fff;
+  font-weight: 600;
+}
 
-    .rounded-img {
-        width: 80px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 50%;
-        border: 2px solid #ddd;
-    }
+.productPage-table tr:hover {
+  background: #f8fafc;
+  cursor: pointer;
+}
 
-    .rounded-img {
-        transition: transform 0.2s ease-in-out;
-    }
+/* ===== IMAGE ===== */
+.productPage-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ddd;
+}
 
-        .rounded-img:hover {
-            transform: scale(1.1);
-        }
+/* ===== TEXT ===== */
+.productPage-name {
+  font-weight: 600;
+}
+
+.productPage-desc {
+  max-width: 260px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== EMPTY ===== */
+.productPage-empty {
+  padding: 32px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+/* ===== PAGINATION ===== */
+.productPage-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+}
+
+.productPage-pagination button {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.productPage-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.productPage-pageActive {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
+}

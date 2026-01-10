@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'product';
     protected $primaryKey = 'ProductID';
@@ -20,10 +21,13 @@ class Product extends Model
         'description',
         'BrandID',
         'CategoryID',
+        'SupplierID', // ✅ thêm
         'SpecID',
         'Created_At',
         'Updated_At'
     ];
+
+    protected $dates = ['deleted_at'];
 
     // ===== RELATION =====
 
@@ -47,27 +51,13 @@ class Product extends Model
         return $this->belongsTo(Specification::class, 'SpecID', 'specId');
     }
 
-    public function batches()
+    public function supplier()
     {
-        return $this->hasMany(Batch::class, 'ProductID', 'ProductID');
+        return $this->belongsTo(Supplier::class, 'SupplierID', 'supplierId');
     }
 
-    public function orderDetails()
-    {
-        return $this->hasMany(OrderDetail::class, 'ProductID', 'ProductID');
-    }
 
-    public function reviews()
-    {
-        return $this->hasMany(Review::class, 'ProductID', 'ProductID');
-    }
-
-    public function cartDetails()
-    {
-        return $this->hasMany(CartDetail::class, 'ProductID', 'ProductID');
-    }
-
-    // ===== TIMESTAMP EVENT (giống @PrePersist / @PreUpdate) =====
+    // ===== TIMESTAMP EVENT =====
     protected static function booted()
     {
         static::creating(function ($model) {
@@ -79,5 +69,4 @@ class Product extends Model
             $model->Updated_At = now();
         });
     }
-
 }

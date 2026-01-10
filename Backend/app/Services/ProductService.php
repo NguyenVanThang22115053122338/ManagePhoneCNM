@@ -24,38 +24,31 @@ class ProductService
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
+
             $specId = null;
 
             if (!empty($data['specification'])) {
-                $spec = Specification::create([
-                    'screen'   => $data['specification']['screen']   ?? null,
-                    'os'       => $data['specification']['os']       ?? null,
-                    'cpu'      => $data['specification']['cpu']      ?? null,
-                    'ram'      => $data['specification']['ram']      ?? null,
-                    'battery'  => $data['specification']['battery']  ?? null,
-                    'storage'  => $data['specification']['storage']  ?? null,
-                    'camera'   => $data['specification']['camera']   ?? null,
-                ]);
-
-                 $specId = $spec->specId;
+                $spec = Specification::create($data['specification']);
+                $specId = $spec->specId;
             }
 
             $product = Product::create([
                 'name'           => $data['name'],
                 'price'          => $data['price'],
-                'Stock_Quantity' => $data['Stock_Quantity'],
+                'Stock_Quantity' => $data['stockQuantity'],
                 'description'    => $data['description'] ?? null,
-                'BrandID'        => $data['BrandID'],
-                'CategoryID'     => $data['CategoryID'],
+                'BrandID'        => $data['brandId'] ?? null,
+                'CategoryID'     => $data['categoryId'] ?? null,
+                'SupplierID'     => $data['supplierId'] ?? null, // ✅ thêm
                 'SpecID'         => $specId
             ]);
 
-            if (!empty($data['product_images'])) {
-                foreach ($data['product_images'] as $img) {
-                    ProductImage::create([
-                        'url'      => $img['url'],
-                        'img_index' => $img['img_index'],
-                        'product_id' => $product->ProductID
+
+            if (!empty($data['productImages'])) {
+                foreach ($data['productImages'] as $img) {
+                    $product->images()->create([
+                        'url'       => $img['url'],
+                        'img_index' => $img['img_index']
                     ]);
                 }
             }
@@ -64,32 +57,56 @@ class ProductService
         });
     }
 
+
+
     public function update(int $id, array $data)
     {
-        $product = Product::findOrFail($id);
-        $product->update($data);
+        return DB::transaction(function () use ($id, $data) {
 
-        if (isset($data['specification'])) {
-            $product->specification()->updateOrCreate(
-                ['product_id' => $id],
-                $data['specification']
-            );
-        }
+            $product = Product::findOrFail($id);
 
-        if (isset($data['product_images'])) {
-            $product->images()->delete();
-            foreach ($data['product_images'] as $img) {
-                $product->images()->create($img);
+            $product->update([
+                'name'           => $data['name'],
+                'price'          => $data['price'],
+                'Stock_Quantity' => $data['stockQuantity'],
+                'description'    => $data['description'] ?? null,
+                'BrandID'        => $data['brandId'] ?? null,
+                'CategoryID'     => $data['categoryId'] ?? null,
+                'SupplierID'     => $data['supplierId'] ?? null, // ✅ thêm
+            ]);
+
+
+            // ===== SPEC =====
+            if (isset($data['specification'])) {
+                if ($product->SpecID) {
+                    Specification::where('specId', $product->SpecID)
+                        ->update($data['specification']);
+                } else {
+                    $spec = Specification::create($data['specification']);
+                    $product->SpecID = $spec->specId;
+                    $product->save();
+                }
             }
-        }
 
-        return $product->load(['specification', 'images']);
+            // ===== IMAGES (clear + add) =====
+            if (isset($data['productImages'])) {
+                $product->images()->delete();
+
+                foreach ($data['productImages'] as $img) {
+                    $product->images()->create([
+                        'url'       => $img['url'],
+                        'img_index' => $img['img_index']
+                    ]);
+                }
+            }
+
+            return $product->load(['specification', 'images']);
+        });
     }
-
 
     public function delete(int $id)
     {
-        Product::destroy($id);
+        $product = Product::findOrFail($id);
+        $product->delete(); // soft delete
     }
-
 }
