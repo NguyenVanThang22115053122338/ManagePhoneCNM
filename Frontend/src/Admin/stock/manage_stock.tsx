@@ -115,15 +115,6 @@ const StockManagement = () => {
           </a>
         </div>
 
-        <div className={styles["search-bar"]}>
-          <i className="fas fa-search"></i>
-          <input
-            type="text"
-            placeholder="Tìm kiếm"
-            value={search}
-            onChange={e => handleSearchChange(e.target.value)}
-          />
-        </div>
       </div>
 
 
