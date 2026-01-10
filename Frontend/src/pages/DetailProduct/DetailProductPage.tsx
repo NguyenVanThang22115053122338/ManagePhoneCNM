@@ -123,7 +123,7 @@ export default function ProductDetail() {
   ];
 
   return (
-    <div className="product-container">
+    <div className="product-container-2">
       <h1 className="product-title">
         {product.name} | Chính hãng VN/A
       </h1>
