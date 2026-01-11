@@ -18,7 +18,7 @@ export default function ReviewSection({ productId }: Props) {
         reviewService
             .getByProductId(productId)
             .then(res => {
-                setReviews(res.data);
+                setReviews(res.data.data);  
             })
             .catch(() => setReviews([]))
             .finally(() => setLoading(false));

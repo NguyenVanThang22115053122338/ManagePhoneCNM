@@ -4,7 +4,7 @@ import type { IReview } from "./Interface";
 
 const reviewService = {
     getByProductId(productId: number) {
-        return axiosClient.get<IReview[]>(
+        return axiosClient.get<{ data: IReview[] }>(
             `api/reviews/product/${productId}`
         );
     },

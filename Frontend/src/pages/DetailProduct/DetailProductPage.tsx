@@ -10,7 +10,6 @@ import orderService from "../../services/OrderService";
 import reviewService from "../../services/ReviewService";
 import type { IReview } from "../../services/Interface";
 import ProductReviewPage from "../ReviewPage/ProductReviewPage";
-import axios from "axios";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -67,10 +66,13 @@ export default function ProductDetail() {
 
     reviewService
       .getByProductId(product.productId)
-      .then(res => setReviews(res.data))
+      .then(res => {
+          console.log("Response reviews:", res.data);
+          setReviews(res.data.data); 
+      })
       .catch(() => setReviews([]))
       .finally(() => setReviewLoading(false));
-  }, [product?.productId]);
+}, [product?.productId]);
 
   const handleBuyNow = async () => {
     const hasToken = !!localStorage.getItem("accessToken");
@@ -133,7 +135,7 @@ export default function ProductDetail() {
     
     reviewService
       .getByProductId(product.productId)
-      .then(res => setReviews(res.data))
+      .then(res => setReviews(res.data.data))
       .catch(() => setReviews([]));
   };
 
