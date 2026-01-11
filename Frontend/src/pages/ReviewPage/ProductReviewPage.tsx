@@ -7,6 +7,8 @@ interface ProductReviewPageProps {
     isOpen: boolean;
     onClose: () => void;
     productId: number;
+    userId: number;
+    orderId: number; 
     onSubmitSuccess?: () => void;
 }
 
@@ -14,6 +16,8 @@ export default function ProductReviewPage({
     isOpen, 
     onClose, 
     productId,
+    userId,    
+    orderId,
     onSubmitSuccess 
 }: ProductReviewPageProps) {
     const [rating, setRating] = useState(5);
@@ -77,17 +81,35 @@ export default function ProductReviewPage({
             alert("Vui lòng nhập nội dung đánh giá");
             return;
         }
-
+    
+        // ✅ DEBUG - Kiểm tra giá trị
+        console.log("OrderID:", orderId);
+        console.log("ProductID:", productId);
+        console.log("UserID:", userId);
+    
+        if (!orderId || orderId === 0) {
+            alert("Không tìm thấy thông tin đơn hàng. Vui lòng thử lại.");
+            return;
+        }
+    
         setIsSubmitting(true);
-
+    
         const formData = new FormData();
-        formData.append("productID", productId.toString());
-        formData.append("rating", rating.toString());
-        formData.append("comment", comment.trim());
-
-        if (photo) formData.append("photo", photo);
-        if (video) formData.append("video", video);
-
+        formData.append("OrderID", orderId.toString());
+        formData.append("ProductID", productId.toString());
+        formData.append("UserID", userId.toString());
+        formData.append("Rating", rating.toString());
+        formData.append("Comment", comment.trim());
+    
+        if (photo) formData.append("Photo", photo);
+        if (video) formData.append("Video", video);
+    
+        // ✅ DEBUG - Xem FormData
+        console.log("=== FormData ===");
+        for (let [key, value] of formData.entries()) {
+            console.log(key, ":", value);
+        }
+    
         try {
             await reviewService.createReview(formData);
             alert("Đánh giá thành công! Cảm ơn bạn đã chia sẻ.");
@@ -95,12 +117,14 @@ export default function ProductReviewPage({
             onClose();
             if (onSubmitSuccess) onSubmitSuccess();
         } catch (e: any) {
-            console.error(e);
+            console.error("Lỗi submit:", e);
+            console.error("Response:", e.response?.data);
             alert(e.response?.data?.message || "Không thể gửi đánh giá. Vui lòng thử lại.");
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
     const getRatingText = (rating: number) => {
         switch (rating) {

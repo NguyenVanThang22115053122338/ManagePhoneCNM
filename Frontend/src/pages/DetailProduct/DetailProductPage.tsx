@@ -6,9 +6,11 @@ import type { IProduct, ProductImage } from "../../services/Interface";
 import IP from "../../assets/img/ip.png";
 import { useAuth } from "../../context/AuthContext";
 import cartDetailService from "../../services/CartDetailService";
+import orderService from "../../services/OrderService"; 
 import reviewService from "../../services/ReviewService";
 import type { IReview } from "../../services/Interface";
 import ProductReviewPage from "../ReviewPage/ProductReviewPage";
+import axios from "axios";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +23,7 @@ export default function ProductDetail() {
   const [selectedVersion, setSelectedVersion] = useState("1TB");
   const [selectedColor, setSelectedColor] = useState("Titan Sa Mạc");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [orderId, setOrderId] = useState<number | null>(null);
 
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [reviewLoading, setReviewLoading] = useState(true);
@@ -100,6 +103,30 @@ export default function ProductDetail() {
       alert("Không thể thêm sản phẩm vào giỏ hàng");
     }
   };
+
+  // ✅ HÀM MỞ MODAL - KIỂM TRA ĐÃ MUA CHƯA
+  const handleOpenReviewModal = async () => {
+    if (!user) {
+        alert("Vui lòng đăng nhập để đánh giá sản phẩm");
+        navigate("/login");
+        return;
+    }
+
+    try {
+        const res = await orderService.checkUserPurchased(user.userId, product?.productId!);
+        console.log("Response từ API:", res.data);
+        
+        if (res.data.hasPurchased && res.data.orderId) {
+            setOrderId(res.data.orderId);
+            setIsReviewModalOpen(true);
+        } else {
+            alert("Bạn chưa mua sản phẩm này");
+        }
+    } catch (error) {
+        console.error("Lỗi check order:", error);
+        alert("Bạn chưa mua sản phẩm này");
+    }
+};
 
   const handleReviewSuccess = () => {
     if (!product?.productId) return;
@@ -226,7 +253,6 @@ export default function ProductDetail() {
         </ul>
       </div>
 
-      {/* ===== REVIEW SECTION ===== */}
       <div className="review-section">
         <h2 className="review-title">Đánh giá sản phẩm</h2>
 
@@ -267,22 +293,27 @@ export default function ProductDetail() {
 
         <button 
           className="write-review-btn" 
-          onClick={() => setIsReviewModalOpen(true)}
+          onClick={handleOpenReviewModal}
         >
           <i className="fa-solid fa-pen"></i>
           Viết đánh giá
         </button>
       </div>
 
-      {/* Modal chỉ render khi có productId */}
-      {product.productId && (
-        <ProductReviewPage 
-          isOpen={isReviewModalOpen}
-          onClose={() => setIsReviewModalOpen(false)}
-          productId={product.productId}
-          onSubmitSuccess={handleReviewSuccess}
-        />
-      )}
+      {/* ✅ MODAL VỚI USER ID VÀ ORDER ID */}
+      {product.productId && user && orderId && orderId > 0 && (
+    <ProductReviewPage 
+        isOpen={isReviewModalOpen}
+        onClose={() => {
+            setIsReviewModalOpen(false);
+            setOrderId(null);
+        }}
+        productId={product.productId}
+        userId={user.userId}
+        orderId={orderId}  // ✅ Không dùng || 0 nữa
+        onSubmitSuccess={handleReviewSuccess}
+    />
+)}
     </div>
   );
 }
