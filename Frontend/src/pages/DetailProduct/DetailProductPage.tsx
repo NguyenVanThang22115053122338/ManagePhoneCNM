@@ -5,13 +5,10 @@ import productService from "../../services/ProductService";
 import type { IProduct, ProductImage } from "../../services/Interface";
 import IP from "../../assets/img/ip.png";
 import { useAuth } from "../../context/AuthContext";
-import cartService from "../../services/CartService";
 import cartDetailService from "../../services/CartDetailService";
 import reviewService from "../../services/ReviewService";
 import type { IReview } from "../../services/Interface";
-
-
-
+import ProductReviewPage from "../ReviewPage/ProductReviewPage";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -23,10 +20,10 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [selectedVersion, setSelectedVersion] = useState("1TB");
   const [selectedColor, setSelectedColor] = useState("Titan Sa Mạc");
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
 
   const [reviews, setReviews] = useState<IReview[]>([]);
   const [reviewLoading, setReviewLoading] = useState(true);
-
 
   useEffect(() => {
     if (!id || isNaN(Number(id))) {
@@ -72,7 +69,6 @@ export default function ProductDetail() {
       .finally(() => setReviewLoading(false));
   }, [product?.productId]);
 
-
   const handleBuyNow = async () => {
     const hasToken = !!localStorage.getItem("accessToken");
 
@@ -105,6 +101,14 @@ export default function ProductDetail() {
     }
   };
 
+  const handleReviewSuccess = () => {
+    if (!product?.productId) return;
+    
+    reviewService
+      .getByProductId(product.productId)
+      .then(res => setReviews(res.data))
+      .catch(() => setReviews([]));
+  };
 
   const images: ProductImage[] = useMemo(() => {
     return product?.productImages
@@ -179,17 +183,15 @@ export default function ProductDetail() {
             ))}
           </div>
 
-
           <div className="section-title">Màu sắc</div>
           <div className="color-grid">
             {colors.map((color) => (
               <button
                 key={color.name}
-                className={`color-btn ${selectedColor === color.name ? "active" : ""
-                  }`}
+                className={`color-btn ${selectedColor === color.name ? "active" : ""}`}
                 onClick={() => setSelectedColor(color.name)}
               >
-                <img src={IP} className="color-img" />
+                <img src={IP} className="color-img" alt={color.name} />
                 <div className="color-info">
                   <span>{color.name}</span>
                   <span className="color-price">
@@ -199,7 +201,6 @@ export default function ProductDetail() {
               </button>
             ))}
           </div>
-
 
           <div className="action-row">
             <button className="btn blue">Trả góp 0%</button>
@@ -264,15 +265,24 @@ export default function ProductDetail() {
           </div>
         ))}
 
-        <button
-          className="btn-outline"
-          onClick={() =>
-            navigate(`/product/${product.productId}/reviews`)
-          }
+        <button 
+          className="write-review-btn" 
+          onClick={() => setIsReviewModalOpen(true)}
         >
+          <i className="fa-solid fa-pen"></i>
           Viết đánh giá
         </button>
       </div>
+
+      {/* Modal chỉ render khi có productId */}
+      {product.productId && (
+        <ProductReviewPage 
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          productId={product.productId}
+          onSubmitSuccess={handleReviewSuccess}
+        />
+      )}
     </div>
   );
 }
