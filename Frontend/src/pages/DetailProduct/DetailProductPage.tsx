@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import cartDetailService from "../../services/CartDetailService";
 import orderService from "../../services/OrderService"; 
 import reviewService from "../../services/ReviewService";
+import ReviewSection from "../ReviewPage/ReviewSection";
 import type { IReview } from "../../services/Interface";
 import ProductReviewPage from "../ReviewPage/ProductReviewPage";
 
@@ -23,9 +24,7 @@ export default function ProductDetail() {
   const [selectedColor, setSelectedColor] = useState("Titan Sa Mạc");
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
-
-  const [reviews, setReviews] = useState<IReview[]>([]);
-  const [reviewLoading, setReviewLoading] = useState(true);
+  const [reviewRefresh, setReviewRefresh] = useState(0);
 
   useEffect(() => {
     if (!id || isNaN(Number(id))) {
@@ -58,21 +57,6 @@ export default function ProductDetail() {
 
     fetchProduct();
   }, [id, navigate]);
-
-  useEffect(() => {
-    if (!product?.productId) return;
-
-    setReviewLoading(true);
-
-    reviewService
-      .getByProductId(product.productId)
-      .then(res => {
-          console.log("Response reviews:", res.data);
-          setReviews(res.data.data); 
-      })
-      .catch(() => setReviews([]))
-      .finally(() => setReviewLoading(false));
-}, [product?.productId]);
 
   const handleBuyNow = async () => {
     const hasToken = !!localStorage.getItem("accessToken");
@@ -130,14 +114,9 @@ export default function ProductDetail() {
     }
 };
 
-  const handleReviewSuccess = () => {
-    if (!product?.productId) return;
-    
-    reviewService
-      .getByProductId(product.productId)
-      .then(res => setReviews(res.data.data))
-      .catch(() => setReviews([]));
-  };
+const handleReviewSuccess = () => {
+  setReviewRefresh(prev => prev + 1); 
+};
 
   const images: ProductImage[] = useMemo(() => {
     return product?.productImages
@@ -161,14 +140,6 @@ export default function ProductDetail() {
         {product.name} | Chính hãng VN/A
       </h1>
 
-      <div className="rating-row">
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span>4.9 (15 đánh giá)</span>
-      </div>
 
       <div className="product-grid">
         <div className="image-box">
@@ -196,7 +167,7 @@ export default function ProductDetail() {
             <div className="price-main">
               {product.price.toLocaleString("vi-VN")}đ
             </div>
-            <div className="price-old">48.990.000đ</div>
+            <div className="price-old">{(product.price*1.1).toLocaleString("vi-VN")}</div>
           </div>
 
           <div className="section-title">Phiên bản</div>
@@ -258,41 +229,12 @@ export default function ProductDetail() {
       <div className="review-section">
         <h2 className="review-title">Đánh giá sản phẩm</h2>
 
-        {reviewLoading && <p>Đang tải đánh giá...</p>}
-
-        {!reviewLoading && reviews.length === 0 && (
-          <p className="review-empty">Chưa có đánh giá nào</p>
+        {product !== null && product.productId !== undefined && (
+          <ReviewSection 
+            productId={product.productId} 
+            refreshTrigger={reviewRefresh}
+          />
         )}
-
-        {reviews.map(r => (
-          <div key={r.reviewID} className="review-item">
-            <div className="review-header">
-              <strong>{r.userName}</strong>
-              <span className="review-stars">
-                {"★".repeat(r.rating)}
-              </span>
-            </div>
-
-            <p className="review-comment">{r.comment}</p>
-
-            {r.photoUrl && (
-              <img
-                src={r.photoUrl}
-                alt="review"
-                className="review-image"
-              />
-            )}
-
-            {r.videoUrl && (
-              <video
-                src={r.videoUrl}
-                controls
-                className="review-video"
-              />
-            )}
-          </div>
-        ))}
-
         <button 
           className="write-review-btn" 
           onClick={handleOpenReviewModal}

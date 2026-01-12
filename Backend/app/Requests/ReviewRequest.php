@@ -18,7 +18,7 @@ class ReviewRequest extends FormRequest
             'UserID' => 'required|exists:user,UserID',
             'Rating' => 'required|integer|min:1|max:5',
             'Comment' => 'nullable|string|max:1000',
-            'Video' => 'nullable|file|mimes:mp4,avi,mov|max:51200', 
+            'Video' => 'nullable|file|max:51200',
             'Photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120'
         ];
     }

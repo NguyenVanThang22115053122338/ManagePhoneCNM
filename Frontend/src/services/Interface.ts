@@ -208,14 +208,17 @@ export interface OrderFullResponse {
 }
 
 export interface IReview {
-    reviewID: number;
-    productID: number;
-    orderID?: number;
-    userName: string;
-    rating: number;
-    comment: string;
-    photoUrl?: string;
-    videoUrl?: string;
+    ReviewID: number;
+    ProductID: number;
+    OrderID?: number;
+    UserID: number;
+    Avatar: string;
+    FullName: string;
+    Rating: number;
+    Comment: string;
+    Photo?: string;
+    Video?: string;
+    CreatedAt: string | Date;
 }
 
 export interface Brand {
