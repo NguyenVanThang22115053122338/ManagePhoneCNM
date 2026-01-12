@@ -13,7 +13,6 @@ class StockInRequest extends FormRequest
 
     public function rules()
     {
-        // Nếu là tạo mới (POST) - cần tạo batch mới
         if ($this->isMethod('post')) {
             return [
                 'productId' => 'required|exists:product,ProductID',
@@ -26,7 +25,6 @@ class StockInRequest extends FormRequest
             ];
         }
         
-        // Nếu là cập nhật (PUT/PATCH) - chỉ cần BatchID
         return [
             'BatchID' => 'nullable|exists:batch,BatchID',
             'quantity' => 'required|integer|min:1',

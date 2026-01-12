@@ -14,9 +14,9 @@ use Illuminate\Support\Facades\DB;
 class StockInService
 {
     // Lấy tất cả phiếu nhập
-    public function getAll()
+    public function getAll(int $perPage)
     {
-        $stockIns = StockIn::all();
+        $stockIns = StockIn::orderBy('StockInID', 'desc')->paginate($perPage);
         return StockInResource::collection($stockIns);
     }
 
@@ -82,47 +82,5 @@ class StockInService
             DB::rollBack();
             throw $e;
         }
-    }
-
-    // Cập nhật phiếu nhập
-    public function update($id, array $data, $request)
-    {
-        $stockIn = StockIn::findOrFail($id);
-
-        // Lấy user từ JWT token
-        $jwtUser = $request->attributes->get('jwt_user');
-        $user = User::where('Email', $jwtUser->sub)
-                    ->orWhere('SDT', $jwtUser->sub)
-                    ->first();
-        
-        if (!$user) {
-            throw new \Exception('Người dùng không tồn tại');
-        }
-
-        // Kiểm tra batch nếu có
-        if (!empty($data['BatchID'])) {
-            $batch = Batch::find($data['BatchID']);
-            if (!$batch) {
-                throw new \Exception('Lô hàng không tồn tại');
-            }
-        }
-
-        // Cập nhật
-        $stockIn->update([
-            'BatchID' => $data['BatchID'] ?? $stockIn->BatchID,
-            'UserID' => $user->UserID,
-            'quantity' => $data['quantity'] ?? $stockIn->quantity,
-            'note' => $data['note'] ?? $stockIn->note,
-            'date' => $data['date'] ?? $stockIn->date
-        ]);
-
-        return new StockInResource($stockIn);
-    }
-
-    // Xoá phiếu nhập
-    public function delete($id)
-    {
-        $stockIn = StockIn::findOrFail($id);
-        $stockIn->delete();
     }
 }

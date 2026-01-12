@@ -284,6 +284,45 @@ export interface IStockOut {
     note: string;
 }
 
+export interface IStockInRequest {
+    productId: number;
+    productionDate: string;
+    quantity: number;
+    priceIn: number;
+    expiry: string;
+    note: string;
+}
+
+export interface IStockOutRequest {
+    BatchID: number;
+    quantity: number;
+    note: string;
+}
+
 export interface ApiResponse<T> {
     data: T;
+}
+
+export interface LaravelPaginationResponse<T> {
+    data: T[];
+    links: {
+        first: string;
+        last: string;
+        prev: string | null;
+        next: string | null;
+    };
+    meta: {
+        current_page: number;
+        from: number;
+        last_page: number;
+        links: Array<{
+            url: string | null;
+            label: string;
+            active: boolean;
+        }>;
+        path: string;
+        per_page: number;
+        to: number;
+        total: number;
+    };
 }

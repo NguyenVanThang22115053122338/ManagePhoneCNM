@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./manage_stock.module.css";
 import { useNavigate } from "react-router-dom";
 import StockInService from "../../services/StockInServices";
@@ -8,69 +8,102 @@ import type { IStockOut } from "../../services/Interface";
 
 type TabType = "nhap" | "xuat";
 
-/* ================= COMPONENT ================= */
+
 const StockManagement = () => {
-  /* ===== STATE ===== */
+
   const [currentTab, setCurrentTab] = useState<TabType>("nhap");
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 5;
   const navigate = useNavigate();
+
 
   const [nhapData, setNhapData] = useState<IStockIn[]>([]);
   const [xuatData, setXuatData] = useState<IStockOut[]>([]);
-  /* ===== FETCH DATA FROM API ===== */
+
+
+  const [nhapCurrentPage, setNhapCurrentPage] = useState(1);
+  const [nhapLastPage, setNhapLastPage] = useState(1);
+  const [nhapTotal, setNhapTotal] = useState(0);
+  const [nhapFrom, setNhapFrom] = useState(0);
+  const [nhapTo, setNhapTo] = useState(0);
+
+
+  const [xuatCurrentPage, setXuatCurrentPage] = useState(1);
+  const [xuatLastPage, setXuatLastPage] = useState(1);
+  const [xuatTotal, setXuatTotal] = useState(0);
+  const [xuatFrom, setXuatFrom] = useState(0);
+  const [xuatTo, setXuatTo] = useState(0);
+
+
   useEffect(() => {
-    fetchStockin();
-    fetchStockout();
-  }, []);
+    if (currentTab === "nhap") {
+      fetchStockin();
+      fetchStockout();
+    } else {
+      fetchStockin();
+      fetchStockout();
+    }
+  }, [currentTab, search, nhapCurrentPage, xuatCurrentPage]);
 
   const fetchStockin = async () => {
     try {
-      const stockIn = await StockInService.getStockIns();
-      setNhapData(stockIn);
+      const response = await StockInService.getStockIns(nhapCurrentPage, search);
+      setNhapData(response.data || []);
+      setNhapCurrentPage(response.meta.current_page || 1);
+      setNhapLastPage(response.meta.last_page || 1);
+      setNhapTotal(response.meta.total || 0);
+      setNhapFrom(response.meta.from || 0);
+      setNhapTo(response.meta.to || 0);
     } catch (error: any) {
       console.error("Fetch stockin error:", error);
       alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+      setNhapData([]);
     }
   };
 
   const fetchStockout = async () => {
     try {
-      const stockOut = await StockOutService.getStockOuts();
-      setXuatData(stockOut);
+      const response = await StockOutService.getStockOuts(xuatCurrentPage, search);
+      setXuatData(response.data || []);
+      setXuatCurrentPage(response.meta.current_page || 1);
+      setXuatLastPage(response.meta.last_page || 1);
+      setXuatTotal(response.meta.total || 0);
+      setXuatFrom(response.meta.from || 0);
+      setXuatTo(response.meta.to || 0);
     } catch (error: any) {
       console.error("Fetch stockout error:", error);
       alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+      setXuatData([]);
     }
   };
 
-  /* ===== FILTER + SEARCH ===== */
-  const sourceData = currentTab === "nhap" ? nhapData : xuatData;
 
-  const filteredData = useMemo(() => {
-    if (!search.trim()) return sourceData;
-    return sourceData.filter(item =>
-      JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, sourceData]);
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
 
-  /* ===== PAGINATION ===== */
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+    setNhapCurrentPage(1);
+    setXuatCurrentPage(1);
+  };
 
-  const pageData = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [currentTab, search]);
+  const currentData = currentTab === "nhap" ? nhapData : xuatData;
+  const currentPage = currentTab === "nhap" ? nhapCurrentPage : xuatCurrentPage;
+  const lastPage = currentTab === "nhap" ? nhapLastPage : xuatLastPage;
+  const total = currentTab === "nhap" ? nhapTotal : xuatTotal;
+  const from = currentTab === "nhap" ? nhapFrom : xuatFrom;
+  const to = currentTab === "nhap" ? nhapTo : xuatTo;
 
-  /* ================= RENDER ================= */
+  const setCurrentPage = (page: number) => {
+    if (currentTab === "nhap") {
+      setNhapCurrentPage(page);
+    } else {
+      setXuatCurrentPage(page);
+    }
+  };
+
+
   return (
     <div className={styles["main-content"]}>
-      {/* HEADER */}
+
       <div className={styles["content-header"]}>
         <div className={styles["content-title-container"]}>
           <h1 className={`${styles["content-title"]} ${styles.active}`}>
@@ -82,18 +115,9 @@ const StockManagement = () => {
           </a>
         </div>
 
-        <div className={styles["search-bar"]}>
-          <i className="fas fa-search"></i>
-          <input
-            type="text"
-            placeholder="Tìm kiếm"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
       </div>
 
-      {/* FILTER TABS */}
+
       <div className={styles["filter-tabs"]}>
         <button
           className={`${styles["filter-tab"]} ${currentTab === "nhap" ? styles.active : ""
@@ -102,7 +126,7 @@ const StockManagement = () => {
         >
           <i className="fas fa-arrow-down"></i>
           Phiếu nhập kho
-          <span className={styles["tab-count"]}>{nhapData.length}</span>
+          <span className={styles["tab-count"]}>{nhapTotal}</span>
         </button>
 
         <button
@@ -112,11 +136,11 @@ const StockManagement = () => {
         >
           <i className="fas fa-arrow-up"></i>
           Phiếu xuất kho
-          <span className={styles["tab-count"]}>{xuatData.length}</span>
+          <span className={styles["tab-count"]}>{xuatTotal}</span>
         </button>
       </div>
 
-      {/* CONTENT */}
+
       <div className={styles.container}>
         <div className={styles["accounts-table"]}>
           <table>
@@ -133,8 +157,8 @@ const StockManagement = () => {
             </thead>
 
             <tbody>
-              {pageData.length > 0 ? (
-                pageData.map((item: any) => (
+              {currentData.length > 0 ? (
+                currentData.map((item: any) => (
                   <tr key={item.stockInID ?? item.stockOutID}>
                     <td>
                       <span className={styles["id-badge"]}>
@@ -180,39 +204,29 @@ const StockManagement = () => {
           </table>
         </div>
 
-        {/* PAGINATION */}
+
         <div className={styles["pagination-container"]}>
           <div className={styles["page-info"]}>
-            Hiển thị{" "}
-            {filteredData.length === 0
-              ? 0
-              : (currentPage - 1) * recordsPerPage + 1}
-            -
-            {Math.min(currentPage * recordsPerPage, filteredData.length)} của{" "}
-            {filteredData.length}
+            {total === 0
+              ? "Không có dữ liệu"
+              : `Hiển thị ${from} - ${to} của ${total} kết quả`}
           </div>
 
           <div className={styles["pagination-controls"]}>
             <button
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
+              onClick={() => setCurrentPage(currentPage - 1)}
             >
               <i className="fas fa-chevron-left"></i>
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                className={currentPage === i + 1 ? styles.active : ""}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
+            <span className={styles["page-number"]}>
+              Trang {currentPage} / {lastPage}
+            </span>
 
             <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
+              disabled={currentPage >= lastPage || lastPage === 0}
+              onClick={() => setCurrentPage(currentPage + 1)}
             >
               <i className="fas fa-chevron-right"></i>
             </button>

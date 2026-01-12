@@ -1,19 +1,42 @@
 import axios from "axios";
-import type { IBatch } from "./Interface";
+import type { IBatch, LaravelPaginationResponse } from "./Interface";
 import axiosClient from "./AxiosClient";
 
 const BatchService = {
 
-    async getBatches(): Promise<IBatch[]> {
+    async getBatches(page: number = 1, search: string = ""): Promise<LaravelPaginationResponse<IBatch>> {
         try {
-            const response = await axiosClient.get("/api/batch");
+            const params: any = { page };
+            if (search.trim()) {
+                params.search = search;
+            }
 
-            if (response.data?.data && Array.isArray(response.data.data)) {
-                return response.data.data as IBatch[];
+            const response = await axiosClient.get("/api/batch", { params });
+
+            if (response.data) {
+                return response.data;
             }
 
             console.error("Batch API không trả đúng format:", response.data);
-            return [];
+            return {
+                data: [],
+                links: {
+                    first: "",
+                    last: "",
+                    prev: null,
+                    next: null
+                },
+                meta: {
+                    current_page: 1,
+                    from: 0,
+                    last_page: 1,
+                    links: [],
+                    path: "",
+                    per_page: 5,
+                    to: 0,
+                    total: 0
+                }
+            };
         } catch (error: unknown) {
             if (axios.isAxiosError(error)) {
                 const message =
