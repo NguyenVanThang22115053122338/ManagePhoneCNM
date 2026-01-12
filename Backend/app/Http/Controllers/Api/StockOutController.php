@@ -14,9 +14,9 @@ class StockOutController extends Controller
     ) {}
 
     // GET ALL
-    public function index()
+    public function index(int $perPage = 5)
     {
-        return $this->service->getAll();
+        return $this->service->getAll($perPage);
     }
 
     // GET BY ID

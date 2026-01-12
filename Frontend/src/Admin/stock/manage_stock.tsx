@@ -1,105 +1,109 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./manage_stock.module.css";
 import { useNavigate } from "react-router-dom";
-
-
-/* ================= TYPES ================= */
-interface NhapKho {
-  idNhap: number;
-  sdt: string;
-  hoVaTen: string;
-  tenSanPham: string;
-  soLuongNhap: number;
-  ngayNhap?: string;
-  ghiChu?: string;
-}
-
-interface XuatKho {
-  idXuat: number;
-  sdt: string;
-  hoVaTen: string;
-  tenSanPham: string;
-  soLuongXuat: number;
-  ngayXuat?: string;
-  ghiChu?: string;
-}
+import StockInService from "../../services/StockInServices";
+import type { IStockIn } from "../../services/Interface";
+import StockOutService from "../../services/StockOutServices";
+import type { IStockOut } from "../../services/Interface";
 
 type TabType = "nhap" | "xuat";
 
-/* ================= COMPONENT ================= */
+
 const StockManagement = () => {
-  /* ===== STATE ===== */
+
   const [currentTab, setCurrentTab] = useState<TabType>("nhap");
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const recordsPerPage = 5;
   const navigate = useNavigate();
 
-  const [nhapData, setNhapData] = useState<NhapKho[]>([]);
-  const [xuatData, setXuatData] = useState<XuatKho[]>([]);
 
-  /* ===== MOCK DATA (thay API sau) ===== */
-  useEffect(() => {
-    setNhapData([
-      {
-        idNhap: 1,
-        sdt: "0981111111",
-        hoVaTen: "Nguyễn Văn A",
-        tenSanPham: "iPhone 15",
-        soLuongNhap: 10,
-        ngayNhap: "2025-06-01",
-        ghiChu: "",
-      },
-      {
-        idNhap: 2,
-        sdt: "0982222222",
-        hoVaTen: "Trần Thị B",
-        tenSanPham: "Samsung S24",
-        soLuongNhap: 5,
-        ngayNhap: "2025-06-02",
-        ghiChu: "Nhập bổ sung",
-      },
-    ]);
+  const [nhapData, setNhapData] = useState<IStockIn[]>([]);
+  const [xuatData, setXuatData] = useState<IStockOut[]>([]);
 
-    setXuatData([
-      {
-        idXuat: 101,
-        sdt: "0912345678",
-        hoVaTen: "Nguyễn Văn Thắng",
-        tenSanPham: "iPhone 15",
-        soLuongXuat: 2,
-        ngayXuat: "2025-06-10",
-        ghiChu: "",
-      },
-    ]);
-  }, []);
 
-  /* ===== FILTER + SEARCH ===== */
-  const sourceData = currentTab === "nhap" ? nhapData : xuatData;
+  const [nhapCurrentPage, setNhapCurrentPage] = useState(1);
+  const [nhapLastPage, setNhapLastPage] = useState(1);
+  const [nhapTotal, setNhapTotal] = useState(0);
+  const [nhapFrom, setNhapFrom] = useState(0);
+  const [nhapTo, setNhapTo] = useState(0);
 
-  const filteredData = useMemo(() => {
-    if (!search.trim()) return sourceData;
-    return sourceData.filter(item =>
-      JSON.stringify(item).toLowerCase().includes(search.toLowerCase())
-    );
-  }, [search, sourceData]);
 
-  /* ===== PAGINATION ===== */
-  const totalPages = Math.ceil(filteredData.length / recordsPerPage);
+  const [xuatCurrentPage, setXuatCurrentPage] = useState(1);
+  const [xuatLastPage, setXuatLastPage] = useState(1);
+  const [xuatTotal, setXuatTotal] = useState(0);
+  const [xuatFrom, setXuatFrom] = useState(0);
+  const [xuatTo, setXuatTo] = useState(0);
 
-  const pageData = filteredData.slice(
-    (currentPage - 1) * recordsPerPage,
-    currentPage * recordsPerPage
-  );
 
   useEffect(() => {
-    setCurrentPage(1);
-  }, [currentTab, search]);
+    if (currentTab === "nhap") {
+      fetchStockin();
+      fetchStockout();
+    } else {
+      fetchStockin();
+      fetchStockout();
+    }
+  }, [currentTab, search, nhapCurrentPage, xuatCurrentPage]);
 
-  /* ================= RENDER ================= */
+  const fetchStockin = async () => {
+    try {
+      const response = await StockInService.getStockIns(nhapCurrentPage, search);
+      setNhapData(response.data || []);
+      setNhapCurrentPage(response.meta.current_page || 1);
+      setNhapLastPage(response.meta.last_page || 1);
+      setNhapTotal(response.meta.total || 0);
+      setNhapFrom(response.meta.from || 0);
+      setNhapTo(response.meta.to || 0);
+    } catch (error: any) {
+      console.error("Fetch stockin error:", error);
+      alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+      setNhapData([]);
+    }
+  };
+
+  const fetchStockout = async () => {
+    try {
+      const response = await StockOutService.getStockOuts(xuatCurrentPage, search);
+      setXuatData(response.data || []);
+      setXuatCurrentPage(response.meta.current_page || 1);
+      setXuatLastPage(response.meta.last_page || 1);
+      setXuatTotal(response.meta.total || 0);
+      setXuatFrom(response.meta.from || 0);
+      setXuatTo(response.meta.to || 0);
+    } catch (error: any) {
+      console.error("Fetch stockout error:", error);
+      alert(`Lỗi khi tải dữ liệu: ${error.message}`);
+      setXuatData([]);
+    }
+  };
+
+
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
+
+    setNhapCurrentPage(1);
+    setXuatCurrentPage(1);
+  };
+
+
+  const currentData = currentTab === "nhap" ? nhapData : xuatData;
+  const currentPage = currentTab === "nhap" ? nhapCurrentPage : xuatCurrentPage;
+  const lastPage = currentTab === "nhap" ? nhapLastPage : xuatLastPage;
+  const total = currentTab === "nhap" ? nhapTotal : xuatTotal;
+  const from = currentTab === "nhap" ? nhapFrom : xuatFrom;
+  const to = currentTab === "nhap" ? nhapTo : xuatTo;
+
+  const setCurrentPage = (page: number) => {
+    if (currentTab === "nhap") {
+      setNhapCurrentPage(page);
+    } else {
+      setXuatCurrentPage(page);
+    }
+  };
+
+
   return (
     <div className={styles["main-content"]}>
-      {/* HEADER */}
+
       <div className={styles["content-header"]}>
         <div className={styles["content-title-container"]}>
           <h1 className={`${styles["content-title"]} ${styles.active}`}>
@@ -111,18 +115,9 @@ const StockManagement = () => {
           </a>
         </div>
 
-        <div className={styles["search-bar"]}>
-          <i className="fas fa-search"></i>
-          <input
-            type="text"
-            placeholder="Tìm kiếm"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
       </div>
 
-      {/* FILTER TABS */}
+
       <div className={styles["filter-tabs"]}>
         <button
           className={`${styles["filter-tab"]} ${currentTab === "nhap" ? styles.active : ""
@@ -131,7 +126,7 @@ const StockManagement = () => {
         >
           <i className="fas fa-arrow-down"></i>
           Phiếu nhập kho
-          <span className={styles["tab-count"]}>{nhapData.length}</span>
+          <span className={styles["tab-count"]}>{nhapTotal}</span>
         </button>
 
         <button
@@ -141,20 +136,20 @@ const StockManagement = () => {
         >
           <i className="fas fa-arrow-up"></i>
           Phiếu xuất kho
-          <span className={styles["tab-count"]}>{xuatData.length}</span>
+          <span className={styles["tab-count"]}>{xuatTotal}</span>
         </button>
       </div>
 
-      {/* CONTENT */}
+
       <div className={styles.container}>
         <div className={styles["accounts-table"]}>
           <table>
             <thead>
               <tr>
                 <th>{currentTab === "nhap" ? "ID Nhập" : "ID Xuất"}</th>
-                <th>SDT</th>
-                <th>Họ tên</th>
-                <th>Sản phẩm</th>
+                <th>ID Lô</th>
+                <th>{currentTab === "nhap" ? "Người nhập" : "Người xuất"}</th>
+                <th>Tên sản phẩm</th>
                 <th>Số lượng</th>
                 <th>Ngày</th>
                 <th>Ghi chú</th>
@@ -162,43 +157,39 @@ const StockManagement = () => {
             </thead>
 
             <tbody>
-              {pageData.length > 0 ? (
-                pageData.map((item: any) => (
-                  <tr key={item.idNhap ?? item.idXuat}>
+              {currentData.length > 0 ? (
+                currentData.map((item: any) => (
+                  <tr key={item.stockInID ?? item.stockOutID}>
                     <td>
                       <span className={styles["id-badge"]}>
-                        #{item.idNhap ?? item.idXuat}
+                        #{item.stockInID ?? item.stockOutID}
                       </span>
                     </td>
                     <td>
-                      <span className={styles["phone-badge"]}>{item.sdt}</span>
+                      <span className={styles["phone-badge"]}>{item.batchID}</span>
                     </td>
-                    <td>
-                      <span className={styles["name-badge"]}>
-                        {item.hoVaTen}
-                      </span>
-                    </td>
-                    <td>{item.tenSanPham}</td>
+                    <td>{item.userName ?? ""}</td>
+                    <td>{item.name ?? ""}</td>
                     <td>
                       <span
                         className={`${styles["quantity-badge"]} ${currentTab === "nhap"
-                            ? styles.import
-                            : styles.export
+                          ? styles.import
+                          : styles.export
                           }`}
                       >
                         {currentTab === "nhap"
-                          ? item.soLuongNhap
-                          : item.soLuongXuat}
+                          ? item.quantity
+                          : item.quantity}
                       </span>
                     </td>
                     <td>
-                      {item.ngayNhap || item.ngayXuat
+                      {item.date
                         ? new Date(
-                          item.ngayNhap ?? item.ngayXuat
+                          item.date
                         ).toLocaleDateString("vi-VN")
                         : "N/A"}
                     </td>
-                    <td>{item.ghiChu ?? ""}</td>
+                    <td>{item.note ?? ""}</td>
                   </tr>
                 ))
               ) : (
@@ -213,39 +204,29 @@ const StockManagement = () => {
           </table>
         </div>
 
-        {/* PAGINATION */}
+
         <div className={styles["pagination-container"]}>
           <div className={styles["page-info"]}>
-            Hiển thị{" "}
-            {filteredData.length === 0
-              ? 0
-              : (currentPage - 1) * recordsPerPage + 1}
-            -
-            {Math.min(currentPage * recordsPerPage, filteredData.length)} của{" "}
-            {filteredData.length}
+            {total === 0
+              ? "Không có dữ liệu"
+              : `Hiển thị ${from} - ${to} của ${total} kết quả`}
           </div>
 
           <div className={styles["pagination-controls"]}>
             <button
               disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
+              onClick={() => setCurrentPage(currentPage - 1)}
             >
               <i className="fas fa-chevron-left"></i>
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => (
-              <button
-                key={i}
-                className={currentPage === i + 1 ? styles.active : ""}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
+            <span className={styles["page-number"]}>
+              Trang {currentPage} / {lastPage}
+            </span>
 
             <button
-              disabled={currentPage === totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
+              disabled={currentPage >= lastPage || lastPage === 0}
+              onClick={() => setCurrentPage(currentPage + 1)}
             >
               <i className="fas fa-chevron-right"></i>
             </button>

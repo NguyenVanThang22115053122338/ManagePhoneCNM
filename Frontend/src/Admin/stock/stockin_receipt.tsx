@@ -1,38 +1,48 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./stockin_receipt.module.css";
+import type { IStockInRequest } from "../../services/Interface";
+import StockInService from "../../services/StockInServices";
 
 /* ================= COMPONENT ================= */
 const StockinReceipt = () => {
   const navigate = useNavigate();
 
   /* ===== FORM STATE ===== */
-  const [idSanPham, setIdSanPham] = useState("");
-  const [soLuong, setSoLuong] = useState<number>(1);
-  const [donGia, setDonGia] = useState<number>(1);
-  const [ngaySanXuat, setNgaySanXuat] = useState("");
-  const [hanSuDung, setHanSuDung] = useState("");
-  const [ghiChu, setGhiChu] = useState("");
+  const [productId, setProductId] = useState("");
+  const [productionDate, setProductionDate] = useState("");
+  const [quantity, setQuantity] = useState<number>(1);
+  const [priceIn, setPriceIn] = useState<number>(1);
+  const [expiry, setExpiry] = useState("");
+  const [note, setNote] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   /* ===== SUBMIT ===== */
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
-      idSanPham,
-      soLuong,
-      donGia,
-      ngaySanXuat,
-      hanSuDung,
-      ghiChu,
+    const payload: IStockInRequest = {
+      productId: Number(productId),
+      productionDate,
+      quantity,
+      priceIn,
+      expiry,
+      note,
     };
 
     console.log("📦 Phiếu nhập kho:", payload);
 
-    // TODO: axios.post("/QuanLyKho/ThemPhieuNhap", payload)
-
-    alert("✅ Thêm phiếu nhập kho thành công!");
-    navigate("/stock_management");
+    setIsLoading(true);
+    try {
+      await StockInService.createStockIn(payload);
+      alert("✅ Thêm phiếu nhập kho thành công!");
+      navigate("/Admin/stock_management");
+    } catch (error: any) {
+      console.error("Error creating stock in:", error);
+      alert(`❌ Lỗi: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   /* ================= RENDER ================= */
@@ -81,8 +91,8 @@ const StockinReceipt = () => {
               <input
                 type="text"
                 className={styles["form-input"]}
-                value={idSanPham}
-                onChange={e => setIdSanPham(e.target.value)}
+                value={productId}
+                onChange={e => setProductId(e.target.value)}
                 placeholder="Nhập ID sản phẩm"
                 required
               />
@@ -96,8 +106,8 @@ const StockinReceipt = () => {
                 type="number"
                 className={styles["form-input"]}
                 min={1}
-                value={soLuong}
-                onChange={e => setSoLuong(Number(e.target.value))}
+                value={quantity}
+                onChange={e => setQuantity(Number(e.target.value))}
                 placeholder="Số lượng nhập"
                 required
               />
@@ -113,8 +123,8 @@ const StockinReceipt = () => {
               type="number"
               className={styles["form-input"]}
               min={1}
-              value={donGia}
-              onChange={e => setDonGia(Number(e.target.value))}
+              value={priceIn}
+              onChange={e => setPriceIn(Number(e.target.value))}
               placeholder="Đơn giá"
               required
             />
@@ -129,8 +139,8 @@ const StockinReceipt = () => {
               <input
                 type="date"
                 className={styles["form-input"]}
-                value={ngaySanXuat}
-                onChange={e => setNgaySanXuat(e.target.value)}
+                value={productionDate}
+                onChange={e => setProductionDate(e.target.value)}
               />
             </div>
 
@@ -141,8 +151,8 @@ const StockinReceipt = () => {
               <input
                 type="date"
                 className={styles["form-input"]}
-                value={hanSuDung}
-                onChange={e => setHanSuDung(e.target.value)}
+                value={expiry}
+                onChange={e => setExpiry(e.target.value)}
               />
             </div>
           </div>
@@ -154,14 +164,18 @@ const StockinReceipt = () => {
             </label>
             <textarea
               className={styles["form-textarea"]}
-              value={ghiChu}
-              onChange={e => setGhiChu(e.target.value)}
+              value={note}
+              onChange={e => setNote(e.target.value)}
             />
           </div>
 
           {/* SUBMIT */}
-          <button type="submit" className={styles["submit-button"]}>
-            Xác nhận
+          <button
+            type="submit"
+            className={styles["submit-button"]}
+            disabled={isLoading}
+          >
+            {isLoading ? "Đang xử lý..." : "Xác nhận"}
           </button>
         </form>
       </div>
