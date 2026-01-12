@@ -38,6 +38,18 @@ export interface IRole {
     roleName: string;
 }
 
+export interface ICreateUserRequest {
+    sdt: string;
+    hoVaTen: string;
+    email: string;
+    diaChi?: string;
+    roleId?: number;
+  }
+  
+  export interface ICreateUserResponse {
+    user: IUser;
+    message: string;
+  }
 export interface IUser {
     userId: number;
     sdt: string;
@@ -46,12 +58,18 @@ export interface IUser {
     address?: string;
     avatar?: string | null;
     role?: number;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface UpdateUserResponse {
     user: IUser;
     message: string;
 }
+export interface DeleteUserResponse {
+    success: boolean;
+    message: string;
+  }
 export interface ICategory {
     categoryId: number;
     categoryName: string;

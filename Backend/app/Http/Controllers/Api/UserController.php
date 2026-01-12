@@ -14,8 +14,11 @@ use App\Requests\Auth\LoginWithGoogleRequest;
 use App\Requests\Auth\VerifyCodeRequest;
 use App\Requests\Auth\ResendCodeRequest;
 use App\Requests\User\UpdateUserRequest;
+use App\Requests\User\CreateUserRequest;
+use App\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
+
 
 class UserController extends Controller
 {
@@ -193,11 +196,53 @@ class UserController extends Controller
             ], 400);
         }
     }
-
-
+    public function deleteUser($identifier)
+    {
+        try {
+            $user = User::where('SDT', $identifier)
+                        ->orWhere('Email', $identifier)
+                        ->firstOrFail();
+    
+            if ($user->RoleID == 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa tài khoản Admin'
+                ], 403);
+            }
+    
+            $user->delete();
+    
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa tài khoản thành công'
+            ], 200);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+    public function createUser(CreateUserRequest $req)
+    {
+        try {
+            $data = $req->validated();
+    
+            $result = $this->userService->createUser($data);
+    
+            return response()->json($result, 201);
+    
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
     
     public function getAll()
     {
-        return User::all();
+        return UserResource::collection(User::all());
     }
 }
