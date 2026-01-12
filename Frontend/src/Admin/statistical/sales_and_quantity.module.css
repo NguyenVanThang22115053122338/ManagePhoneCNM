@@ -1,425 +1,139 @@
-    body {
-        font-family: 'Roboto', sans-serif;
-        background-color: #f3f4f6;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        min-height: 100vh;
-    }
+.page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px;
+  background: #f6f8fc;
+}
 
-    
-    .main-content {
-        flex: 1;
-        padding: 20px 20px;
-        min-height: 100vh;
-    }
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
 
-    .sidebar {
-        width: 250px;
-        background: white;
-        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        padding: 10px;
-        height: 100vh;
-        position: fixed;
-        overflow-y: auto;
-    }
+.titleWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
 
-        .sidebar h2 {
-            padding: 15px;
-            margin: 0;
-            color: #333;
-        }
+.kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #64748b;
+}
 
-        .sidebar ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+.title {
+  font-size: 28px;
+  font-weight: 900;
+  color: #0f172a;
+}
 
-        .sidebar li {
-            display: flex;
-            align-items: center;
-            padding: 15px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+.breadcrumb {
+  font-size: 13px;
+  color: #64748b;
+}
 
-            .sidebar li:hover, .sidebar li.active {
-                background-color: #f0f0f0;
-                border-left: 4px solid #2196F3;
-            }
+.crumb {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
 
-            .sidebar li i {
-                margin-right: 10px;
-                width: 20px;
-                text-align: center;
-            }
+.crumbSep {
+  margin: 0 6px;
+}
 
-        .sidebar .logout {
-            padding: 15px;
-            border-top: 1px solid #ddd;
-            color: #f44336;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
+.crumbActive {
+  font-weight: 700;
+  color: #0f172a;
+}
 
-            .sidebar .logout:hover {
-                background-color: #ffebee;
-            }
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 20px;
+}
 
-    .main-content {
-        flex: 1;
-        padding: 20px 20px;
-        min-height: 100vh;
-    }
+/* FILTER */
+.filtersCard {
+  background: #fff;
+  padding: 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
 
-    /* Top bar (logo + account) */
-    .topbar {
-        display: flex;
-        margin-left: -30px;
-        margin-right: -20px;
-        margin-bottom: 20px;
-        justify-content: right;
-        align-items: center;
-        background: #fff;
-        padding: 12px 32px;
-        border-bottom: 1px solid #ddd;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-    }
+.filtersCard label {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  gap: 6px;
+}
 
-    .logo {
-        font-size: 20px;
-        font-weight: bold;
-        color: #2196F3;
-    }
+.filtersCard select {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+}
 
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
+/* MAIN */
+.mainCard {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+}
 
-        .user-info img {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-        }
+.statsRow {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
 
-    .user-details {
-        display: flex;
-        flex-direction: column;
-        font-size: 13px;
-        text-align: left;
-    }
+.stat {
+  flex: 1;
+  background: #f1f5f9;
+  border-radius: 14px;
+  padding: 16px;
+}
 
-    .user-name {
-        font-weight: bold;
-    }
+.stat span {
+  font-size: 13px;
+  color: #64748b;
+}
 
-    .user-role {
-        color: #888;
-    }
+.stat strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 20px;
+}
 
-    .filters {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        background-color: #fff;
-        padding: 16px 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-        margin-bottom: 24px;
-        width: fit-content; /* 👈 Chỉ vừa đủ nội dung */
-        max-width: 100%;
-    }
+/* CHART */
+.chartWrap {
+  margin-top: 10px;
+}
 
-        .filters select {
-            padding: 10px 16px;
-            font-size: 15px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background-color: #f9fafb;
-            color: #333;
-            outline: none;
-            transition: border-color 0.3s ease;
-            min-width: 140px;
-        }
+.canvasBox {
+  height: 360px;
+}
 
-            .filters select:focus {
-                border-color: #2196F3;
-                background-color: #fff;
-            }
+.empty {
+  height: 360px;
+  display: grid;
+  place-items: center;
+  color: #64748b;
+}
 
-
-    .stats-container {
-        border: 1px solid #000;
-        border-radius: 8px;
-        padding: 24px;
-        overflow-x: auto;
-        background: #fff;
-    }
-
-    /* Navigation tabs */
-    .stats-nav {
-        display: flex;
-        margin-bottom: 24px;
-        font-size: 14px;
-        font-weight: 400;
-    }
-
-        .stats-nav button {
-            padding: 8px 24px;
-            border-right: 1px solid #000;
-            background: none;
-            font-weight: 400;
-            cursor: pointer;
-            color: #000;
-            white-space: nowrap;
-            border: none;
-            border-right: 1px solid #000;
-            text-decoration: none; /* Bỏ gạch chân nếu muốn */
-        }
-
-            .stats-nav button.active {
-                color: #ef4444;
-                font-weight: 600;
-            }
-
-            .stats-nav button:last-child {
-                border-right: none;
-            }
-
-        .stats-nav a {
-            color: inherit; /* Giữ nguyên màu chữ của nút */
-            text-decoration: none; /* Bỏ gạch chân */
-        }
-    /* Summary stats */
-    .summary-stats {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 24px;
-        margin-bottom: 24px;
-    }
-
-    .summary-item {
-        flex: 1 1 180px;
-        min-width: 180px;
-    }
-
-        .summary-item h2 {
-            font-weight: 800;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-
-        .summary-item p {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-
-            .summary-item p.green {
-                color: #22c55e;
-            }
-
-            .summary-item p.red {
-                color: #ef4444;
-            }
-
-                .summary-item p.red.bold {
-                    font-weight: 700;
-                }
-    /* Unit text */
-    .unit-text {
-        font-size: 12px;
-        margin-bottom: 8px;
-    }
-
-    /* Chart container */
-    .chart-container {
-        overflow-x: auto;
-    }
-
-    /* Print button container */
-    .print-button-container {
-        display: flex;
-        justify-content: flex-end;
-        margin-top: 24px;
-    }
-
-    .print-button {
-        background-color: #86efac;
-        color: #fff;
-        font-weight: 600;
-        border-radius: 9999px;
-        padding: 8px 24px;
-        border: none;
-        transition: background-color 0.2s;
-        font-size: 16px;
-    }
-
-        .print-button:hover {
-            background-color: #4ade80;
-        }
-
-    .chart-container {
-        display: flex;
-        flex-direction: row;
-        align-items: flex-end;
-        gap: 10px;
-        position: relative;
-        margin-top: 30px;
-    }
-
-    /* Trục Y bên trái */
-    .y-axis {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        height: 300px;
-        padding-right: 10px;
-        font-size: 14px;
-        color: #555;
-        position: relative;
-    }
-
-        .y-axis div {
-            height: 60px;
-            text-align: right;
-        }
-
-    /* Biểu đồ chính */
-    .chart {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-        align-items: end;
-        height: 300px;
-        width: 100%;
-        position: relative;
-        border-left: 2px solid #ccc;
-        border-bottom: 2px solid #ccc;
-        background: white;
-        gap: 10px;
-    }
-
-    .chart-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 100%;
-    }
-
-    .x-axis {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(30px, 1fr));
-        gap: 10px;
-        width: 100%;
-        margin-top: 5px;
-    }
-
-        .x-axis .label {
-            width: 30px;
-            font-size: 12px;
-            color: #555;
-            text-align: center;
-        }
-
-
-    /* Grid ngang */
-    .chart::before,
-    .chart::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        width: 100%;
-        height: 1px;
-        background-color: #ccc;
-        z-index: 1;
-    }
-
-    .chart::before {
-        top: 60px;
-    }
-
-    .chart::after {
-        top: 120px;
-    }
-
-    /* Nếu muốn thêm nhiều đường chia grid hơn */
-    .chart .grid-line {
-        position: absolute;
-        width: 100%;
-        height: 1px;
-        background-color: #ccc;
-        z-index: 0;
-    }
-
-    .bar {
-        width: 30px;
-        background-color: tomato;
-        position: relative;
-        transition: transform 0.2s ease-in-out;
-    }
-
-    .tooltip {
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #333;
-        color: #fff;
-        padding: 6px 10px;
-        font-size: 12px;
-        border-radius: 4px;
-        white-space: nowrap;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.2s ease-in-out;
-        z-index: 10;
-    }
-
-        /* Mũi tên nhỏ chỉ xuống */
-        .tooltip::after {
-            content: "";
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -5px;
-            border-width: 5px;
-            border-style: solid;
-            border-color: #333 transparent transparent transparent;
-        }
-
-    .bar:hover .tooltip {
-        opacity: 1;
-    }
-
-    .bar:hover::after {
-        content: attr(data-tooltip);
-        position: absolute;
-        top: -30px;
-        left: -10px;
-        background-color: #333;
-        color: white;
-        padding: 5px;
-        font-size: 12px;
-        border-radius: 5px;
-        white-space: nowrap;
-    }
-
-    .label {
-        font-size: 12px;
-        color: #555;
-        width: 30px;
-        text-align: center;
-    }
-
-    .sidebar a,
-    .sidebar a:visited,
-    .sidebar a:hover,
-    .sidebar a:active {
-        color: black; /* Hoặc màu nào bạn đang dùng */
-        text-decoration: none; /* Bỏ gạch chân nếu muốn */
-    }
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -10,7 +10,7 @@ export const StatisticService = {
     day?: number;
   }): Promise<SalesAndQuantityResponse> {
     const res = await axiosClient.get<SalesAndQuantityResponse>(
-      "/api/order/doanh-thu",
+      "/api/doanh-thu",
       {
         params: {
           year: params.year,
