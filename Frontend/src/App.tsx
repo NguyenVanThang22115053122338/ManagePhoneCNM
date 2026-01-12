@@ -87,10 +87,7 @@ function App() {
             <Route path="/notification" element={<NotificationsPage />} />
             <Route path="/order/:orderId" element={<OrderPage />} />
             <Route path="/Shopping_card" element={<Shopping_cardPage />} />
-            <Route
-              path="/product/:productId/reviews"
-              element={<ProductReviewPage />}
-            />
+            
           </Route>
         </Route >
 

@@ -46,12 +46,18 @@ export interface IUser {
     address?: string;
     avatar?: string | null;
     role?: number;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface UpdateUserResponse {
     user: IUser;
     message: string;
 }
+export interface DeleteUserResponse {
+    success: boolean;
+    message: string;
+  }
 export interface ICategory {
     categoryId: number;
     categoryName: string;

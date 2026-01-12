@@ -1,57 +1,57 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./manage_account.module.css";
-import { getAllUsers } from "../../services/UserService";
-import type { LoginResponse } from "../../services/Interface";
+import { getAllUsers, deleteUser } from "../../services/UserService";
+import type { IUser } from "../../services/Interface";
 import { useNavigate } from "react-router-dom";
 
 const ITEMS_PER_PAGE = 5;
 
 const AccountManagement = () => {
-  /* ===== DATA ===== */
-  const [accounts, setAccounts] = useState<LoginResponse[]>([]);
+  const [accounts, setAccounts] = useState<IUser[]>([]);
   const navigate = useNavigate();
-  /* ===== UI STATE ===== */
-  const [search, setSearch] = useState("");
-  const [filterRole, setFilterRole] = useState<string>("all");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [editingAccount, setEditingAccount] =
-    useState<LoginResponse | null>(null);
 
-  /* ===== LOAD DATA ===== */
+  const [search, setSearch] = useState("");
+  const [filterRole, setFilterRole] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadAccounts = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getAllUsers();
+      setAccounts(data);
+    } catch (err) {
+      console.error(err);
+      alert("Không thể tải danh sách tài khoản");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getAllUsers()
-      .then(setAccounts)
-      .catch(err => console.error("Load user failed", err));
+    loadAccounts();
   }, []);
 
-  /* ===== FILTER + SEARCH ===== */
   const filteredAccounts = useMemo(() => {
     let result = [...accounts];
-
+    
     if (filterRole !== "all") {
-      result = result.filter(
-        a => String(a.role) === filterRole
-      );
+      result = result.filter(a => String(a.role) === filterRole);
     }
-
+    
     if (search.trim()) {
       const s = search.toLowerCase();
       result = result.filter(a =>
-        a.fullName.toLowerCase().includes(s)
+        a.fullName?.toLowerCase().includes(s) ||
+        a.sdt?.toLowerCase().includes(s) ||
+        a.email?.toLowerCase().includes(s)
       );
     }
-
+    
     return result;
   }, [accounts, filterRole, search]);
 
-  /* ===== PAGINATION ===== */
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredAccounts.length / ITEMS_PER_PAGE)
-  );
-
+  const totalPages = Math.max(1, Math.ceil(filteredAccounts.length / ITEMS_PER_PAGE));
   const pagedAccounts = filteredAccounts.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE
@@ -61,59 +61,108 @@ const AccountManagement = () => {
     setCurrentPage(1);
   }, [search, filterRole]);
 
-  /* ===== HANDLERS ===== */
-  const openEdit = (acc: LoginResponse) => {
-    setEditingAccount(acc);
-    setShowEditModal(true);
+  const handleEdit = (acc: IUser) => {
+    navigate(`/admin/accounts/${acc.userId}`, { state: acc });
   };
 
-const getRoleName = (role: any) => {
-  const roleId = role?.roleId;
-  const roleName = role?.roleName;
+  const handleDelete = async (acc: IUser) => {
+    const identifier = acc.sdt || acc.email;
+    const displayName = acc.fullName || identifier;
 
-  if (roleId === 2 || roleName === "ADMIN") return "Admin";
-  if (roleId === 1 || roleName === "USER") return "Người dùng";
+    if (!identifier) {
+      alert("Không tìm thấy SĐT hoặc Email để xóa");
+      return;
+    }
 
-  return "Chưa phân quyền";
-};
+    const confirmed = window.confirm(
+      `Bạn có chắc chắn muốn xóa tài khoản "${displayName}"?`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      setIsLoading(true);
+      await deleteUser(identifier); 
+      alert("Xóa tài khoản thành công!");
+      await loadAccounts();
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Xóa tài khoản thất bại");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAddNew = () => {
+    navigate("/admin/accounts/create");
+  };
+
+  const getRoleName = (role?: number) => {
+    if (role === 2) return "Admin";
+    if (role === 1) return "Người dùng";
+    return "Chưa phân quyền";
+  };
+
   /* ===== RENDER ===== */
   return (
     <div className={styles.container}>
-      <div className={styles["content-container"]}>
-        {/* HEADER */}
-        <div className={styles["content-header"]}>
-          <h1>Quản lý tài khoản</h1>
+      {/* HEADER */}
+      <div className={styles.header}>
+        <h1>Quản lý tài khoản</h1>
+        <button 
+          className={styles.addButton}
+          onClick={handleAddNew}
+          disabled={isLoading}
+        >
+          + Thêm tài khoản
+        </button>
+      </div>
 
-          <div className={styles["search-filter-container"]}>
-            <div className={styles["search-box"]}>
-              <i className="fas fa-search" />
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Tìm kiếm tài khoản theo tên"
-              />
-            </div>
+      {/* FILTERS */}
+      <div className={styles.filters}>
+        <input
+          type="text"
+          className={styles.searchInput}
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Tìm kiếm theo tên, SĐT, email..."
+          disabled={isLoading}
+        />
 
-            <div className={styles["filter-dropdown"]}>
-           
-              <div className={styles["filter-content"]}>
-                <button onClick={() => setFilterRole("all")}>
-                  Tất cả quyền hạn
-                </button>
-                <button onClick={() => setFilterRole("2")}>
-                  Admin
-                </button>
-                <button onClick={() => setFilterRole("1")}>
-                  Người dùng
-                </button>
-              </div>
-            </div>
-          </div>
+        <div className={styles.roleFilters}>
+          <button
+            className={filterRole === "all" ? styles.active : ""}
+            onClick={() => setFilterRole("all")}
+            disabled={isLoading}
+          >
+            Tất cả quyền hạn
+          </button>
+          <button
+            className={filterRole === "2" ? styles.active : ""}
+            onClick={() => setFilterRole("2")}
+            disabled={isLoading}
+          >
+            Admin
+          </button>
+          <button
+            className={filterRole === "1" ? styles.active : ""}
+            onClick={() => setFilterRole("1")}
+            disabled={isLoading}
+          >
+            Người dùng
+          </button>
         </div>
+      </div>
 
-        {/* TABLE */}
-        <div className={styles["accounts-table"]}>
-          <table>
+      {/* LOADING STATE */}
+      {isLoading && (
+        <div className={styles.loading}>Đang tải...</div>
+      )}
+
+      {/* TABLE */}
+      {!isLoading && (
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
             <thead>
               <tr>
                 <th>SĐT</th>
@@ -121,86 +170,62 @@ const getRoleName = (role: any) => {
                 <th>Email</th>
                 <th>Địa chỉ</th>
                 <th>Quyền hạn</th>
-                <th>Cập nhật</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
             <tbody>
-              {pagedAccounts.map(acc => (
-                <tr key={acc.userId}>
-                  
-                  <td>
-                    <span className={styles["phone-badge"]}>
-                      {acc.sdt}
-                    </span>
-                  </td>
-                  <td>{acc.fullName}</td>
-                  <td>{acc.email}</td>
-                  <td>{acc.address}</td>
-                  <td>{getRoleName(acc.role)}</td>
-                  <td>
-                    <button
-                      className={styles["edit-btn"]}
-                      onClick={() =>
-                        navigate(`/admin/accounts/${acc.userId}`, {
-                          state: acc
-                        })
-                      }
-                    >
-                      <i className="fas fa-edit" />
-                    </button>
-
-                    <button
-                      className={styles["lock-btn"]}
-                      onClick={() =>
-                        confirm(`Xoá tài khoản ${acc.sdt}?`)
-                      }
-                    >
-                      <i className="fas fa-lock" />
-                    </button>
+              {pagedAccounts.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: "center" }}>
+                    Không tìm thấy tài khoản nào
                   </td>
                 </tr>
-              ))}
+              ) : (
+                pagedAccounts.map(acc => (
+                  <tr key={acc.userId}>
+                    <td>{acc.sdt || 'N/A'}</td>
+                    <td>{acc.fullName}</td>
+                    <td>{acc.email}</td>
+                    <td>{acc.address}</td>
+                    <td>{getRoleName(acc.role)}</td>
+                    <td>
+                      <button
+                        className={styles.editButton}
+                        onClick={() => handleEdit(acc)}
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        className={styles.deleteButton}
+                        onClick={() => handleDelete(acc)}
+                      >
+                        Xóa
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
+      )}
 
-        {/* PAGINATION */}
-        <div className={styles["pagination-container"]}>
-          <div className={styles["pagination-info"]}>
-            Trang {currentPage}/{totalPages}
-          </div>
-
-          <div className={styles["pagination-controls"]}>
+      {/* PAGINATION */}
+      {!isLoading && filteredAccounts.length > 0 && (
+        <div className={styles.pagination}>
+          <span>Trang {currentPage}/{totalPages}</span>
+          <div className={styles.paginationButtons}>
             <button
-              disabled={currentPage === 1}
               onClick={() => setCurrentPage(p => p - 1)}
+              disabled={currentPage === 1}
             >
-              ◀
+              ◀ Trước
             </button>
             <button
-              disabled={currentPage === totalPages}
               onClick={() => setCurrentPage(p => p + 1)}
+              disabled={currentPage === totalPages}
             >
-              ▶
-            </button>
-          </div>
-          
-          <button
-            className={styles["add-account-btn"]}
-            onClick={() => navigate("/admin/accounts/create")}
-          >
-            Thêm tài khoản
-          </button>
-        </div>
-      </div>
-
-      {/* MODALS */}
-      {showEditModal && editingAccount && (
-        <div className={styles.modal}>
-          <div className={styles["modal-content"]}>
-            <h2>Sửa tài khoản</h2>
-            <button onClick={() => setShowEditModal(false)}>
-              Đóng
+              Sau ▶
             </button>
           </div>
         </div>
