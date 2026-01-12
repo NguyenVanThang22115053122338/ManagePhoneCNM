@@ -14,6 +14,7 @@ use App\Requests\Auth\LoginWithGoogleRequest;
 use App\Requests\Auth\VerifyCodeRequest;
 use App\Requests\Auth\ResendCodeRequest;
 use App\Requests\User\UpdateUserRequest;
+use App\Requests\User\CreateUserRequest;
 use App\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
@@ -227,14 +228,6 @@ class UserController extends Controller
     {
         try {
             $data = $req->validated();
-    
-            if ($req->hasFile('avatar')) {
-                $uploadResult = $this->cloudinaryService->uploadImage(
-                    $req->file('avatar'),
-                    'avatars'
-                );
-                $data['avatar'] = $uploadResult['url'];
-            }
     
             $result = $this->userService->createUser($data);
     

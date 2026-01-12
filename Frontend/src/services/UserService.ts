@@ -2,7 +2,9 @@ import axios, { isAxiosError } from 'axios';
 import type { LoginResponse } from './Interface';
 import axiosClient from './AxiosClient';
 import type { IUser } from './Interface';
-import type { IRegisterRequest, RegisterResponse, VerifyMailResponse, ResendMailResponse ,UpdateUserResponse, DeleteUserResponse } from './Interface';
+import type { IRegisterRequest, RegisterResponse, VerifyMailResponse,
+   ResendMailResponse ,UpdateUserResponse, DeleteUserResponse
+   ,ICreateUserRequest,ICreateUserResponse } from './Interface';
 
 export const login = async (
     sdt: string,
@@ -164,5 +166,18 @@ export const deleteUser = async (sdt: string): Promise<DeleteUserResponse> => {
       throw new Error(error.response?.data?.message || 'Xóa người dùng thất bại');
     }
     throw new Error('Xóa người dùng thất bại');
+  }
+};
+export const createUser = async (data: ICreateUserRequest): Promise<ICreateUserResponse> => {
+  try {
+    const response = await axiosClient.post<ICreateUserResponse>(
+      `/api/users`,
+      data,
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ Create user error:", error.response?.data);
+    throw new Error(error.response?.data?.message || "Tạo tài khoản thất bại");
   }
 };

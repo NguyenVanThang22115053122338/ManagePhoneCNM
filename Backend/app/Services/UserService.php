@@ -218,7 +218,7 @@ class UserService
             'Address' => $data['diaChi'] ?? null,
             'Avatar' => $data['avatar'] ?? null,
             'RoleID' => $data['roleId'] ?? 1, 
-            'is_verified' => true, 
+            'is_verified' => 1, 
         ]);
 
         return [

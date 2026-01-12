@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./account_create.module.css";
-import { register } from "../../services/UserService";
-import type { IRegisterRequest } from "../../services/Interface";
+import { createUser } from "../../services/UserService";
 
 const AccountCreate = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
-  const [formData, setFormData] = useState<IRegisterRequest>({
+  const [formData, setFormData] = useState({
     sdt: "",
     hoVaTen: "",
     email: "",
     diaChi: "",
-    matKhau: "",
-    role: 1, // Mặc định là user
+    roleId: 1, // Mặc định là user
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -31,7 +29,7 @@ const AccountCreate = () => {
 
     setFormData(prev => ({
       ...prev,
-      [name]: name === "role" ? parseInt(value) : value,
+      [name]: name === "roleId" ? parseInt(value) : value,
     }));
   };
 
@@ -59,17 +57,7 @@ const AccountCreate = () => {
       newErrors.email = "Email không hợp lệ";
     }
 
-    // Validate địa chỉ
-    if (!formData.diaChi.trim()) {
-      newErrors.diaChi = "Vui lòng nhập địa chỉ";
-    }
-
-    // Validate mật khẩu
-    if (!formData.matKhau) {
-      newErrors.matKhau = "Vui lòng nhập mật khẩu";
-    } else if (formData.matKhau.length < 6) {
-      newErrors.matKhau = "Mật khẩu phải có ít nhất 6 ký tự";
-    }
+    // Địa chỉ không bắt buộc
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -83,9 +71,9 @@ const AccountCreate = () => {
     try {
       setIsLoading(true);
 
-      await register(formData);
+      const result = await createUser(formData);
 
-      alert("Tạo tài khoản thành công!");
+      alert(result.message || "Tạo tài khoản thành công! Mật khẩu mặc định: 123456");
       navigate("/admin/manage_account");
     } catch (err: any) {
       console.error(err);
@@ -111,6 +99,11 @@ const AccountCreate = () => {
   return (
     <div className={styles["account-create-container"]}>
       <h2 className={styles.title}>Tạo tài khoản mới</h2>
+      
+      <div className={styles.infoBox}>
+        <p>ℹ️ Tài khoản được tạo sẽ có mật khẩu mặc định là: <strong>123456</strong></p>
+        <p>Người dùng có thể đổi mật khẩu sau khi đăng nhập.</p>
+      </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
         {/* Số điện thoại */}
@@ -166,36 +159,15 @@ const AccountCreate = () => {
 
         {/* Địa chỉ */}
         <div className={styles.formGroup}>
-          <label>
-            Địa chỉ <span className={styles.required}>*</span>
-          </label>
+          <label>Địa chỉ</label>
           <input
             name="diaChi"
             type="text"
-            placeholder="Nhập địa chỉ"
+            placeholder="Nhập địa chỉ (không bắt buộc)"
             value={formData.diaChi}
             onChange={handleChange}
             disabled={isLoading}
-            className={errors.diaChi ? styles.error : ""}
           />
-          {errors.diaChi && <span className={styles.errorText}>{errors.diaChi}</span>}
-        </div>
-
-        {/* Mật khẩu */}
-        <div className={styles.formGroup}>
-          <label>
-            Mật khẩu <span className={styles.required}>*</span>
-          </label>
-          <input
-            name="matKhau"
-            type="password"
-            placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
-            value={formData.matKhau}
-            onChange={handleChange}
-            disabled={isLoading}
-            className={errors.matKhau ? styles.error : ""}
-          />
-          {errors.matKhau && <span className={styles.errorText}>{errors.matKhau}</span>}
         </div>
 
         {/* Quyền hạn */}
@@ -204,8 +176,8 @@ const AccountCreate = () => {
             Quyền hạn <span className={styles.required}>*</span>
           </label>
           <select
-            name="role"
-            value={formData.role}
+            name="roleId"
+            value={formData.roleId}
             onChange={handleChange}
             disabled={isLoading}
           >

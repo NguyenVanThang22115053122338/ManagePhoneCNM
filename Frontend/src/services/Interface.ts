@@ -38,6 +38,18 @@ export interface IRole {
     roleName: string;
 }
 
+export interface ICreateUserRequest {
+    sdt: string;
+    hoVaTen: string;
+    email: string;
+    diaChi?: string;
+    roleId?: number;
+  }
+  
+  export interface ICreateUserResponse {
+    user: IUser;
+    message: string;
+  }
 export interface IUser {
     userId: number;
     sdt: string;
