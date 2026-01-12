@@ -5,13 +5,12 @@ import productService from "../../services/ProductService";
 import type { IProduct, ProductImage } from "../../services/Interface";
 import IP from "../../assets/img/ip.png";
 import { useAuth } from "../../context/AuthContext";
-import cartService from "../../services/CartService";
 import cartDetailService from "../../services/CartDetailService";
+import orderService from "../../services/OrderService"; 
 import reviewService from "../../services/ReviewService";
+import ReviewSection from "../ReviewPage/ReviewSection";
 import type { IReview } from "../../services/Interface";
-
-
-
+import ProductReviewPage from "../ReviewPage/ProductReviewPage";
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -23,10 +22,9 @@ export default function ProductDetail() {
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [selectedVersion, setSelectedVersion] = useState("1TB");
   const [selectedColor, setSelectedColor] = useState("Titan Sa Mạc");
-
-  const [reviews, setReviews] = useState<IReview[]>([]);
-  const [reviewLoading, setReviewLoading] = useState(true);
-
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [reviewRefresh, setReviewRefresh] = useState(0);
 
   useEffect(() => {
     if (!id || isNaN(Number(id))) {
@@ -60,19 +58,6 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id, navigate]);
 
-  useEffect(() => {
-    if (!product?.productId) return;
-
-    setReviewLoading(true);
-
-    reviewService
-      .getByProductId(product.productId)
-      .then(res => setReviews(res.data))
-      .catch(() => setReviews([]))
-      .finally(() => setReviewLoading(false));
-  }, [product?.productId]);
-
-
   const handleBuyNow = async () => {
     const hasToken = !!localStorage.getItem("accessToken");
 
@@ -105,6 +90,33 @@ export default function ProductDetail() {
     }
   };
 
+  // ✅ HÀM MỞ MODAL - KIỂM TRA ĐÃ MUA CHƯA
+  const handleOpenReviewModal = async () => {
+    if (!user) {
+        alert("Vui lòng đăng nhập để đánh giá sản phẩm");
+        navigate("/login");
+        return;
+    }
+
+    try {
+        const res = await orderService.checkUserPurchased(user.userId, product?.productId!);
+        console.log("Response từ API:", res.data);
+        
+        if (res.data.hasPurchased && res.data.orderId) {
+            setOrderId(res.data.orderId);
+            setIsReviewModalOpen(true);
+        } else {
+            alert("Bạn chưa mua sản phẩm này");
+        }
+    } catch (error) {
+        console.error("Lỗi check order:", error);
+        alert("Bạn chưa mua sản phẩm này");
+    }
+};
+
+const handleReviewSuccess = () => {
+  setReviewRefresh(prev => prev + 1); 
+};
 
   const images: ProductImage[] = useMemo(() => {
     return product?.productImages
@@ -128,14 +140,6 @@ export default function ProductDetail() {
         {product.name} | Chính hãng VN/A
       </h1>
 
-      <div className="rating-row">
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span className="star">★</span>
-        <span>4.9 (15 đánh giá)</span>
-      </div>
 
       <div className="product-grid">
         <div className="image-box">
@@ -163,7 +167,7 @@ export default function ProductDetail() {
             <div className="price-main">
               {product.price.toLocaleString("vi-VN")}đ
             </div>
-            <div className="price-old">48.990.000đ</div>
+            <div className="price-old">{(product.price*1.1).toLocaleString("vi-VN")}</div>
           </div>
 
           <div className="section-title">Phiên bản</div>
@@ -179,17 +183,15 @@ export default function ProductDetail() {
             ))}
           </div>
 
-
           <div className="section-title">Màu sắc</div>
           <div className="color-grid">
             {colors.map((color) => (
               <button
                 key={color.name}
-                className={`color-btn ${selectedColor === color.name ? "active" : ""
-                  }`}
+                className={`color-btn ${selectedColor === color.name ? "active" : ""}`}
                 onClick={() => setSelectedColor(color.name)}
               >
-                <img src={IP} className="color-img" />
+                <img src={IP} className="color-img" alt={color.name} />
                 <div className="color-info">
                   <span>{color.name}</span>
                   <span className="color-price">
@@ -199,7 +201,6 @@ export default function ProductDetail() {
               </button>
             ))}
           </div>
-
 
           <div className="action-row">
             <button className="btn blue">Trả góp 0%</button>
@@ -225,54 +226,38 @@ export default function ProductDetail() {
         </ul>
       </div>
 
-      {/* ===== REVIEW SECTION ===== */}
       <div className="review-section">
         <h2 className="review-title">Đánh giá sản phẩm</h2>
 
-        {reviewLoading && <p>Đang tải đánh giá...</p>}
-
-        {!reviewLoading && reviews.length === 0 && (
-          <p className="review-empty">Chưa có đánh giá nào</p>
+        {product !== null && product.productId !== undefined && (
+          <ReviewSection 
+            productId={product.productId} 
+            refreshTrigger={reviewRefresh}
+          />
         )}
-
-        {reviews.map(r => (
-          <div key={r.reviewID} className="review-item">
-            <div className="review-header">
-              <strong>{r.userName}</strong>
-              <span className="review-stars">
-                {"★".repeat(r.rating)}
-              </span>
-            </div>
-
-            <p className="review-comment">{r.comment}</p>
-
-            {r.photoUrl && (
-              <img
-                src={r.photoUrl}
-                alt="review"
-                className="review-image"
-              />
-            )}
-
-            {r.videoUrl && (
-              <video
-                src={r.videoUrl}
-                controls
-                className="review-video"
-              />
-            )}
-          </div>
-        ))}
-
-        <button
-          className="btn-outline"
-          onClick={() =>
-            navigate(`/product/${product.productId}/reviews`)
-          }
+        <button 
+          className="write-review-btn" 
+          onClick={handleOpenReviewModal}
         >
+          <i className="fa-solid fa-pen"></i>
           Viết đánh giá
         </button>
       </div>
+
+      {/* ✅ MODAL VỚI USER ID VÀ ORDER ID */}
+      {product.productId && user && orderId && orderId > 0 && (
+    <ProductReviewPage 
+        isOpen={isReviewModalOpen}
+        onClose={() => {
+            setIsReviewModalOpen(false);
+            setOrderId(null);
+        }}
+        productId={product.productId}
+        userId={user.userId}
+        orderId={orderId}  // ✅ Không dùng || 0 nữa
+        onSubmitSuccess={handleReviewSuccess}
+    />
+)}
     </div>
   );
 }

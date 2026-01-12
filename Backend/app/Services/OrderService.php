@@ -4,7 +4,7 @@ namespace App\Services;
 use App\Models\Order;
 use Carbon\Carbon;
 use App\Resources\OrderResource;
-
+use Illuminate\Support\Facades\DB;
 class OrderService
 {
     // CREATE
@@ -59,5 +59,14 @@ class OrderService
     public function delete(int $id): void
     {
         $this->getById($id)->delete();
+    }
+    // ktra user da mua product chua
+    public function getOrderByUserAndProduct(int $userId, int $productId): ?int
+    {
+        return DB::table('order')
+            ->join('orderdetail', 'order.OrderID', '=', 'orderdetail.OrderID')
+            ->where('order.UserID', $userId)
+            ->where('orderdetail.ProductID', $productId)
+            ->value('order.OrderID');
     }
 }

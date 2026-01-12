@@ -1,13 +1,25 @@
 // src/pages/ProductReviewPage/ProductReviewPage.tsx
-import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import reviewService from "../../services/ReviewService";
 import "./ProductReviewPage.css";
 
-export default function ProductReviewPage() {
-    const { productId } = useParams<{ productId: string }>();
-    const navigate = useNavigate();
+interface ProductReviewPageProps {
+    isOpen: boolean;
+    onClose: () => void;
+    productId: number;
+    userId: number;
+    orderId: number; 
+    onSubmitSuccess?: () => void;
+}
 
+export default function ProductReviewPage({ 
+    isOpen, 
+    onClose, 
+    productId,
+    userId,    
+    orderId,
+    onSubmitSuccess 
+}: ProductReviewPageProps) {
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState("");
     const [photo, setPhoto] = useState<File | null>(null);
@@ -48,35 +60,71 @@ export default function ProductReviewPage() {
         }
     };
 
+    const resetForm = () => {
+        setRating(5);
+        setComment("");
+        setPhoto(null);
+        setVideo(null);
+        if (photoPreview) URL.revokeObjectURL(photoPreview);
+        if (videoPreview) URL.revokeObjectURL(videoPreview);
+        setPhotoPreview(null);
+        setVideoPreview(null);
+    };
+
+    const handleClose = () => {
+        resetForm();
+        onClose();
+    };
+
     const handleSubmit = async () => {
-        if (!productId) return;
-        
         if (!comment.trim()) {
             alert("Vui lòng nhập nội dung đánh giá");
             return;
         }
-
+    
+        // ✅ DEBUG - Kiểm tra giá trị
+        console.log("OrderID:", orderId);
+        console.log("ProductID:", productId);
+        console.log("UserID:", userId);
+    
+        if (!orderId || orderId === 0) {
+            alert("Không tìm thấy thông tin đơn hàng. Vui lòng thử lại.");
+            return;
+        }
+    
         setIsSubmitting(true);
-
+    
         const formData = new FormData();
-        formData.append("productID", productId);
-        formData.append("rating", rating.toString());
-        formData.append("comment", comment.trim());
-
-        if (photo) formData.append("photo", photo);
-        if (video) formData.append("video", video);
-
+        formData.append("OrderID", orderId.toString());
+        formData.append("ProductID", productId.toString());
+        formData.append("UserID", userId.toString());
+        formData.append("Rating", rating.toString());
+        formData.append("Comment", comment.trim());
+    
+        if (photo) formData.append("Photo", photo);
+        if (video) formData.append("Video", video);
+    
+        // ✅ DEBUG - Xem FormData
+        console.log("=== FormData ===");
+        for (let [key, value] of formData.entries()) {
+            console.log(key, ":", value);
+        }
+    
         try {
             await reviewService.createReview(formData);
             alert("Đánh giá thành công! Cảm ơn bạn đã chia sẻ.");
-            navigate(-1);
+            resetForm();
+            onClose();
+            if (onSubmitSuccess) onSubmitSuccess();
         } catch (e: any) {
-            console.error(e);
+            console.error("Lỗi submit:", e);
+            console.error("Response:", e.response?.data);
             alert(e.response?.data?.message || "Không thể gửi đánh giá. Vui lòng thử lại.");
         } finally {
             setIsSubmitting(false);
         }
     };
+
 
     const getRatingText = (rating: number) => {
         switch (rating) {
@@ -89,17 +137,20 @@ export default function ProductReviewPage() {
         }
     };
 
+    if (!isOpen) return null;
+
     return (
-        <div className="review-page-container">
-            <div className="review-form-card">
+        <div className="review-modal-overlay" onClick={handleClose}>
+            <div className="review-form-card" onClick={(e) => e.stopPropagation()}>
                 <div className="form-header">
+                    <h1>Đánh giá sản phẩm</h1>
                     <button 
-                        onClick={() => navigate(-1)}
+                        className="modal-close-btn"
+                        onClick={handleClose}
                         type="button"
                     >
-                        <i className="fa-solid fa-arrow-left"></i>
+                        <i className="fa-solid fa-xmark"></i>
                     </button>
-                    <h1>Đánh giá sản phẩm</h1>
                 </div>
 
                 <div className="rating-section">
@@ -205,7 +256,7 @@ export default function ProductReviewPage() {
                 <div className="form-actions">
                     <button 
                         className="btn-cancel" 
-                        onClick={() => navigate(-1)}
+                        onClick={handleClose}
                         type="button"
                         disabled={isSubmitting}
                     >
