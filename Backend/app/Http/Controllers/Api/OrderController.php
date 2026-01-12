@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Requests\OrderRequest;
 use App\Resources\OrderResource;
+use App\Resources\DoanhThuDonHangResource;
 use App\Services\OrderService;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
+
 
 class OrderController extends Controller
 {
@@ -73,5 +76,14 @@ class OrderController extends Controller
             'hasPurchased' => true,
             'orderId' => $orderId
         ]);
+    }
+
+    public function doanhThu(Request $request)
+    {
+        $year = (int) $request->query('year', now()->year);
+
+        $result = $this->orderService->getDoanhThuDonHang($year);
+
+        return new DoanhThuDonHangResource($result);
     }
 }
