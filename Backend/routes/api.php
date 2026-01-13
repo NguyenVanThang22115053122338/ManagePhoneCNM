@@ -103,6 +103,7 @@ Route::prefix('images')->group(function () {
     Route::put('/order/{id}', [OrderController::class, 'update']);
     Route::delete('/order/{id}', [OrderController::class, 'destroy']);
     Route::get('/orders/check/{userId}/{productId}', [OrderController::class, 'checkUserPurchased']);
+   
 
     // ===== ORDER DETAILS (USER + ADMIN) =====
     Route::post('/order-details', [OrderDetailController::class, 'store']);
@@ -141,6 +142,9 @@ Route::prefix('images')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:ADMIN'])->group(function () {
+  
+        Route::get('/doanh-thu', [OrderController::class, 'doanhThu']);
+
         // ===== NOTIFICATIONS (CRUD) =====
         Route::post('/notifications', [NotificationController::class, 'store']);
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);

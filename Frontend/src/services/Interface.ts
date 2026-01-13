@@ -344,3 +344,50 @@ export interface LaravelPaginationResponse<T> {
         total: number;
     };
 }
+
+export interface MonthlyOrderStatistic {
+  thang: number;
+  soLuong: number;
+  doanhThu: number;
+}
+
+export interface SalesAndQuantityResponse {
+  data: MonthlyOrderStatistic[];
+  tongDoanhThu: number;
+  tongDonHang: number;
+  years: number[];
+}
+
+export interface OrderStatusStatistic {
+  availableYears: number[];
+  selectedYear?: number | null;
+  selectedMonth?: number | null;
+  selectedDay?: number | null;
+  totalOrders: number;
+  completedOrders: number;
+  cancelledOrders: number;
+}
+
+export interface InventoryStatisticResponse {
+  availableYears: number[];
+  selectedYear: number | null;
+  selectedMonth: number | null;
+  selectedDay: number | null;
+  items: InventoryStatisticItem[];
+}
+
+export interface InventoryStatisticItem {
+  product: {
+    productId: number;
+    productName: string;
+    imageUrl?: string;
+    quantity: number;
+  };
+  supplier: {
+    supplierName?: string | null;
+  };
+  batch: {
+    batchId: number;
+    expiryDate?: string | null;
+  };
+}
