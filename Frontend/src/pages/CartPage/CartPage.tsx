@@ -8,12 +8,14 @@ import cartDetailService from "../../services/CartDetailService";
 
 import { useAuth } from "../../context/AuthContext";
 import { normalizeProduct } from "../../adapter/normalizeProduct";
+import productService from "../../services/ProductService";
 
 import type { IProduct, CartDetailResponse } from "../../services/Interface";
 
+
 interface CartItem extends IProduct {
   quantity: number;
-  cartDetailsId: number;
+  cartDetailsIds: number[]; // ✅ ĐÚNG BẢN CHẤT
 }
 
 const CartPage: React.FC = () => {
@@ -23,6 +25,16 @@ const CartPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
+  const getImageUrl = (images?: any[]) => {
+    if (!images || images.length === 0) return "/no-image.png";
+
+    const url = images[0]?.url;
+    if (!url || url.trim() === "") return "/no-image.png";
+
+    return url; // Cloudinary → trả thẳng
+  };
+
 
   // ================= LOAD CART =================
   useEffect(() => {
@@ -37,7 +49,7 @@ const CartPage: React.FC = () => {
 
       const cartId = Number(cartIdStr);
       if (Number.isNaN(cartId)) {
-        localStorage.removeItem("cartId");
+        // localStorage.removeItem("cartId");
         setCartItems([]);
         setLoading(false);
         return;
@@ -47,20 +59,49 @@ const CartPage: React.FC = () => {
         const details: CartDetailResponse[] =
           await cartDetailService.getByCartId(cartId);
 
-        // ✅ QUAN TRỌNG: normalize product
-        const items: CartItem[] = details.map((detail) => ({
-          ...normalizeProduct(detail.product),
-          quantity: 1,
-          cartDetailsId: detail.cartDetailsId,
-        }));
+        const grouped = details.reduce((acc: any, detail: any) => {
+          const pid =
+            detail.product.productId ??
+            detail.product.ProductID ??
+            detail.product.productID ??
+            detail.product.id;
+
+          if (!pid) return acc;
+
+          if (!acc[pid]) {
+            acc[pid] = {
+              productId: pid,
+              quantity: 0,
+              cartDetailsIds: [],
+            };
+          }
+
+          acc[pid].quantity += 1;
+          acc[pid].cartDetailsIds.push(detail.cartDetailsId);
+
+          return acc;
+        }, {});
+
+        const items: CartItem[] = await Promise.all(
+          Object.values(grouped).map(async (item: any) => {
+            const fullProduct = await productService.getProductById(item.productId);
+
+            return {
+              ...fullProduct,              // có productImages (Cloudinary)
+              quantity: item.quantity,
+              cartDetailsIds: item.cartDetailsIds,
+            } as CartItem;
+          })
+        );
 
         setCartItems(items);
+        setLoading(false);
       } catch (err) {
-        console.error(err);
+        console.error("LOAD CART ERROR:", err);
         alert("Không thể tải giỏ hàng");
-      } finally {
         setLoading(false);
       }
+
     };
 
     loadCart();
@@ -78,17 +119,24 @@ const CartPage: React.FC = () => {
   };
 
   // ================= REMOVE ITEM =================
-  const removeItem = async (cartDetailsId: number) => {
+  const removeItem = async (item: CartItem) => {
     try {
-      await cartDetailService.delete(cartDetailsId);
-      setCartItems((prev) =>
-        prev.filter((item) => item.cartDetailsId !== cartDetailsId)
+      await Promise.all(
+        item.cartDetailsIds.map(id =>
+          cartDetailService.delete(id)
+        )
+      );
+
+      setCartItems(prev =>
+        prev.filter(p => p.productId !== item.productId)
       );
     } catch (err) {
       console.error(err);
       alert("Không thể xoá sản phẩm");
     }
   };
+
+
 
   // ================= CONFIRM ORDER =================
   const handleConfirmOrder = async () => {
@@ -114,25 +162,32 @@ const CartPage: React.FC = () => {
       const cartId = Number(cartIdStr);
 
       const order = await orderService.create({
-        userID: userObj.userId,
-        status: "PENDING",
-        paymentStatus: "UNPAID",
-      });
+  userID: userObj.userId,
+  status: "PENDING",
+  paymentStatus: "UNPAID",
+});
 
-      const orderId = order.orderID;
-  
-      for (const item of cartItems) {
-        await orderDetailService.create({
-          orderID: orderId,
-          productID: item.productId ?? 0,
-          quantity: item.quantity,
-        });
-      }
+// BÂY GIỜ TS OK
+const orderId = order.orderId;
+
+for (const item of cartItems) {
+  if (!item.productId) {
+    throw new Error("productId undefined");
+  }
+
+  await orderDetailService.create({
+    orderID: orderId, // Laravel cần orderID
+    productID: item.productId,
+    quantity: item.quantity,
+  });
+}
+
+
 
       await cartDetailService.deleteByCartId(cartId);
 
       setCartItems([]);
-      localStorage.removeItem("cartId");
+      // localStorage.removeItem("cartId");
 
       navigate(`/order/${orderId}`);
     } catch (err) {
@@ -172,12 +227,19 @@ const CartPage: React.FC = () => {
           )}
 
           {cartItems.map((item) => (
-            <div key={item.cartDetailsId} className="cart-item">
+            <div key={item.productId} className="cart-item">
+
               <img
                 className="item-img"
-                src={item.productImages?.[0]?.url || "/no-image.png"}
+                src={getImageUrl(item.productImages)}
                 alt={item.name}
+                loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = "/no-image.png";
+                }}
               />
+
 
               <div className="item-details">
                 <h3 className="item-name">{item.name}</h3>
@@ -209,7 +271,7 @@ const CartPage: React.FC = () => {
 
               <button
                 className="remove-item-btn fa-solid fa-trash"
-                onClick={() => removeItem(item.cartDetailsId)}
+                onClick={() => removeItem(item)}
                 title="Xóa sản phẩm"
               />
             </div>

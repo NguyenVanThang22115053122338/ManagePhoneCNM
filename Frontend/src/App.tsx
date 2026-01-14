@@ -61,6 +61,11 @@ import ProductQuantityBySupplier from "./Admin/statistical/product_quantity_by_s
 import InventoryQuantity from "./Admin/statistical/inventory_quantity";
 import OrderStatusByTime from "./Admin/statistical/order_status_by_time";
 
+import DiscountUpdate from "./Admin/discount/Discount_update.tsx";
+import DiscountPage from "./Admin/discount/Discount.tsx";
+import DiscountAdd from "./Admin/discount/Discount_add.tsx";
+import DiscountsPage from "./pages/Discount/discounts.tsx";
+
 function App() {
   return (
     <Router>
@@ -87,7 +92,7 @@ function App() {
             <Route path="/notification" element={<NotificationsPage />} />
             <Route path="/order/:orderId" element={<OrderPage />} />
             <Route path="/Shopping_card" element={<Shopping_cardPage />} />
-            
+            <Route path="discount" element={<DiscountsPage />} />
           </Route>
         </Route >
 
@@ -131,10 +136,10 @@ function App() {
           <Route path="stockin_receipt" element={<StockinReceipt />} />
           <Route path="stockout_receipt" element={<StockoutReceipt />} />
 
-          <Route
+          {/* <Route
             path="sales_and_quantity"
             element={<Sales_And_Quantity data={[]} danhSachNam={[]} tongDoanhThu={0} tongDonHang={0} />}
-          />
+          /> */}
           <Route path="product_value_over_time" element={<ProductValueOverTime />} />
           <Route path="product_quantity_by_supplier" element={<ProductQuantityBySupplier model={[]} />} />
           <Route path="inventory_quantity" element={<InventoryQuantity model={[]} danhSachNam={[]} />} />
@@ -142,7 +147,12 @@ function App() {
             path="order_status_by_time"
             element={<OrderStatusByTime danhSachNam={[2023, 2024]} tongSoDon={0} donHoanThanh={0} donHuy={0} />}
           />
+          <Route path="discounts" element={<DiscountPage />} />
+          <Route path="discounts/add" element={<DiscountAdd />} />
+          <Route path="discounts/:id/update" element={<DiscountUpdate />} />
         </Route >
+
+          
 
       </Routes >
     </Router >

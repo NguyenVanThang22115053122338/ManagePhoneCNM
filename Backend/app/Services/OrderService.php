@@ -1,52 +1,82 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Order;
+use App\Models\Discount;
 use Carbon\Carbon;
-use App\Resources\OrderResource;
 use Illuminate\Support\Facades\DB;
+
 class OrderService
 {
-    // CREATE
+    /* ================= CREATE ================= */
+
     public function create(array $data): Order
     {
         return Order::create([
-            'Order_Date'    =>  Carbon::now(),
-            'Status'        => $data['status'] ?? null,
-            'PaymentStatus' => $data['paymentStatus'] ?? null,
-            'UserID'        => $data['userID']
+            'Order_Date'    => Carbon::now(),
+            'Status'        => $data['status'] ?? 'PENDING',
+            'PaymentStatus' => $data['paymentStatus'] ?? 'UNPAID',
+            'UserID'        => $data['userID'],
+
+            // snapshot mặc định
+            'SubTotal'        => 0,
+            'DiscountCode'   => null,
+            'DiscountType'   => null,
+            'DiscountValue'  => null,
+            'DiscountAmount' => 0,
+            'TotalAmount'    => 0,
         ]);
     }
 
-    // GET BY ID
+    /* ================= GET ================= */
+
     public function getById(int $id): Order
-    {
-        return Order::findOrFail($id);
+{
+    $order = Order::with(['orderDetails.product'])->findOrFail($id);
+
+    if ((float) $order->SubTotal === 0.0) {
+        $this->applyDiscount($order, null);
+        $order->refresh();
     }
 
-    // GET BY USER
+    return $order;
+}
+
     public function getByUser(int $userId)
-    {
-        return Order::where('UserID', $userId)->get();
+{
+    $orders = Order::with(['orderDetails.product'])
+        ->where('UserID', $userId)
+        ->orderByDesc('Order_Date')
+        ->get();
+
+    foreach ($orders as $order) {
+        if ((float) $order->SubTotal === 0.0) {
+            $this->applyDiscount($order, null); // tính snapshot
+            $order->refresh();
+        }
     }
 
-    // GET ALL
+    return $orders;
+}
+
+
+
     public function getAll()
     {
-        return Order::all();
+        return Order::orderByDesc('Order_Date')->get();
     }
 
-    // UPDATE
+    /* ================= UPDATE ================= */
+
     public function update(int $id, array $data): Order
     {
         $order = $this->getById($id);
 
-        if (isset($data['Order_Date'])) {
-            $order->Order_Date = $data['Order_Date'];
-        }
         if (isset($data['status'])) {
             $order->Status = $data['status'];
         }
+
         if (isset($data['paymentStatus'])) {
             $order->PaymentStatus = $data['paymentStatus'];
         }
@@ -55,12 +85,15 @@ class OrderService
         return $order;
     }
 
-    // DELETE
+    /* ================= DELETE ================= */
+
     public function delete(int $id): void
     {
         $this->getById($id)->delete();
     }
-    // ktra user da mua product chua
+
+    /* ================= CHECK USER BOUGHT PRODUCT ================= */
+
     public function getOrderByUserAndProduct(int $userId, int $productId): ?int
     {
         return DB::table('order')
@@ -70,59 +103,132 @@ class OrderService
             ->value('order.OrderID');
     }
 
-  public function getDoanhThuDonHang(int $year): array
+    /* ================= APPLY DISCOUNT ================= */
+    /**
+     * Có mã thì áp – không có mã vẫn thanh toán
+     */
+    public function applyDiscount(Order $order, ?string $code = null): Order
+    {
+        // 1️⃣ Tính SubTotal
+        $subTotal = DB::table('orderdetail')
+            ->join('product', 'orderdetail.ProductID', '=', 'product.ProductID')
+            ->where('orderdetail.OrderID', $order->OrderID)
+            ->sum(DB::raw('orderdetail.Quantity * product.Price'));
+
+
+        // reset snapshot
+        $order->SubTotal = $subTotal;
+        $order->DiscountCode = null;
+        $order->DiscountType = null;
+        $order->DiscountValue = null;
+        $order->DiscountAmount = 0;
+        $order->TotalAmount = $subTotal;
+
+        // 2️⃣ Không có mã → done
+        if (!$code) {
+            $order->save();
+            return $order;
+        }
+
+        // 3️⃣ Tìm discount hợp lệ
+        $discount = Discount::where('Code', strtoupper($code))
+            ->where('IsActive', 1)
+            ->where(function ($q) {
+                $q->whereNull('StartDate')->orWhere('StartDate', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('EndDate')->orWhere('EndDate', '>=', now());
+            })
+            ->first();
+
+        // mã không hợp lệ → bỏ qua
+        if (!$discount) {
+            $order->save();
+            return $order;
+        }
+
+        // điều kiện đơn tối thiểu
+        if ($discount->MinOrderValue && $subTotal < $discount->MinOrderValue) {
+            $order->save();
+            return $order;
+        }
+
+        // giới hạn lượt dùng
+        if ($discount->UsageLimit !== null && $discount->UsedCount >= $discount->UsageLimit) {
+            $order->save();
+            return $order;
+        }
+
+        // 4️⃣ Tính tiền giảm
+        if ($discount->Type === 'PERCENT') {
+            $discountAmount = $subTotal * ($discount->Value / 100);
+            if ($discount->MaxDiscountAmount) {
+                $discountAmount = min($discountAmount, $discount->MaxDiscountAmount);
+            }
+        } else {
+            $discountAmount = $discount->Value;
+        }
+
+        // không cho âm
+        $discountAmount = min($discountAmount, $subTotal);
+
+        // 5️⃣ Snapshot
+        $order->DiscountCode = $discount->Code;
+        $order->DiscountType = $discount->Type;
+        $order->DiscountValue = $discount->Value;
+        $order->DiscountAmount = $discountAmount;
+        $order->TotalAmount = $subTotal - $discountAmount;
+
+        $order->save();
+
+        // 6️⃣ Tăng lượt dùng
+        $discount->increment('UsedCount');
+
+        return $order;
+    }
+
+    /* ================= STATISTIC ================= */
+
+    public function getDoanhThuDonHang(int $year): array
     {
         return [
-            'data'          => $this->getMonthlyRevenue($year),
-            'tongDoanhThu'  => $this->getTotalRevenue($year)['tongDoanhThu'],
-            'tongDonHang'   => $this->getTotalRevenue($year)['tongDonHang'],
-            'years'         => $this->getAvailableYears(),
+            'data'         => $this->getMonthlyRevenue($year),
+            'tongDoanhThu' => $this->getTotalRevenue($year)['tongDoanhThu'],
+            'tongDonHang'  => $this->getTotalRevenue($year)['tongDonHang'],
+            'years'        => $this->getAvailableYears(),
         ];
     }
 
-    /**
-     * Doanh thu theo từng tháng
-     */
     private function getMonthlyRevenue(int $year)
     {
         return DB::table('order')
-            ->join('orderdetail', 'order.OrderID', '=', 'orderdetail.OrderID')
-            ->join('product', 'orderdetail.ProductID', '=', 'product.ProductID')
             ->selectRaw('
-                MONTH(order.Order_Date) as thang,
-                COUNT(DISTINCT order.OrderID) as soLuong,
-                SUM(orderdetail.Quantity * product.Price) as doanhThu
+                MONTH(Order_Date) as thang,
+                COUNT(*) as soLuong,
+                SUM(TotalAmount) as doanhThu
             ')
-            ->whereYear('order.Order_Date', $year)
-            ->groupByRaw('MONTH(order.Order_Date)')
+            ->whereYear('Order_Date', $year)
+            ->groupByRaw('MONTH(Order_Date)')
             ->orderBy('thang')
             ->get();
     }
 
-    /**
-     * Tổng doanh thu + tổng đơn hàng
-     */
     private function getTotalRevenue(int $year): array
     {
         $total = DB::table('order')
-            ->join('orderdetail', 'order.OrderID', '=', 'orderdetail.OrderID')
-            ->join('product', 'orderdetail.ProductID', '=', 'product.ProductID')
-            ->whereYear('order.Order_Date', $year)
+            ->whereYear('Order_Date', $year)
             ->selectRaw('
-                COUNT(DISTINCT order.OrderID) as tongDonHang,
-                SUM(orderdetail.Quantity * product.Price) as tongDoanhThu
+                COUNT(*) as tongDonHang,
+                SUM(TotalAmount) as tongDoanhThu
             ')
             ->first();
 
         return [
-            'tongDoanhThu' => (double) ($total->tongDoanhThu ?? 0),
+            'tongDoanhThu' => (float) ($total->tongDoanhThu ?? 0),
             'tongDonHang'  => (int) ($total->tongDonHang ?? 0),
         ];
     }
 
-    /**
-     * Danh sách các năm có dữ liệu
-     */
     private function getAvailableYears()
     {
         return DB::table('order')

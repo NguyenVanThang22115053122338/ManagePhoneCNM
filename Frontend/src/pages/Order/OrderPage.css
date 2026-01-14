@@ -335,3 +335,63 @@
 .continue-button:hover {
   background-color: #c50015;
 }
+
+/* ===== DISCOUNT BOX ===== */
+.discount-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 14px;
+  border: 1px dashed #e5e7eb;
+}
+
+.discount-box input {
+  flex: 1;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.discount-box input::placeholder {
+  color: #9ca3af;
+}
+
+.discount-box input:focus {
+  border-color: #111827;
+  box-shadow: 0 0 0 3px rgba(17, 24, 39, 0.1);
+}
+
+/* ===== APPLY BUTTON ===== */
+.discount-box button {
+  height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  border: none;
+  background: #111827;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s, opacity 0.2s;
+}
+
+.discount-box button:hover {
+  background: #1f2937;
+}
+
+.discount-box button:active {
+  transform: scale(0.97);
+}
+
+.discount-box button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
