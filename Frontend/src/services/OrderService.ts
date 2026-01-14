@@ -41,6 +41,13 @@ const orderService = {
         return axiosClient
             .delete<string>(`/api/order/${orderId}`)
             .then(res => res.data);
+    },
+
+    checkUserPurchased(userId: number, productId: number) {
+        return axiosClient.get<{
+            hasPurchased: boolean;
+            orderId?: number;
+        }>(`api/orders/check/${userId}/${productId}`);
     }
 };
 

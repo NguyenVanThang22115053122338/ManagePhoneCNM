@@ -200,6 +200,31 @@ class UserService
         ];
     }
 
-    
+    public function createUser(array $data)
+    {
+        if (User::where('SDT', $data['sdt'])->exists()) {
+            throw new \Exception('SĐT đã tồn tại');
+        }
+
+        if (User::where('Email', $data['email'])->exists()) {
+            throw new \Exception('Email đã tồn tại');
+        }
+
+        $user = User::create([
+            'SDT' => $data['sdt'],
+            'Password' => bcrypt('123456'),
+            'FullName' => $data['hoVaTen'],
+            'Email' => $data['email'],
+            'Address' => $data['diaChi'] ?? null,
+            'Avatar' => $data['avatar'] ?? null,
+            'RoleID' => $data['roleId'] ?? 1, 
+            'is_verified' => 1, 
+        ]);
+
+        return [
+            'user' => $user,
+            'message' => 'Tạo tài khoản thành công. Mật khẩu mặc định: 123456'
+        ];
+    }
 
 }

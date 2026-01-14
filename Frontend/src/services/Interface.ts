@@ -38,6 +38,18 @@ export interface IRole {
     roleName: string;
 }
 
+export interface ICreateUserRequest {
+    sdt: string;
+    hoVaTen: string;
+    email: string;
+    diaChi?: string;
+    roleId?: number;
+  }
+  
+  export interface ICreateUserResponse {
+    user: IUser;
+    message: string;
+  }
 export interface IUser {
     userId: number;
     sdt: string;
@@ -46,12 +58,18 @@ export interface IUser {
     address?: string;
     avatar?: string | null;
     role?: number;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface UpdateUserResponse {
     user: IUser;
     message: string;
 }
+export interface DeleteUserResponse {
+    success: boolean;
+    message: string;
+  }
 export interface ICategory {
     categoryId: number;
     categoryName: string;
@@ -208,14 +226,17 @@ export interface OrderFullResponse {
 }
 
 export interface IReview {
-    reviewID: number;
-    productID: number;
-    orderID?: number;
-    userName: string;
-    rating: number;
-    comment: string;
-    photoUrl?: string;
-    videoUrl?: string;
+    ReviewID: number;
+    ProductID: number;
+    OrderID?: number;
+    UserID: number;
+    Avatar: string;
+    FullName: string;
+    Rating: number;
+    Comment: string;
+    Photo?: string;
+    Video?: string;
+    CreatedAt: string | Date;
 }
 
 export interface Brand {
@@ -322,4 +343,51 @@ export interface LaravelPaginationResponse<T> {
         to: number;
         total: number;
     };
+}
+
+export interface MonthlyOrderStatistic {
+  thang: number;
+  soLuong: number;
+  doanhThu: number;
+}
+
+export interface SalesAndQuantityResponse {
+  data: MonthlyOrderStatistic[];
+  tongDoanhThu: number;
+  tongDonHang: number;
+  years: number[];
+}
+
+export interface OrderStatusStatistic {
+  availableYears: number[];
+  selectedYear?: number | null;
+  selectedMonth?: number | null;
+  selectedDay?: number | null;
+  totalOrders: number;
+  completedOrders: number;
+  cancelledOrders: number;
+}
+
+export interface InventoryStatisticResponse {
+  availableYears: number[];
+  selectedYear: number | null;
+  selectedMonth: number | null;
+  selectedDay: number | null;
+  items: InventoryStatisticItem[];
+}
+
+export interface InventoryStatisticItem {
+  product: {
+    productId: number;
+    productName: string;
+    imageUrl?: string;
+    quantity: number;
+  };
+  supplier: {
+    supplierName?: string | null;
+  };
+  batch: {
+    batchId: number;
+    expiryDate?: string | null;
+  };
 }

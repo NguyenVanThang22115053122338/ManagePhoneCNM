@@ -2,7 +2,9 @@ import axios, { isAxiosError } from 'axios';
 import type { LoginResponse } from './Interface';
 import axiosClient from './AxiosClient';
 import type { IUser } from './Interface';
-import type { IRegisterRequest, RegisterResponse, VerifyMailResponse, ResendMailResponse ,UpdateUserResponse } from './Interface';
+import type { IRegisterRequest, RegisterResponse, VerifyMailResponse,
+   ResendMailResponse ,UpdateUserResponse, DeleteUserResponse
+   ,ICreateUserRequest,ICreateUserResponse } from './Interface';
 
 export const login = async (
     sdt: string,
@@ -92,16 +94,16 @@ export const ResendMail = async (
   }
 };
 
-export const getAllUsers = async (): Promise<LoginResponse[]> => {
+export const getAllUsers = async (): Promise<IUser[]> => {
   const token = localStorage.getItem("accessToken");
 
-  const res = await axiosClient.get('/api/user', {
+  const res = await axiosClient.get('/api/users', {
     headers: {
       Authorization: `Bearer ${token}`
     }
   });
 
-  return res.data;
+  return res.data.data;
 };
 
 export const updateUser = async (
@@ -155,3 +157,27 @@ export const updateUser = async (
 };
 
 
+export const deleteUser = async (sdt: string): Promise<DeleteUserResponse> => {
+  try {
+    const res = await axiosClient.delete<DeleteUserResponse>(`/api/user/${sdt}`);
+    return res.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(error.response?.data?.message || 'Xóa người dùng thất bại');
+    }
+    throw new Error('Xóa người dùng thất bại');
+  }
+};
+export const createUser = async (data: ICreateUserRequest): Promise<ICreateUserResponse> => {
+  try {
+    const response = await axiosClient.post<ICreateUserResponse>(
+      `/api/users`,
+      data,
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ Create user error:", error.response?.data);
+    throw new Error(error.response?.data?.message || "Tạo tài khoản thất bại");
+  }
+};

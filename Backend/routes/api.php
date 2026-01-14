@@ -15,7 +15,7 @@ use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CartDetailController;
 use App\Http\Controllers\Api\PhoneChatController;
-
+use App\Http\Controllers\Api\ReviewController; 
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\BatchController;
@@ -52,7 +52,8 @@ Route::middleware(['jwt'])->group(function () {
     // ===== USER INFO =====
     Route::get('/user/me', [UserController::class, 'me']);
     Route::post('/user/{sdt}', [UserController::class, 'updateUser']);
-
+    Route::delete('/user/{sdt}', [UserController::class, 'deleteUser']);
+    Route::post('/users', [UserController::class, 'createUser']);
     // ===== PRODUCT (USER + ADMIN: CHỈ XEM) =====
 
 
@@ -70,6 +71,10 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/batch', [BatchController::class, 'index']);
     Route::get('/batch/{id}', [BatchController::class, 'show']);
 
+    //===== Review =====
+    Route::get('/reviews/product/{id}', [ReviewController::class, 'getByProduct']);
+    Route::post('/reviews', [ReviewController::class, 'createReview']);
+    
     // ===== CATEGORY (USER + ADMIN: CHỈ XEM) =====
 
 
@@ -97,6 +102,8 @@ Route::prefix('images')->group(function () {
     Route::get('/order/user/{userId}', [OrderController::class, 'byUser']);
     Route::put('/order/{id}', [OrderController::class, 'update']);
     Route::delete('/order/{id}', [OrderController::class, 'destroy']);
+    Route::get('/orders/check/{userId}/{productId}', [OrderController::class, 'checkUserPurchased']);
+   
 
     // ===== ORDER DETAILS (USER + ADMIN) =====
     Route::post('/order-details', [OrderDetailController::class, 'store']);
@@ -135,6 +142,9 @@ Route::prefix('images')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:ADMIN'])->group(function () {
+  
+        Route::get('/doanh-thu', [OrderController::class, 'doanhThu']);
+
         // ===== NOTIFICATIONS (CRUD) =====
         Route::post('/notifications', [NotificationController::class, 'store']);
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);

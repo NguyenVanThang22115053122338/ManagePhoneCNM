@@ -1,67 +1,159 @@
+/* Container chính */
 .account-create-container {
-  max-width: 420px;
-  margin: 40px auto;
-  padding: 24px;
-  border-radius: 10px;
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 32px;
+  border-radius: 16px;
   background: #ffffff;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  font-family: Arial, sans-serif;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
 .title {
   text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  margin-bottom: 8px;
+  color: #1a1a1a;
+  font-size: 24px;
+  font-weight: 700;
 }
 
+/* Hộp thông báo mật khẩu mặc định */
+.infoBox {
+  background-color: #f0f7ff;
+  border-left: 4px solid #007bff;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 13.5px;
+  color: #385898;
+  line-height: 1.5;
+}
+
+.infoBox p {
+  margin: 0;
+}
+
+/* Cấu trúc Form */
 .form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
 }
 
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formGroup label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+.required {
+  color: #d70018;
+  margin-left: 2px;
+}
+
+/* Input & Select */
 .form input,
 .form select {
-  padding: 10px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  transition: all 0.2s ease;
+  background-color: #fafafa;
 }
 
 .form input:focus,
 .form select:focus {
   outline: none;
   border-color: #d70018;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(215, 0, 24, 0.1);
+}
+
+.form input::placeholder {
+  color: #aaa;
+}
+
+/* Xử lý hiển thị lỗi */
+.form input.error {
+  border-color: #dc3545;
+  background-color: #fff8f8;
+}
+
+.errorText {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Khu vực nút bấm */
+.actions {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Nút tạo to hơn nút hủy */
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.submit-btn,
+.cancel-btn {
+  padding: 13px;
+  border-radius: 8px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s active, background 0.2s;
 }
 
 .submit-btn {
-  margin-top: 12px;
-  padding: 12px;
-  border-radius: 6px;
-  border: none;
   background: #d70018;
   color: #fff;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   background: #b80015;
 }
 
-.footer {
-  margin-top: 20px;
-  font-size: 12px;
-  color: #666;
-  text-align: center;
+.cancel-btn {
+  background: #f1f1f1;
+  color: #444;
 }
 
-.footer a {
-  color: #d70018;
-  text-decoration: none;
+.cancel-btn:hover:not(:disabled) {
+  background: #e4e4e4;
 }
 
-.footer a:hover {
-  text-decoration: underline;
+/* Trạng thái Loading/Disabled */
+button:disabled, 
+input:disabled, 
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit-btn:active {
+  transform: scale(0.98);
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+  .account-create-container {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .actions {
+    grid-template-columns: 1fr; /* Trên mobile xếp chồng lên nhau */
+  }
+  
+  .cancel-btn {
+    order: 2; /* Đưa nút hủy xuống dưới */
+  }
 }

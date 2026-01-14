@@ -45,10 +45,13 @@ class CloudinaryService
             [
                 'folder' => $folder,
                 'resource_type' => 'video',
-                'unique_filename' => true,
-                'overwrite' => false,
+                'transformation' => [
+                    'fetch_format' => 'mp4',
+                    'video_codec' => 'h264'
+                ],
             ]
         );
+        
 
         return [
             'url' => $res['secure_url'],
