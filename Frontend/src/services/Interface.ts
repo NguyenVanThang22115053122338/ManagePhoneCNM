@@ -44,12 +44,12 @@ export interface ICreateUserRequest {
     email: string;
     diaChi?: string;
     roleId?: number;
-  }
-  
-  export interface ICreateUserResponse {
+}
+
+export interface ICreateUserResponse {
     user: IUser;
     message: string;
-  }
+}
 export interface IUser {
     userId: number;
     sdt: string;
@@ -69,7 +69,7 @@ export interface UpdateUserResponse {
 export interface DeleteUserResponse {
     success: boolean;
     message: string;
-  }
+}
 export interface ICategory {
     categoryId: number;
     categoryName: string;
@@ -214,23 +214,23 @@ export interface OrderRequest {
 
 
 export interface OrderFullResponse {
-  orderID: number;
-  orderDate: string;
-
-  status: "PENDING" | "APPROVED" | "CANCELLED";
-  paymentStatus: "UNPAID" | "PAID" | "REFUNDED";
-
-  subTotal: number;
-  discountAmount: number;
-  totalAmount: number;
-
-  products?: {
-    productID: number;
-    name: string;
-    price: number;
-    quantity: number;
-    imageUrl?: string;
-  }[];
+    orderId: number;
+    orderDate: string;
+    status: string;
+    paymentStatus: string;
+    userId: number;
+    userName: string;
+    userEmail: string;
+    subTotal: number;
+    discountAmount: number;
+    totalAmount: number;
+    products: {
+        productID: number;
+        name: string;
+        price: number;
+        quantity: number;
+        imageUrl?: string | null;
+    }[];
 }
 
 
@@ -349,87 +349,87 @@ export interface LaravelPaginationResponse<T> {
 }
 
 export interface MonthlyOrderStatistic {
-  thang: number;
-  soLuong: number;
-  doanhThu: number;
+    thang: number;
+    soLuong: number;
+    doanhThu: number;
 }
 
 export interface SalesAndQuantityResponse {
-  data: MonthlyOrderStatistic[];
-  tongDoanhThu: number;
-  tongDonHang: number;
-  years: number[];
+    data: MonthlyOrderStatistic[];
+    tongDoanhThu: number;
+    tongDonHang: number;
+    years: number[];
 }
 
 export interface OrderStatusStatistic {
-  availableYears: number[];
-  selectedYear?: number | null;
-  selectedMonth?: number | null;
-  selectedDay?: number | null;
-  totalOrders: number;
-  completedOrders: number;
-  cancelledOrders: number;
+    availableYears: number[];
+    selectedYear?: number | null;
+    selectedMonth?: number | null;
+    selectedDay?: number | null;
+    totalOrders: number;
+    completedOrders: number;
+    cancelledOrders: number;
 }
 
 export interface InventoryStatisticResponse {
-  availableYears: number[];
-  selectedYear: number | null;
-  selectedMonth: number | null;
-  selectedDay: number | null;
-  items: InventoryStatisticItem[];
+    availableYears: number[];
+    selectedYear: number | null;
+    selectedMonth: number | null;
+    selectedDay: number | null;
+    items: InventoryStatisticItem[];
 }
 
 export interface InventoryStatisticItem {
-  product: {
-    productId: number;
-    productName: string;
-    imageUrl?: string;
-    quantity: number;
-  };
-  supplier: {
-    supplierName?: string | null;
-  };
-  batch: {
-    batchId: number;
-    expiryDate?: string | null;
-  };
+    product: {
+        productId: number;
+        productName: string;
+        imageUrl?: string;
+        quantity: number;
+    };
+    supplier: {
+        supplierName?: string | null;
+    };
+    batch: {
+        batchId: number;
+        expiryDate?: string | null;
+    };
 }
 
 export interface Discount {
-  id?: number;
+    id?: number;
 
-  code: string;
-  type: "PERCENT" | "FIXED";
-  value: number;
+    code: string;
+    type: "PERCENT" | "FIXED";
+    value: number;
 
-  maxDiscountAmount?: number | null;
-  minOrderValue?: number | null;
+    maxDiscountAmount?: number | null;
+    minOrderValue?: number | null;
 
-  startDate?: string | null;
-  endDate?: string | null;
+    startDate?: string | null;
+    endDate?: string | null;
 
-  usageLimit?: number | null;
-  usedCount?: number;
+    usageLimit?: number | null;
+    usedCount?: number;
 
-  active: boolean;
+    active: boolean;
 
-  created_at?: string;
-  updated_at?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface CreateOrderResponse {
-  orderID: number;
-  orderDate: string;
-  status: string;
-  userID?: number;
+    orderID: number;
+    orderDate: string;
+    status: string;
+    userID?: number;
 }
 
 export interface OrderSummaryResponse {
-  orderId: number;
-  status: string;
-  paymentStatus: string;
-  subTotal: number;
-  discountAmount: number;
-  totalAmount: number;
+    orderId: number;
+    status: string;
+    paymentStatus: string;
+    subTotal: number;
+    discountAmount: number;
+    totalAmount: number;
 }
 

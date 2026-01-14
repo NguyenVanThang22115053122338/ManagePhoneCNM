@@ -62,6 +62,7 @@ class PayPalService
 
         $payload = [
             'intent' => 'CAPTURE',
+            'verify' => false,
             'purchase_units' => [
                 [
                     'description' => $description,

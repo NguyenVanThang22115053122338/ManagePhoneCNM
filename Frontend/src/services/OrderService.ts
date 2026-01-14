@@ -1,7 +1,7 @@
 import axiosClient from "./AxiosClient";
 import type {
   OrderRequest,
-  OrderResponse,        
+  OrderResponse,
   OrderFullResponse,
   ApiResponse,
   OrderSummaryResponse,
@@ -9,11 +9,11 @@ import type {
 
 const orderService = {
   /* ================= CREATE ================= */
-create(data: OrderRequest) {
-  return axiosClient
-    .post<OrderSummaryResponse>("/api/order", data)
-    .then(res => res.data);
-},
+  create(data: OrderRequest) {
+    return axiosClient
+      .post<OrderSummaryResponse>("/api/order", data)
+      .then(res => res.data);
+  },
 
   /* ================= GET ================= */
   getById(orderId: number) {
@@ -38,6 +38,12 @@ create(data: OrderRequest) {
   update(orderId: number, data: Partial<OrderRequest>) {
     return axiosClient
       .put<OrderResponse>(`/api/order/${orderId}`, data)
+      .then(res => res.data);
+  },
+
+  updateStatus(orderId: number, status: string) {
+    return axiosClient
+      .put(`/api/order/${orderId}`, { status })
       .then(res => res.data);
   },
 
