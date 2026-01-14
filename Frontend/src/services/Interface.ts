@@ -156,6 +156,10 @@ export interface CartDTO {
     status: string;
 }
 
+export interface ResourceResponse<T> {
+  data: T;
+}
+
 export type AddToCartRequest = CartDetailRequestDTO;
 
 

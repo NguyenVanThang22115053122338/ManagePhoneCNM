@@ -8,6 +8,11 @@ import type { ICategory, IProduct } from "../../services/Interface";
 import { notificationService } from "../../services/NotificationService";
 import './header.css'
 import Logo from "../../assets/img/logo.png"
+import cartDetailService from "../../services/CartDetailService";
+import cartService from '../../services/CartService';
+import type { CartDetailResponse } from "../../services/Interface";
+
+
 
 const Header = () => {
   const navigate = useNavigate();
@@ -53,21 +58,75 @@ const Header = () => {
     }
   };
 
+  const loadCartCount = async () => {
+    if (!user?.userId) {
+      setCartCount(0);
+      return;
+    }
+
+    let cartId = localStorage.getItem("cartId");
+
+    try {
+      if (!cartId) {
+        const cartRes = await cartService.getCartByUser(user.userId);
+        const cart = cartRes.data;
+
+        if (!cart?.cartId) {
+          setCartCount(0);
+          return;
+        }
+
+        cartId = String(cart.cartId);
+        localStorage.setItem("cartId", cartId);
+      }
+
+      const details: CartDetailResponse[] =
+        await cartDetailService.getByCartId(Number(cartId));
+
+      const uniqueProductCount = new Set(
+        details.map(d =>
+          d.product.productId ??
+          (d.product as any).ProductID ??
+          (d.product as any).id
+        )
+      ).size;
+
+
+      setCartCount(uniqueProductCount);
+    } catch (err) {
+      console.error("Load cart count failed", err);
+      setCartCount(0);
+    }
+  };
+
+
   useEffect(() => {
     loadUnreadCount();
   }, [location.pathname, user]);
 
   useEffect(() => {
-    const syncUnread = () => loadUnreadCount();
-
-    window.addEventListener("focus", syncUnread);
-    window.addEventListener("notification-read", syncUnread);
+    const reload = () => loadCartCount();
+    window.addEventListener("cart-updated", reload);
 
     return () => {
-      window.removeEventListener("focus", syncUnread);
-      window.removeEventListener("notification-read", syncUnread);
+      window.removeEventListener("cart-updated", reload);
     };
   }, [user]);
+
+
+
+
+  // useEffect(() => {
+  //   const syncUnread = () => loadUnreadCount();
+
+  //   window.addEventListener("focus", syncUnread);
+  //   window.addEventListener("notification-read", syncUnread);
+
+  //   return () => {
+  //     window.removeEventListener("focus", syncUnread);
+  //     window.removeEventListener("notification-read", syncUnread);
+  //   };
+  // }, [user]);
 
   const displayName = useMemo(
     () => user?.fullName || "Người dùng",
@@ -79,39 +138,11 @@ const Header = () => {
     [user]
   );
 
-  const syncCartCount = () => {
-    try {
-      const raw = localStorage.getItem("cart_items");
-      const cart = raw ? JSON.parse(raw) : [];
-
-      const total = cart.reduce(
-        (sum: number, item: { quantity?: number }) =>
-          sum + (item.quantity || 0),
-        0
-      );
-
-      setCartCount(total);
-    } catch (e) {
-      console.error("Sync cart failed", e);
-      setCartCount(0);
-    }
-  };
 
   useEffect(() => {
-    // load lần đầu
-    syncCartCount();
+    loadCartCount();
+  }, [user, location.pathname]);
 
-    // khi add/remove/update cart
-    window.addEventListener("cart-updated", syncCartCount);
-
-    // khi quay lại tab
-    window.addEventListener("focus", syncCartCount);
-
-    return () => {
-      window.removeEventListener("cart-updated", syncCartCount);
-      window.removeEventListener("focus", syncCartCount);
-    };
-  }, []);
 
   useEffect(() => {
     CategoryService.getCategories()
