@@ -33,10 +33,10 @@ class OrderResource extends JsonResource
                 return $this->orderDetails->map(function ($d) {
                     return [
                         'productID' => $d->ProductID,
-                        'name' => $d->product->Name ?? '',
-                        'price' => (float) ($d->product->Price ?? 0),
+                        'name' => $d->product->name ?? '',
+                        'price' => (float) ($d->product->price ?? 0),
                         'quantity' => (int) $d->Quantity,
-                        'imageUrl' => $d->product->ImageUrl ?? null,
+                        'imageUrl' => $d->product->images->first()->url ?? null,
                     ];
                 });
             }),

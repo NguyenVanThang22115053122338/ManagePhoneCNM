@@ -136,10 +136,10 @@ function App() {
           <Route path="stockin_receipt" element={<StockinReceipt />} />
           <Route path="stockout_receipt" element={<StockoutReceipt />} />
 
-          {/* <Route
+          <Route
             path="sales_and_quantity"
             element={<Sales_And_Quantity data={[]} danhSachNam={[]} tongDoanhThu={0} tongDonHang={0} />}
-          /> */}
+          />
           <Route path="product_value_over_time" element={<ProductValueOverTime />} />
           <Route path="product_quantity_by_supplier" element={<ProductQuantityBySupplier model={[]} />} />
           <Route path="inventory_quantity" element={<InventoryQuantity model={[]} danhSachNam={[]} />} />
@@ -152,7 +152,7 @@ function App() {
           <Route path="discounts/:id/update" element={<DiscountUpdate />} />
         </Route >
 
-          
+
 
       </Routes >
     </Router >

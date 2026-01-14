@@ -1,39 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import styles from "./order_approval_detail.module.css";
 
 import OrderService from "../../services/OrderService";
-import StatusService from "../../services/StatusService";
-import OrderDetailService from "../../services/OrderDetailService";
-import ProductService from "../../services/ProductService";
-
-import type {
-  OrderResponse,
-  IUser,
-} from "../../services/Interface";
-
-/* ================= TYPES ================= */
-type OrderDetailVM = {
-  donHang: {
-    idDon: number;
-    ngayDat?: string | null;
-    tenNguoiNhan: string;
-    sdtNguoiNhan: string;
-    diaChiNhan: string;
-    ghiChu?: string;
-    trangThai: string;
-  };
-  chiTietDonHang: {
-    tenSanPham: string;
-    donGia: number;
-    soLuong: number;
-    thanhTien: number;
-    hinhAnh?: string | null;
-  }[];
-  tongTien: number;
-  thanhTien: number;
-  phuongThucThanhToan: string;
-};
+import type { OrderFullResponse } from "../../services/Interface";
 
 /* ================= HELPERS ================= */
 const formatVND = (n: number) =>
@@ -41,7 +11,14 @@ const formatVND = (n: number) =>
 
 const formatDate = (d?: string | null) => {
   if (!d || typeof d !== "string") return "—";
-  return d.slice(0, 10).split("-").reverse().join("/");
+  const date = new Date(d);
+  return date.toLocaleDateString("vi-VN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 const mapTrangThai = (status: string) => {
@@ -56,12 +33,24 @@ const mapTrangThai = (status: string) => {
   }
 };
 
+const getStatusClass = (status: string) => {
+  switch (status) {
+    case "PENDING": return styles.statusPending;
+    case "APPROVED": return styles.statusApproved;
+    case "SHIPPING": return styles.statusShipping;
+    case "COMPLETED": return styles.statusCompleted;
+    case "REJECTED": return styles.statusRejected;
+    case "CANCELLED": return styles.statusCancelled;
+    default: return "";
+  }
+};
+
 /* ================= COMPONENT ================= */
 const OrderDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const [data, setData] = useState<OrderDetailVM | null>(null);
+  const [order, setOrder] = useState<OrderFullResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   /* ================= FETCH ================= */
@@ -71,60 +60,8 @@ const OrderDetailPage = () => {
     const load = async () => {
       try {
         setLoading(true);
-
-        /* ===== 1️⃣ ORDER ===== */
-        const order: OrderResponse = await OrderService.getById(Number(id));
-
-        /* ===== 2️⃣ USER ===== */
-        let user: IUser = {
-          userId: 0,
-          fullName: "—",
-          sdt: "—",
-          address: "—",
-        };
-
-        if (order.userID) {
-          try {
-            user = await StatusService.getUserById(order.userID);
-          } catch {}
-        }
-
-        /* ===== 3️⃣ ORDER DETAILS ===== */
-        const details = await OrderDetailService.getByOrderId(order.orderID);
-
-        /* ===== 4️⃣ PRODUCTS ===== */
-        const items = await Promise.all(
-          details.map(async d => {
-            const product = await ProductService.getProductById(d.productId);
-            const price = Number(product.price || 0);
-
-            return {
-              tenSanPham: product.name,
-              donGia: price,
-              soLuong: d.quantity,
-              thanhTien: price * d.quantity,
-              hinhAnh: product.productImages?.[0]?.url ?? null,
-            };
-          })
-        );
-
-        const tongTien = items.reduce((s, i) => s + i.thanhTien, 0);
-
-        setData({
-          donHang: {
-            idDon: order.orderID,
-            ngayDat: order.orderDate ?? null,
-            tenNguoiNhan: user.fullName ?? "—",
-            sdtNguoiNhan: user.sdt ?? "—",
-            diaChiNhan: user.address ?? "—",
-            ghiChu: order.note ?? "",
-            trangThai: mapTrangThai(order.status),
-          },
-          chiTietDonHang: items,
-          tongTien,
-          thanhTien: tongTien,
-          phuongThucThanhToan: order.paymentMethod ?? "PayPal",
-        });
+        const data = await OrderService.getById(Number(id));
+        setOrder(data);
       } catch (e) {
         console.error(e);
         alert("Không tải được chi tiết đơn hàng");
@@ -136,66 +73,137 @@ const OrderDetailPage = () => {
     load();
   }, [id]);
 
-  /* ================= APPROVE / REJECT ================= */
-  const updateStatus = async (status: "APPROVED" | "REJECTED") => {
-    if (!data) return;
+  /* ================= UPDATE STATUS ================= */
+  const updateStatus = async (newStatus: string) => {
+    if (!order) return;
 
     try {
-      await StatusService.updateStatus(data.donHang.idDon, status);
-      setData(prev =>
-        prev
-          ? {
-              ...prev,
-              donHang: {
-                ...prev.donHang,
-                trangThai: status === "APPROVED" ? "Đã duyệt" : "Đã từ chối",
-              },
-            }
-          : prev
-      );
+      await OrderService.updateStatus(order.orderId, newStatus);
+      setOrder(prev => prev ? { ...prev, status: newStatus } : prev);
+      alert("Cập nhật trạng thái thành công!");
     } catch {
       alert("Cập nhật trạng thái thất bại");
     }
   };
 
-  const canApproveReject = useMemo(() => {
-    const st = data?.donHang.trangThai;
-    return st === "Chưa duyệt";
-  }, [data]);
+  if (loading) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.loading}>
+          <div className={styles.spinner}></div>
+          <p>Đang tải dữ liệu...</p>
+        </div>
+      </div>
+    );
+  }
 
-  if (loading) return <div className={styles.page}>Đang tải dữ liệu...</div>;
-  if (!data) return null;
+  if (!order) return null;
 
   /* ================= RENDER ================= */
   return (
-    <div className={styles.container}>
-      <button onClick={() => navigate("/admin/order_approval")}>
-        ← Quay lại
-      </button>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        {/* HEADER */}
+        <button className={styles.backBtn} onClick={() => navigate("/admin/order_approval")}>
+          ← Quay lại danh sách
+        </button>
 
-      <h2>Đơn hàng #{data.donHang.idDon}</h2>
-      <p>Ngày đặt: {formatDate(data.donHang.ngayDat)}</p>
-      <p>Khách hàng: {data.donHang.tenNguoiNhan}</p>
-      <p>SĐT: {data.donHang.sdtNguoiNhan}</p>
-      <p>Địa chỉ: {data.donHang.diaChiNhan}</p>
-      <p>Trạng thái: {data.donHang.trangThai}</p>
-
-      {canApproveReject && (
-        <>
-          <button onClick={() => updateStatus("APPROVED")}>Duyệt</button>
-          <button onClick={() => updateStatus("REJECTED")}>Từ chối</button>
-        </>
-      )}
-
-      <hr />
-
-      {data.chiTietDonHang.map((p, i) => (
-        <div key={i}>
-          <strong>{p.tenSanPham}</strong> – x{p.soLuong} – {formatVND(p.thanhTien)}
+        <div className={styles.header}>
+          <h2 className={styles.title}>Đơn hàng #{order.orderId}</h2>
+          <div className={`${styles.statusBadge} ${getStatusClass(order.status)}`}>
+            {mapTrangThai(order.status)}
+          </div>
         </div>
-      ))}
 
-      <h3>Tổng tiền: {formatVND(data.thanhTien)}</h3>
+        {/* INFO GRID */}
+        <div className={styles.infoSection}>
+          <h3 className={styles.sectionTitle}>Thông tin đơn hàng</h3>
+          <div className={styles.infoGrid}>
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Ngày đặt</div>
+              <div className={styles.infoValue}>{formatDate(order.orderDate)}</div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Trạng thái thanh toán</div>
+              <div className={styles.infoValue}>
+                <span className={`${styles.paymentBadge} ${order.paymentStatus === "PAID"
+                  ? styles.paymentPaid
+                  : styles.paymentUnpaid
+                  }`}>
+                  {order.paymentStatus === "PAID" ? "Đã thanh toán" : "Chưa thanh toán"}
+                </span>
+              </div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Khách hàng</div>
+              <div className={styles.infoValue}>{order.userName}</div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Email</div>
+              <div className={styles.infoValue}>{order.userEmail}</div>
+            </div>
+          </div>
+        </div>
+
+
+
+        {/* PRODUCT LIST */}
+        <div className={styles.productSection}>
+          <h3 className={styles.sectionTitle}>Chi tiết sản phẩm</h3>
+
+          {order.products && order.products.length > 0 ? (
+            <div className={styles.productList}>
+              {order.products.map((p, i) => (
+                <div key={i} className={styles.productItem}>
+                  {p.imageUrl ? (
+                    <img src={p.imageUrl} alt={p.name} className={styles.productImg} />
+                  ) : (
+                    <div className={styles.productImgPlaceholder}>📱</div>
+                  )}
+
+                  <div className={styles.productInfo}>
+                    <div className={styles.productName}>
+                      {p.name || `Sản phẩm #${p.productID}`}
+                    </div>
+                    <div className={styles.productMeta}>
+                      {p.price > 0 ? formatVND(p.price) : "Chưa có giá"} × {p.quantity}
+                    </div>
+                  </div>
+
+                  <div className={styles.productTotal}>
+                    {p.price > 0 ? formatVND(p.price * p.quantity) : "—"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.noProducts}>
+              Đơn hàng chưa có sản phẩm
+            </div>
+          )}
+        </div>
+
+        {/* SUMMARY */}
+        <div className={styles.summary}>
+          <div className={styles.summaryBox}>
+            <div className={styles.summaryRow}>
+              <span>Tổng tiền hàng:</span>
+              <span>{formatVND(order.subTotal)}</span>
+            </div>
+            <div className={styles.summaryRow}>
+              <span>Giảm giá:</span>
+              <span className={styles.discount}>- {formatVND(order.discountAmount)}</span>
+            </div>
+            <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
+              <span>Tổng thanh toán:</span>
+              <span className={styles.totalAmount}>{formatVND(order.totalAmount)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
