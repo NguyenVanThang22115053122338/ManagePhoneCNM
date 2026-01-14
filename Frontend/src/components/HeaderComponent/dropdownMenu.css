@@ -1,0 +1,143 @@
+
+
+.menu-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    position: relative;
+}
+
+    .menu-left i {
+        color: #4c8c2b;
+    }
+
+.nav-links {
+    display: flex;
+    margin-left: auto;
+}
+
+    .nav-links a {
+        padding: 0 15px;
+        text-decoration: none;
+        color: #4c8c2b;
+        font-weight: 500;
+    }
+
+.dropdown-container {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 750px;
+    max-height: 340px;
+    z-index: 1000;
+    display: none;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+    .menu-left:hover .dropdown-container,
+    .dropdown-container:hover {
+        display: flex;
+    }
+
+.sidebar {
+    width: 220px;
+    background-color: #f9f9f9;
+    border-right: 1px solid #e0e0e0;
+    padding: 10px 0;
+}
+
+.sidebar-item {
+    padding: 12px 20px;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.2s;
+    font-weight:550
+}
+
+    .sidebar-item:hover,
+    .sidebar-item.active {
+        background-color: #f0f0f0;
+        color: #4c8c2b;
+        font-weight: 600;
+    }
+
+.content-area {
+    flex: 1;
+    background-color: #fff;
+    padding: 10px;
+    max-height: 450px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content {
+    display: none;
+}
+
+    .tab-content.active {
+        display: block;
+    }
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 15px;
+}
+
+.product-card_category {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.product-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 10px;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e0e0e0;
+}
+
+    .product-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.product-name {
+    font-size: 14px;
+    color: #333;
+    margin-top: 5px;
+
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-bottom: 1px solid #e0e0e0;
+    font-weight: 550;
+    color: #4c8c2b;
+}
+
+.angle-icon {
+    font-size: 14px;
+    color: #666;
+    margin-left: 5px;
+}
