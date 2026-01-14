@@ -1,17 +1,17 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { UserCog, ShoppingCart, History, LogOut, Bell, Search, Filter, Menu, X, BadgePercent } from 'lucide-react';
+import { UserCog, ShoppingCart, History, LogOut, Bell, Search, BadgePercent } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CategoryService from "../../services/CategoryService";
 import productService from "../../services/ProductService";
-import type { ICategory, IProduct } from "../../services/Interface";
+import type { ICategory, IProduct, Brand } from "../../services/Interface";
 import { notificationService } from "../../services/NotificationService";
-import './header.css'
-import Logo from "../../assets/img/logo.png"
+import CategoryDropdown from '../CategoryDropdown/CategoryDropdown';
+import './header.css';
+import Logo from "../../assets/img/logo.png";
 import cartDetailService from "../../services/CartDetailService";
 import cartService from '../../services/CartService';
 import type { CartDetailResponse } from "../../services/Interface";
-
 
 
 const Header = () => {
@@ -21,11 +21,14 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [brandsByCategory, setBrandsByCategory] = useState<Record<number, Brand[]>>({});
+  const [isLoadingBrands, setIsLoadingBrands] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState<IProduct[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+  const categoryRef = useRef<HTMLDivElement>(null);
 
   const [cartCount, setCartCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -38,8 +41,13 @@ const Header = () => {
 
     try {
       const data = await notificationService.getUserNotifications(user.userId);
+      const readKeys: string[] = JSON.parse(
+        localStorage.getItem(`read_notification_keys_user_${user.userId}`) || "[]"
+      );
 
-      const unread = data.filter(n => !n.isRead).length;
+      const buildBaseKey = (n: any) => `${n.notificationType}|${n.title}|${n.content}`;
+      const unread = data.filter(n => !readKeys.includes(buildBaseKey(n))).length;
+
 
       setUnreadCount(unread);
     } catch (err) {
@@ -94,6 +102,9 @@ const Header = () => {
   }, [location.pathname, user]);
 
   useEffect(() => {
+    const syncUnread = () => loadUnreadCount();
+    window.addEventListener("focus", syncUnread);
+    window.addEventListener("notification-read", syncUnread);
     const reload = () => loadCartCount();
     window.addEventListener("cart-updated", reload);
 
@@ -102,44 +113,66 @@ const Header = () => {
     };
   }, [user]);
 
+const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
+  const avatarUrl = useMemo(() => user?.avatar || "src/assets/img/default-avatar.png", [user]);
 
-
-
-  // useEffect(() => {
-  //   const syncUnread = () => loadUnreadCount();
-
-  //   window.addEventListener("focus", syncUnread);
-  //   window.addEventListener("notification-read", syncUnread);
-
-  //   return () => {
-  //     window.removeEventListener("focus", syncUnread);
-  //     window.removeEventListener("notification-read", syncUnread);
-  //   };
-  // }, [user]);
-
-  const displayName = useMemo(
-    () => user?.fullName || "Người dùng",
-    [user]
-  );
-
-  const avatarUrl = useMemo(
-    () => user?.avatar || "src/assets/img/default-avatar.png",
-    [user]
-  );
-
+  const syncCartCount = () => {
+    try {
+      const raw = localStorage.getItem("cart_items");
+      const cart = raw ? JSON.parse(raw) : [];
+      const total = cart.reduce((sum: number, item: { quantity?: number }) => sum + (item.quantity || 0), 0);
+      setCartCount(total);
+    } catch (e) {
+      console.error("Sync cart failed", e);
+      setCartCount(0);
+    }
+  };
 
   useEffect(() => {
-    loadCartCount();
-  }, [user, location.pathname]);
+    // Chạy lần đầu khi load trang hoặc khi user thay đổi
+    syncCartCount();
 
+    // Lắng nghe các sự kiện để cập nhật số lượng giỏ hàng tức thì
+    window.addEventListener("cart-updated", syncCartCount);
+    window.addEventListener("focus", syncCartCount);
 
+    return () => {
+      window.removeEventListener("cart-updated", syncCartCount);
+      window.removeEventListener("focus", syncCartCount);
+    };
+  }, [user, location.pathname]); // Gộp thêm dependency từ code của bạn bạn để chắc chắn hơn
+
+  // SỬA TẠI ĐÂY: Tải danh mục và tải luôn toàn bộ brands
   useEffect(() => {
-    CategoryService.getCategories()
-      .then(setCategories)
-      .catch(err => console.error("GetCategory error:", err.message));
+    const fetchData = async () => {
+      try {
+        const cats = await CategoryService.getCategories();
+        setCategories(cats);
+        
+        if (cats.length > 0) {
+          setIsLoadingBrands(true);
+          const brandPromises = cats.map(cat => 
+            CategoryService.getBrandsByCategory(cat.categoryId)
+              .then(brands => ({ id: cat.categoryId, brands }))
+              .catch(() => ({ id: cat.categoryId, brands: [] }))
+          );
+          
+          const results = await Promise.all(brandPromises);
+          const brandMap: Record<number, Brand[]> = {};
+          results.forEach(res => {
+            brandMap[res.id] = res.brands;
+          });
+          setBrandsByCategory(brandMap);
+          setIsLoadingBrands(false);
+        }
+      } catch (err: any) {
+        console.error("Get initial data error:", err.message);
+        setIsLoadingBrands(false);
+      }
+    };
+    fetchData();
   }, []);
 
-  // Search suggestions with debounce
   useEffect(() => {
     if (!keyword.trim()) {
       setSearchSuggestions([]);
@@ -151,7 +184,7 @@ const Header = () => {
     const timeout = setTimeout(async () => {
       try {
         const results = await productService.getAllProducts(keyword.trim());
-        setSearchSuggestions(results.slice(0, 4)); // Lấy 4 sản phẩm đầu
+        setSearchSuggestions(results.slice(0, 4));
         setShowSuggestions(true);
       } catch (error) {
         console.error("Search error:", error);
@@ -164,11 +197,13 @@ const Header = () => {
     return () => clearTimeout(timeout);
   }, [keyword]);
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
         setShowSuggestions(false);
+      }
+      if (categoryRef.current && !categoryRef.current.contains(event.target as Node)) {
+        setShowCategoryMenu(false);
       }
     };
 
@@ -223,7 +258,6 @@ const Header = () => {
                 <i className="fas fa-map-marker-alt"></i> 48 Cao Thắng, TP. Đà Nẵng
               </span>
             </div>
-
           </div>
         </div>
       </div>
@@ -232,25 +266,13 @@ const Header = () => {
       <div className="header-main">
         <div className="header-container">
           <div className="header-content">
-            {/* Logo */}
             <div className="header-logo" onClick={() => navigate('/')}>
               <img src={Logo} alt="CellphoneS" className="logo-img" />
             </div>
 
-            {/* Search Bar */}
             <div className="header-search" ref={searchRef}>
               <div className="search-wrapper">
-                <input
-                  type="text"
-                  name="email"
-                  autoComplete="username"
-                  style={{
-                    position: "absolute",
-                    opacity: 0,
-                    pointerEvents: "none",
-                    height: 0,
-                  }}
-                />
+                <input type="text" name="email" autoComplete="username" style={{ position: "absolute", opacity: 0, pointerEvents: "none", height: 0 }} />
                 <Search className="search-icon" size={20} />
                 <input
                   type="text"
@@ -259,125 +281,68 @@ const Header = () => {
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
                   onKeyDown={handleSearch}
-                  onFocus={() => {
-                    if (searchSuggestions.length > 0) {
-                      setShowSuggestions(true);
-                    }
-                  }}
+                  onFocus={() => { if (searchSuggestions.length > 0) setShowSuggestions(true); }}
                 />
-                <button
-                  type="button"
-                  className="search-btn"
-                  onClick={handleSearchClick}
-                >
+                <button type="button" className="search-btn" onClick={handleSearchClick}>
                   <Search size={18} />
                 </button>
               </div>
 
-              {/* Search Suggestions Dropdown */}
               {keyword.trim() && (
                 <div className="search-dropdown">
                   {isSearching ? (
-                    <div className="search-loading">
-                      Đang tìm kiếm...
-                    </div>
+                    <div className="search-loading">Đang tìm kiếm...</div>
                   ) : showSuggestions && searchSuggestions.length > 0 ? (
                     <>
-                      <div className="search-dropdown-header">
-                        <span>Gợi ý sản phẩm</span>
-                      </div>
+                      <div className="search-dropdown-header"><span>Gợi ý sản phẩm</span></div>
                       <div className="search-dropdown-list">
                         {searchSuggestions.map((product) => (
-                          <div
-                            key={product.productId}
-                            className="search-dropdown-item"
-                            onClick={() => handleSuggestionClick(product.productId!)}
-                          >
-                            <img
-                              src={product.productImages?.[0]?.url || Logo}
-                              alt={product.name}
-                              className="search-item-img"
-                            />
+                          <div key={product.productId} className="search-dropdown-item" onClick={() => handleSuggestionClick(product.productId!)}>
+                            <img src={product.productImages?.[0]?.url || Logo} alt={product.name} className="search-item-img" />
                             <div className="search-item-info">
                               <p className="search-item-name">{product.name}</p>
-                              <p className="search-item-price">
-                                {product.price?.toLocaleString('vi-VN')}đ
-                              </p>
+                              <p className="search-item-price">{product.price?.toLocaleString('vi-VN')}đ</p>
                             </div>
                           </div>
                         ))}
                       </div>
                       <div className="search-dropdown-footer">
-                        <button
-                          className="search-view-all"
-                          onClick={handleSearchClick}
-                        >
+                        <button className="search-view-all" onClick={handleSearchClick}>
                           Xem tất cả kết quả cho "{keyword}"
                         </button>
                       </div>
                     </>
                   ) : showSuggestions && searchSuggestions.length === 0 ? (
-                    <div className="search-loading">
-                      Không tìm thấy sản phẩm
-                    </div>
+                    <div className="search-loading">Không tìm thấy sản phẩm</div>
                   ) : null}
                 </div>
               )}
             </div>
 
-            {/* Hotline */}
             <div className="hotline">
               <i className="fas fa-headset"></i> Hotline: 19001599
             </div>
 
-            {/* Actions */}
             <div className="header-actions">
-              <button
-                className="action-btn"
-                title="Thông báo"
-                onClick={() => navigate('/notification')}
-              >
+              <button className="action-btn" title="Thông báo" onClick={() => navigate('/notification')}>
                 <Bell size={20} />
-
-                {unreadCount > 0 && (
-                  <span className="action-badge">
-                    {unreadCount > 9 ? "9+" : unreadCount}
-                  </span>
-                )}
+                {unreadCount > 0 && <span className="action-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
               </button>
 
-              <button
-                className="action-btn"
-                title="Giỏ hàng"
-                onClick={() => navigate('/cartShop')}
-              >
+              <button className="action-btn" title="Giỏ hàng" onClick={() => navigate('/cartShop')}>
                 <ShoppingCart size={20} />
-
-                {cartCount > 0 && (
-                  <span className="action-badge">
-                    {cartCount > 99 ? "99+" : cartCount}
-                  </span>
-                )}
+                {cartCount > 0 && <span className="action-badge">{cartCount > 99 ? "99+" : cartCount}</span>}
               </button>
-
 
               {user ? (
                 <div className="user-menu">
-                  <button
-                    className="user-trigger"
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    <div className="user-avatar">
-                      <img src={avatarUrl} alt={displayName} />
-                    </div>
+                  <button className="user-trigger" onClick={() => setDropdownOpen(!dropdownOpen)}>
+                    <div className="user-avatar"><img src={avatarUrl} alt={displayName} /></div>
                   </button>
 
                   {dropdownOpen && (
                     <>
-                      <div
-                        className="dropdown-overlay"
-                        onClick={() => setDropdownOpen(false)}
-                      />
+                      <div className="dropdown-overlay" onClick={() => setDropdownOpen(false)} />
                       <div className="user-dropdown">
                         <div className="dropdown-header">
                           <p className="dropdown-greeting">Tài khoản của tôi</p>
@@ -395,38 +360,22 @@ const Header = () => {
 
                           <button className="dropdown-item" onClick={() => { navigate('/cartShop'); setDropdownOpen(false); }}>
                             <ShoppingCart size={20} />
-                            <div>
-                              <p className="item-title">Giỏ hàng & Thanh toán</p>
-                            </div>
+                            <div><p className="item-title">Giỏ hàng & Thanh toán</p></div>
                           </button>
 
-                          <div
-                            className="dropdown-item"
-                            onClick={() => {
-                              navigate('/discount');
-                              setDropdownOpen(false);
-                            }}
-                          >
+                          <div className="dropdown-item" onClick={() => { navigate('/discount'); setDropdownOpen(false); }}>
                             <BadgePercent size={20} />
-                            <div>
-                              <p className="title">Mã giảm giá</p>
-                            </div>
+                            <div><p className="title">Mã giảm giá</p></div>
                           </div>
-
 
                           <button className="dropdown-item" onClick={() => { navigate('/historyOrder'); setDropdownOpen(false); }}>
                             <History size={20} />
-                            <div>
-                              <p className="item-title">Lịch sử mua hàng</p>
-                            </div>
+                            <div><p className="item-title">Lịch sử mua hàng</p></div>
                           </button>
 
                           <hr className="dropdown-divider" />
 
-                          <button
-                            className="dropdown-item logout"
-                            onClick={handleLogout}
-                          >
+                          <button className="dropdown-item logout" onClick={handleLogout}>
                             <LogOut size={20} />
                             <span>Đăng xuất</span>
                           </button>
@@ -449,47 +398,25 @@ const Header = () => {
       <div className="header-nav">
         <div className="header-container">
           <div className="nav-content">
-            <div
-              className="nav-menu-left"
-              onClick={() => setShowCategoryMenu(v => !v)}
-            >
+            <div className="menu-left" ref={categoryRef} onMouseEnter={() => setShowCategoryMenu(true)} onMouseLeave={() => setShowCategoryMenu(false)}>
               <i className="fa fa-bars"></i>
               <span>Tất cả danh mục</span>
+
+              {showCategoryMenu && (
+                <CategoryDropdown 
+                  categories={categories} 
+                  brandsByCategory={brandsByCategory} 
+                  isLoadingBrands={isLoadingBrands} 
+                  onClose={() => setShowCategoryMenu(false)} 
+                />
+              )}
             </div>
-            {showCategoryMenu && (
-              <div className="category-dropdown">
-                {categories.map(cat => (
-                  <div
-                    key={cat.categoryId}
-                    className="category-item"
-                    onClick={() => {
-                      navigate(`/products?categoryId=${cat.categoryId}`);
-                      setShowCategoryMenu(false);
-                    }}
-                  >
-                    {cat.description}
-                  </div>
-                ))}
-              </div>
-            )}
 
-
-            <div className="nav-tabs">
-              <button className="nav-tab" onClick={() => navigate('/')}>
-                Trang chủ
-              </button>
-
-              <button className="nav-tab" onClick={() => navigate('/about')}>
-                Giới thiệu
-              </button>
-
-              <button className="nav-tab" onClick={() => navigate('/products')}>
-                Sản phẩm
-              </button>
-
-              <button className="nav-tab" onClick={() => navigate('/historyOrder')}>
-                Lịch sử
-              </button>
+            <div className="nav-links">
+              <a onClick={() => navigate('/')}>Trang chủ</a>
+              <a onClick={() => navigate('/about')}>Giới thiệu</a>
+              <a onClick={() => navigate('/products')}>Sản phẩm</a>
+              <a onClick={() => navigate('/historyOrder')}>Lịch sử</a>
             </div>
           </div>
         </div>

@@ -18,7 +18,7 @@ class ProductService
      * @param string|null $categoryId - Filter by category
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getAll($keyword = null, $categoryId = null)
+    public function getAll($keyword = null, $categoryId = null, $brandId = null)
     {
         $query = Product::with(['specification', 'images']);
 
@@ -30,6 +30,11 @@ class ProductService
         // Filter by category
         if (!empty($categoryId)) {
             $query->where('CategoryID', $categoryId);
+        }
+        
+        // Filter by brand
+        if (!empty($brandId)) {
+            $query->where('BrandID', $brandId);
         }
 
         return $query->get();
