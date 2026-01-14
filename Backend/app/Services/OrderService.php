@@ -33,7 +33,7 @@ class OrderService
 
     public function getById(int $id): Order
 {
-    $order = Order::with(['orderDetails.product'])->findOrFail($id);
+    $order = Order::with(['user', 'orderDetails.product'])->findOrFail($id);
 
     if ((float) $order->SubTotal === 0.0) {
         $this->applyDiscount($order, null);
@@ -64,7 +64,9 @@ class OrderService
 
     public function getAll()
     {
-        return Order::orderByDesc('Order_Date')->get();
+        return Order::with(['user', 'orderDetails.product'])
+            ->orderByDesc('Order_Date')
+            ->get();
     }
 
     /* ================= UPDATE ================= */

@@ -187,8 +187,6 @@ for (const item of cartItems) {
       await cartDetailService.deleteByCartId(cartId);
 
       setCartItems([]);
-      // localStorage.removeItem("cartId");
-
       navigate(`/order/${orderId}`);
     } catch (err) {
       console.error(err);
