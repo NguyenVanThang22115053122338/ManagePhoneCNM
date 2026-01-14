@@ -114,7 +114,7 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/order/user/{userId}', [OrderController::class, 'byUser']);
     Route::put('/order/{id}', [OrderController::class, 'update']);
     Route::delete('/order/{id}', [OrderController::class, 'destroy']);
-    Route::get('/orders/check/{userId}/{productId}', [OrderController::class, 'checkUserPurchased']);
+    Route::get('/order/check/{userId}/{productId}', [OrderController::class, 'checkUserPurchased']);
 
 
     // ===== ORDER DETAILS (USER + ADMIN) =====
