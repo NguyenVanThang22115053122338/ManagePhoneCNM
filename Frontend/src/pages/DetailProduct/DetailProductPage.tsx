@@ -11,6 +11,7 @@ import reviewService from "../../services/ReviewService";
 import ReviewSection from "../ReviewPage/ReviewSection";
 import type { IReview } from "../../services/Interface";
 import ProductReviewPage from "../ReviewPage/ProductReviewPage";
+import {ShoppingCart} from 'lucide-react';
 
 export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
@@ -204,8 +205,10 @@ const handleReviewSuccess = () => {
 
           <div className="action-row">
             <button className="btn blue">Trả góp 0%</button>
+            
             <button className="btn red" onClick={handleBuyNow}>
-              Mua ngay
+              <ShoppingCart size={20} />
+              Thêm vào giỏ hàng
             </button>
           </div>
 
