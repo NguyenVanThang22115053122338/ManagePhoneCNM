@@ -1,11 +1,13 @@
 import axiosClient from "./AxiosClient";
-import type { CartDTO } from "../services/Interface";
+import type { CartDTO, ResourceResponse} from "../services/Interface";
 
 const cartService = {
-    getCartByUser(userId: number): Promise<CartDTO> {
-        return axiosClient.get<CartDTO>(`/api/carts/${userId}`)
-            .then(res => res.data);
-    }
+    getCartByUser(userId: number): Promise<ResourceResponse<CartDTO>> {
+  return axiosClient
+    .get(`/api/carts/${userId}`)
+    .then(res => res.data);
+}
+
 };
 
 export default cartService;

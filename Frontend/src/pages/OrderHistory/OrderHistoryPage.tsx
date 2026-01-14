@@ -6,6 +6,8 @@ import "./OrderHistoryPage.css";
 import OrderService from "../../services/StatusService";
 import orderDetailService from "../../services/OrderDetailService";
 import productService from "../../services/ProductService";
+import OrderUserService from "../../services/OrderUserService";
+
 
 
 const PLACEHOLDER_IMG =
@@ -351,10 +353,7 @@ const OrderHistoryPage: React.FC = () => {
                             if (!ok) return;
 
                             try {
-                              await OrderService.updateStatus(
-                                selectedOrder.orderID,
-                                "CANCELLED"
-                              );
+                              await OrderUserService.cancelOrder(selectedOrder.orderID);
 
                               // cập nhật UI ngay
                               setOrders(prev =>

@@ -2,10 +2,10 @@ import axiosClient from "./AxiosClient";
 import type { CartDetailResponse, AddToCartRequest } from "../services/Interface";
 
 const cartDetailService = {
-    getByCartId(cartId: number): Promise<CartDetailResponse[]> {
+    getByCartId(cartId: number) {
         return axiosClient
             .get(`/api/cart-details/cart/${cartId}`)
-            .then(res => res.data.data);
+            .then(res => res.data.data); // 🔥 LẤY data
     },
 
     addToCart(data: AddToCartRequest): Promise<CartDetailResponse> {
