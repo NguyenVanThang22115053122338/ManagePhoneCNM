@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -8,13 +9,13 @@ use App\Resources\DoanhThuDonHangResource;
 use App\Services\OrderService;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
-
+use App\Requests\UpdateOrderStatusRequest;
 
 class OrderController extends Controller
 {
     private OrderService $orderService;
 
-    public function __construct(OrderService $orderService) 
+    public function __construct(OrderService $orderService)
     {
         $this->orderService = $orderService;
     }
@@ -51,11 +52,14 @@ class OrderController extends Controller
     }
 
     // UPDATE
-    public function update(OrderRequest $request, $id)
-    {
-        $order = $this->orderService->update($id, $request->validated());  // ✅
-        return new OrderResource($order);
-    }
+
+
+    public function update(UpdateOrderStatusRequest $request, $id)
+{
+    $order = $this->orderService->update($id, $request->validated());
+    return new OrderResource($order);
+}
+
 
     // DELETE
     public function destroy($id)
@@ -63,15 +67,15 @@ class OrderController extends Controller
         $this->orderService->delete($id);  // ✅
         return response()->noContent();
     }
-    
+
     public function checkUserPurchased(int $userId, int $productId)
     {
         $orderId = $this->orderService->getOrderByUserAndProduct($userId, $productId);
-        
+
         if (!$orderId) {
             return response()->json(['hasPurchased' => false], 404);
         }
-        
+
         return response()->json([
             'hasPurchased' => true,
             'orderId' => $orderId
@@ -88,18 +92,17 @@ class OrderController extends Controller
     }
 
     public function applyDiscount(Request $request, int $orderId)
-{
-    $order = $this->orderService->getById($orderId);
+    {
+        $order = $this->orderService->getById($orderId);
 
-    $code = $request->input('code'); // có thể null
+        $code = $request->input('code'); // có thể null
 
-    $order = $this->orderService->applyDiscount($order, $code);
+        $order = $this->orderService->applyDiscount($order, $code);
 
-    return response()->json([
-        'subTotal' => $order->SubTotal,
-        'discountAmount' => $order->DiscountAmount,
-        'totalAmount' => $order->TotalAmount,
-    ]);
-}
-
+        return response()->json([
+            'subTotal' => $order->SubTotal,
+            'discountAmount' => $order->DiscountAmount,
+            'totalAmount' => $order->TotalAmount,
+        ]);
+    }
 }
