@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import "./ProductCard.css";
 import type { IProduct } from "../../services/Interface";
 import { useNavigate } from "react-router-dom";
+import orderService from "../../services/OrderService";
+import orderDetailService from "../../services/OrderDetailService";
 
 const PLACEHOLDER_IMG = "/placeholder-image.jpg";
 
 const ProductCard: React.FC<{ product: IProduct }> = ({ product }) => {
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const stock = Number(product.stockQuantity ?? 20);
   console.log(product.stockQuantity);
@@ -20,7 +23,43 @@ const ProductCard: React.FC<{ product: IProduct }> = ({ product }) => {
     if (!product.productId) return;
     navigate(`/product-detail/${product.productId}`);
   };
+  const handleConfirmOrder = async () => {
+    if (isPlacingOrder) return;
 
+    try {
+      setIsPlacingOrder(true);
+
+      const userStr = localStorage.getItem("user");
+      if (!userStr) {
+        alert("Vui lòng đăng nhập");
+        navigate("/login");
+        return;
+      }
+
+      const userObj = JSON.parse(userStr);
+
+      const order = await orderService.create({
+        userID: userObj.userId,
+        status: "PENDING",
+        paymentStatus: "UNPAID",
+      });
+
+      const orderId = order.orderId;
+
+      await orderDetailService.create({
+        orderID: orderId,
+        productID: product.productId!, // lấy từ props / state
+        quantity: quantity || 1,
+      });
+  
+      navigate(`/order/${orderId}`);
+    } catch (err) {
+      console.error(err);
+      alert("Đặt hàng thất bại");
+    } finally {
+      setIsPlacingOrder(false);
+    }
+  };
   const increaseQty = (e: React.MouseEvent) => {
     e.stopPropagation();
     setQuantity((prev) => Math.min(prev + 1, stock || 1));
@@ -99,7 +138,7 @@ const ProductCard: React.FC<{ product: IProduct }> = ({ product }) => {
               disabled={isOutOfStock}
               onClick={(e) => {
                 e.stopPropagation();
-                handleViewDetail();
+                handleConfirmOrder();
               }}
             >
               Mua ngay
