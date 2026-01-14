@@ -59,7 +59,7 @@ const NotificationDetailPage = () => {
     try {
       await notificationService.delete(notification.notificationId);
       alert("Xóa thông báo thành công!");
-      navigate("/admin/notifications");
+      navigate("/admin/manage_notification");
     } catch (err) {
       console.error("Xóa thất bại", err);
     }

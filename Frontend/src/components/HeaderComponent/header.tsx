@@ -9,6 +9,10 @@ import { notificationService } from "../../services/NotificationService";
 import CategoryDropdown from '../CategoryDropdown/CategoryDropdown';
 import './header.css';
 import Logo from "../../assets/img/logo.png";
+import cartDetailService from "../../services/CartDetailService";
+import cartService from '../../services/CartService';
+import type { CartDetailResponse } from "../../services/Interface";
+
 
 const Header = () => {
   const navigate = useNavigate();
@@ -44,11 +48,54 @@ const Header = () => {
       const buildBaseKey = (n: any) => `${n.notificationType}|${n.title}|${n.content}`;
       const unread = data.filter(n => !readKeys.includes(buildBaseKey(n))).length;
 
+
       setUnreadCount(unread);
     } catch (err) {
       console.error("Load unread notification count failed", err);
     }
   };
+
+  const loadCartCount = async () => {
+    if (!user?.userId) {
+      setCartCount(0);
+      return;
+    }
+
+    let cartId = localStorage.getItem("cartId");
+
+    try {
+      if (!cartId) {
+        const cartRes = await cartService.getCartByUser(user.userId);
+        const cart = cartRes.data;
+
+        if (!cart?.cartId) {
+          setCartCount(0);
+          return;
+        }
+
+        cartId = String(cart.cartId);
+        localStorage.setItem("cartId", cartId);
+      }
+
+      const details: CartDetailResponse[] =
+        await cartDetailService.getByCartId(Number(cartId));
+
+      const uniqueProductCount = new Set(
+        details.map(d =>
+          d.product.productId ??
+          (d.product as any).ProductID ??
+          (d.product as any).id
+        )
+      ).size;
+
+
+      setCartCount(uniqueProductCount);
+    } catch (err) {
+      console.error("Load cart count failed", err);
+      setCartCount(0);
+    }
+  };
+
 
   useEffect(() => {
     loadUnreadCount();
@@ -58,14 +105,15 @@ const Header = () => {
     const syncUnread = () => loadUnreadCount();
     window.addEventListener("focus", syncUnread);
     window.addEventListener("notification-read", syncUnread);
+    const reload = () => loadCartCount();
+    window.addEventListener("cart-updated", reload);
 
     return () => {
-      window.removeEventListener("focus", syncUnread);
-      window.removeEventListener("notification-read", syncUnread);
+      window.removeEventListener("cart-updated", reload);
     };
   }, [user]);
 
-  const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
+const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
   const avatarUrl = useMemo(() => user?.avatar || "src/assets/img/default-avatar.png", [user]);
 
   const syncCartCount = () => {
@@ -81,7 +129,10 @@ const Header = () => {
   };
 
   useEffect(() => {
+    // Chạy lần đầu khi load trang hoặc khi user thay đổi
     syncCartCount();
+
+    // Lắng nghe các sự kiện để cập nhật số lượng giỏ hàng tức thì
     window.addEventListener("cart-updated", syncCartCount);
     window.addEventListener("focus", syncCartCount);
 
@@ -89,7 +140,7 @@ const Header = () => {
       window.removeEventListener("cart-updated", syncCartCount);
       window.removeEventListener("focus", syncCartCount);
     };
-  }, []);
+  }, [user, location.pathname]); // Gộp thêm dependency từ code của bạn bạn để chắc chắn hơn
 
   // SỬA TẠI ĐÂY: Tải danh mục và tải luôn toàn bộ brands
   useEffect(() => {

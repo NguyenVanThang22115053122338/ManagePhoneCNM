@@ -49,11 +49,13 @@ const NotificationsPage: React.FC = () => {
   }, [userId]);
 
   const markAsRead = async (id: number) => {
+    if (!userId) return;
     try {
-      await notificationService.markAsRead(id);
+      await notificationService.markAsRead(id, userId);
       setNotifications(prev =>
         prev.map(notif => notif.notificationId === id ? { ...notif, isRead: true } : notif)
       );
+      window.dispatchEvent(new Event('notification-read'));
     } catch (err) {
       console.error('Lỗi đánh dấu đã đọc');
     }
@@ -64,6 +66,7 @@ const NotificationsPage: React.FC = () => {
     try {
       await notificationService.markAllAsRead(userId);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      window.dispatchEvent(new Event('notification-read'));
     } catch (err) {
       console.error('Lỗi đánh dấu tất cả');
     }
@@ -101,7 +104,6 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  // Loading từ auth hoặc fetch
   if (authLoading || loading) return <LoadingSkeleton />;
 
   if (error) return <div className="error-message">{error}</div>;

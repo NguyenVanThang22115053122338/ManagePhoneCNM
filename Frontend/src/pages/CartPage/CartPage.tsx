@@ -162,30 +162,29 @@ const CartPage: React.FC = () => {
       const cartId = Number(cartIdStr);
 
       const order = await orderService.create({
-  userID: userObj.userId,
-  status: "PENDING",
-  paymentStatus: "UNPAID",
-});
+        userID: userObj.userId,
+        status: "PENDING",
+        paymentStatus: "UNPAID",
+      });
 
-// BÂY GIỜ TS OK
-const orderId = order.orderId;
+      // BÂY GIỜ TS OK
+      const orderId = order.orderId;
 
-for (const item of cartItems) {
-  if (!item.productId) {
-    throw new Error("productId undefined");
-  }
+      for (const item of cartItems) {
+        if (!item.productId) {
+          throw new Error("productId undefined");
+        }
 
-  await orderDetailService.create({
-    orderID: orderId, // Laravel cần orderID
-    productID: item.productId,
-    quantity: item.quantity,
-  });
-}
-
+        await orderDetailService.create({
+          orderID: orderId, // Laravel cần orderID
+          productID: item.productId,
+          quantity: item.quantity,
+        });
+      }
 
 
       await cartDetailService.deleteByCartId(cartId);
-
+      window.dispatchEvent(new Event("cart-updated"));
       setCartItems([]);
       navigate(`/order/${orderId}`);
     } catch (err) {
