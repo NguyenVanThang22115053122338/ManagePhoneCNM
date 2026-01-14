@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { CreateCategoryRequest, ICategory } from "./Interface";
+import type { CreateCategoryRequest, ICategory,Brand } from "./Interface";
 import axiosClient from "./AxiosClient";
 
 const CategoryService = {
@@ -25,7 +25,31 @@ const CategoryService = {
             throw new Error("Không thể lấy thông tin Category");
         }
     },
-
+    async getBrandsByCategory(categoryId: number): Promise<Brand[]> {
+        try {
+            const res = await axiosClient.get(`/api/categories/${categoryId}/brands`);
+            
+            if (Array.isArray(res.data)) {
+                return res.data as Brand[];
+            }
+            
+            if (Array.isArray(res.data?.data)) {
+                return res.data.data as Brand[];
+            }
+            
+            console.error("Brands API không trả array:", res.data);
+            return [];
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                const message =
+                    error.response?.data?.message ||
+                    error.message ||
+                    "Không thể lấy brands";
+                throw new Error(message);
+            }
+            throw new Error("Không thể lấy brands");
+        }
+    },
 
     async createCategory(
         category: CreateCategoryRequest

@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CategoryService from "../../services/CategoryService";
 import productService from "../../services/ProductService";
-import type { ICategory, IProduct } from "../../services/Interface";
+import type { ICategory, IProduct, Brand } from "../../services/Interface";
 import { notificationService } from "../../services/NotificationService";
 import CategoryDropdown from '../CategoryDropdown/CategoryDropdown';
 import './header.css';
@@ -17,6 +17,8 @@ const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [brandsByCategory, setBrandsByCategory] = useState<Record<number, Brand[]>>({});
+  const [isLoadingBrands, setIsLoadingBrands] = useState(false);
   const [searchSuggestions, setSearchSuggestions] = useState<IProduct[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -89,10 +91,35 @@ const Header = () => {
     };
   }, []);
 
+  // SỬA TẠI ĐÂY: Tải danh mục và tải luôn toàn bộ brands
   useEffect(() => {
-    CategoryService.getCategories()
-      .then(setCategories)
-      .catch(err => console.error("GetCategory error:", err.message));
+    const fetchData = async () => {
+      try {
+        const cats = await CategoryService.getCategories();
+        setCategories(cats);
+        
+        if (cats.length > 0) {
+          setIsLoadingBrands(true);
+          const brandPromises = cats.map(cat => 
+            CategoryService.getBrandsByCategory(cat.categoryId)
+              .then(brands => ({ id: cat.categoryId, brands }))
+              .catch(() => ({ id: cat.categoryId, brands: [] }))
+          );
+          
+          const results = await Promise.all(brandPromises);
+          const brandMap: Record<number, Brand[]> = {};
+          results.forEach(res => {
+            brandMap[res.id] = res.brands;
+          });
+          setBrandsByCategory(brandMap);
+          setIsLoadingBrands(false);
+        }
+      } catch (err: any) {
+        console.error("Get initial data error:", err.message);
+        setIsLoadingBrands(false);
+      }
+    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -325,7 +352,12 @@ const Header = () => {
               <span>Tất cả danh mục</span>
 
               {showCategoryMenu && (
-                <CategoryDropdown categories={categories} onClose={() => setShowCategoryMenu(false)} />
+                <CategoryDropdown 
+                  categories={categories} 
+                  brandsByCategory={brandsByCategory} 
+                  isLoadingBrands={isLoadingBrands} 
+                  onClose={() => setShowCategoryMenu(false)} 
+                />
               )}
             </div>
 

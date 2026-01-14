@@ -22,8 +22,8 @@ class ProductController extends Controller
     {
         $keyword = $request->query('keyword');
         $categoryId = $request->query('categoryId');
-
-        $products = $this->service->getAll($keyword, $categoryId);
+        $brandId = $request->query('brandId');
+        $products = $this->service->getAll($keyword, $categoryId, $brandId);
 
         return ProductResource::collection($products);
     }

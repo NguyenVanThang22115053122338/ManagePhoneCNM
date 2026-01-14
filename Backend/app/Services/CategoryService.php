@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Category;
 use App\Resources\CategoryResource;
-
+use Illuminate\Support\Facades\DB;
 class CategoryService
 {
     public function getAll()
@@ -43,4 +43,16 @@ class CategoryService
         $category = Category::findOrFail($id);
         $category->delete();
     }
+    //Lấy danh sách brands theo category
+    public function getBrandsByCategory(int $categoryId)
+    {
+        return DB::table('Product')
+            ->select('Brand.brandId', 'Brand.name', 'Brand.country', 'Brand.description')
+            ->join('Brand', 'Product.BrandID', '=', 'Brand.brandId')
+            ->where('Product.CategoryID', $categoryId)
+            ->whereNotNull('Product.BrandID')
+            ->distinct()
+            ->get();
+    }
+
 }

@@ -20,17 +20,18 @@ const ProductList: React.FC = () => {
       keyword: params.get("keyword") || "",
       categoryId:
         params.get("categoryId") || params.get("category_id") || "",
+      brandId: params.get("brandId") || "",
     };
   }, [location.search]);
 
 
-  const fetchProducts = async (keyword?: string, categoryId?: string) => {
+  const fetchProducts = async (keyword?: string, categoryId?: string, brandId?: string) => {
     console.log("QUERY PARAM:", query);
     setLoading(true);
     setError(null);
 
     try {
-      const data = await productService.getAllProducts(keyword, categoryId);
+      const data = await productService.getAllProducts(keyword, categoryId, brandId);
 
       const safeProducts = data.filter(
         (p) => p && typeof p.productId === "number"
@@ -47,8 +48,8 @@ const ProductList: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchProducts(query.keyword, query.categoryId);
-  }, [query.keyword, query.categoryId]);
+    fetchProducts(query.keyword, query.categoryId, query.brandId);
+  }, [query.keyword, query.categoryId,query.brandId]);
 
   const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
