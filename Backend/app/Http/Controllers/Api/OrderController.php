@@ -86,4 +86,20 @@ class OrderController extends Controller
 
         return new DoanhThuDonHangResource($result);
     }
+
+    public function applyDiscount(Request $request, int $orderId)
+{
+    $order = $this->orderService->getById($orderId);
+
+    $code = $request->input('code'); // có thể null
+
+    $order = $this->orderService->applyDiscount($order, $code);
+
+    return response()->json([
+        'subTotal' => $order->SubTotal,
+        'discountAmount' => $order->DiscountAmount,
+        'totalAmount' => $order->TotalAmount,
+    ]);
+}
+
 }

@@ -158,9 +158,6 @@ export interface CartDTO {
 
 export type AddToCartRequest = CartDetailRequestDTO;
 
-export interface OrderResponse {
-    orderID: number;
-}
 
 export interface CreateOrderDetailRequest {
     orderID: number;
@@ -217,13 +214,26 @@ export interface OrderRequest {
 
 
 export interface OrderFullResponse {
-    orderID: number;
-    orderDate: string;
-    status: string;
-    paymentStatus: string;
-    userID: number;
-    products: OrderProduct[];
+  orderID: number;
+  orderDate: string;
+
+  status: "PENDING" | "APPROVED" | "CANCELLED";
+  paymentStatus: "UNPAID" | "PAID" | "REFUNDED";
+
+  subTotal: number;
+  discountAmount: number;
+  totalAmount: number;
+
+  products?: {
+    productID: number;
+    name: string;
+    price: number;
+    quantity: number;
+    imageUrl?: string;
+  }[];
 }
+
+
 
 export interface IReview {
     ReviewID: number;
@@ -259,13 +269,6 @@ export interface OrderResponse {
     paymentMethod?: string;
     userID?: number;
     note?: string;
-}
-
-export interface OrderDetailResponse {
-    id: number;
-    orderId: number;
-    productId: number;
-    quantity: number;
 }
 
 export interface ISupplier {
@@ -391,3 +394,42 @@ export interface InventoryStatisticItem {
     expiryDate?: string | null;
   };
 }
+
+export interface Discount {
+  id?: number;
+
+  code: string;
+  type: "PERCENT" | "FIXED";
+  value: number;
+
+  maxDiscountAmount?: number | null;
+  minOrderValue?: number | null;
+
+  startDate?: string | null;
+  endDate?: string | null;
+
+  usageLimit?: number | null;
+  usedCount?: number;
+
+  active: boolean;
+
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface CreateOrderResponse {
+  orderID: number;
+  orderDate: string;
+  status: string;
+  userID?: number;
+}
+
+export interface OrderSummaryResponse {
+  orderId: number;
+  status: string;
+  paymentStatus: string;
+  subTotal: number;
+  discountAmount: number;
+  totalAmount: number;
+}
+

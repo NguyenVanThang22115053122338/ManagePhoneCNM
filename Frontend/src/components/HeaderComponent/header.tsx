@@ -1,10 +1,11 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { UserCog, ShoppingCart, History, LogOut, Bell, Search, Filter, Menu, X } from 'lucide-react';
+import { UserCog, ShoppingCart, History, LogOut, Bell, Search, Filter, Menu, X, BadgePercent } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import CategoryService from "../../services/CategoryService";
 import productService from "../../services/ProductService";
 import type { ICategory, IProduct } from "../../services/Interface";
+import { notificationService } from "../../services/NotificationService";
 import './header.css'
 import Logo from "../../assets/img/logo.png"
 
@@ -19,6 +20,54 @@ const Header = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
+  const [showCategoryMenu, setShowCategoryMenu] = useState(false);
+
+  const [cartCount, setCartCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  const loadUnreadCount = async () => {
+    if (!user?.userId) {
+      setUnreadCount(0);
+      return;
+    }
+
+    try {
+      const data = await notificationService.getUserNotifications(user.userId);
+
+      const readKeys: string[] = JSON.parse(
+        localStorage.getItem(
+          `read_notification_keys_user_${user.userId}`
+        ) || "[]"
+      );
+
+      const buildBaseKey = (n: any) =>
+        `${n.notificationType}|${n.title}|${n.content}`;
+
+      const unread = data.filter(
+        n => !readKeys.includes(buildBaseKey(n))
+      ).length;
+
+      setUnreadCount(unread);
+    } catch (err) {
+      console.error("Load unread notification count failed", err);
+    }
+  };
+
+  useEffect(() => {
+    loadUnreadCount();
+  }, [location.pathname, user]);
+
+  useEffect(() => {
+    const syncUnread = () => loadUnreadCount();
+
+    window.addEventListener("focus", syncUnread);
+    window.addEventListener("notification-read", syncUnread);
+
+    return () => {
+      window.removeEventListener("focus", syncUnread);
+      window.removeEventListener("notification-read", syncUnread);
+    };
+  }, [user]);
 
   const displayName = useMemo(
     () => user?.fullName || "Người dùng",
@@ -29,6 +78,40 @@ const Header = () => {
     () => user?.avatar || "src/assets/img/default-avatar.png",
     [user]
   );
+
+  const syncCartCount = () => {
+    try {
+      const raw = localStorage.getItem("cart_items");
+      const cart = raw ? JSON.parse(raw) : [];
+
+      const total = cart.reduce(
+        (sum: number, item: { quantity?: number }) =>
+          sum + (item.quantity || 0),
+        0
+      );
+
+      setCartCount(total);
+    } catch (e) {
+      console.error("Sync cart failed", e);
+      setCartCount(0);
+    }
+  };
+
+  useEffect(() => {
+    // load lần đầu
+    syncCartCount();
+
+    // khi add/remove/update cart
+    window.addEventListener("cart-updated", syncCartCount);
+
+    // khi quay lại tab
+    window.addEventListener("focus", syncCartCount);
+
+    return () => {
+      window.removeEventListener("cart-updated", syncCartCount);
+      window.removeEventListener("focus", syncCartCount);
+    };
+  }, []);
 
   useEffect(() => {
     CategoryService.getCategories()
@@ -97,6 +180,8 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
+    localStorage.removeItem("cart_items");
+    localStorage.removeItem("cart_count");
     setDropdownOpen(false);
     navigate('/');
   };
@@ -118,11 +203,7 @@ const Header = () => {
                 <i className="fas fa-map-marker-alt"></i> 48 Cao Thắng, TP. Đà Nẵng
               </span>
             </div>
-            <div className="top-bar-right">
-              <span className="top-bar-item">
-                <i className="fas fa-dollar-sign"></i> Số dư
-              </span>
-            </div>
+
           </div>
         </div>
       </div>
@@ -139,6 +220,17 @@ const Header = () => {
             {/* Search Bar */}
             <div className="header-search" ref={searchRef}>
               <div className="search-wrapper">
+                <input
+                  type="text"
+                  name="email"
+                  autoComplete="username"
+                  style={{
+                    position: "absolute",
+                    opacity: 0,
+                    pointerEvents: "none",
+                    height: 0,
+                  }}
+                />
                 <Search className="search-icon" size={20} />
                 <input
                   type="text"
@@ -220,19 +312,34 @@ const Header = () => {
 
             {/* Actions */}
             <div className="header-actions">
-              <button className="action-btn" title="Thông báo" onClick={() => navigate('/notification')}>
+              <button
+                className="action-btn"
+                title="Thông báo"
+                onClick={() => navigate('/notification')}
+              >
                 <Bell size={20} />
+
+                {unreadCount > 0 && (
+                  <span className="action-badge">
+                    {unreadCount > 9 ? "9+" : unreadCount}
+                  </span>
+                )}
               </button>
 
-              <button className="action-btn" title="Vị trí" onClick={() => console.log('Location')}>
-                <i className="fas fa-map-marker-alt"></i>
-                <span className="action-badge">5</span>
-              </button>
-
-              <button className="action-btn" title="Giỏ hàng" onClick={() => navigate('/cartShop')}>
+              <button
+                className="action-btn"
+                title="Giỏ hàng"
+                onClick={() => navigate('/cartShop')}
+              >
                 <ShoppingCart size={20} />
-                <span className="action-badge">3</span>
+
+                {cartCount > 0 && (
+                  <span className="action-badge">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                )}
               </button>
+
 
               {user ? (
                 <div className="user-menu">
@@ -273,6 +380,20 @@ const Header = () => {
                             </div>
                           </button>
 
+                          <div
+                            className="dropdown-item"
+                            onClick={() => {
+                              navigate('/discount');
+                              setDropdownOpen(false);
+                            }}
+                          >
+                            <BadgePercent size={20} />
+                            <div>
+                              <p className="title">Mã giảm giá</p>
+                            </div>
+                          </div>
+
+
                           <button className="dropdown-item" onClick={() => { navigate('/historyOrder'); setDropdownOpen(false); }}>
                             <History size={20} />
                             <div>
@@ -308,10 +429,30 @@ const Header = () => {
       <div className="header-nav">
         <div className="header-container">
           <div className="nav-content">
-            <div className="nav-menu-left">
+            <div
+              className="nav-menu-left"
+              onClick={() => setShowCategoryMenu(v => !v)}
+            >
               <i className="fa fa-bars"></i>
               <span>Tất cả danh mục</span>
             </div>
+            {showCategoryMenu && (
+              <div className="category-dropdown">
+                {categories.map(cat => (
+                  <div
+                    key={cat.categoryId}
+                    className="category-item"
+                    onClick={() => {
+                      navigate(`/products?categoryId=${cat.categoryId}`);
+                      setShowCategoryMenu(false);
+                    }}
+                  >
+                    {cat.description}
+                  </div>
+                ))}
+              </div>
+            )}
+
 
             <div className="nav-tabs">
               <button className="nav-tab" onClick={() => navigate('/')}>

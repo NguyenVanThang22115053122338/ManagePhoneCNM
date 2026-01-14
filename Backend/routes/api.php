@@ -15,12 +15,13 @@ use App\Http\Controllers\Api\OrderDetailController;
 use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CartDetailController;
 use App\Http\Controllers\Api\PhoneChatController;
-use App\Http\Controllers\Api\ReviewController; 
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\BatchController;
 use App\Http\Controllers\Api\StockInController;
 use App\Http\Controllers\Api\StockOutController;
+use App\Http\Controllers\Api\DiscountController;
 /*
 |--------------------------------------------------------------------------
 | PUBLIC ROUTES (KHÔNG CẦN LOGIN)
@@ -74,12 +75,23 @@ Route::middleware(['jwt'])->group(function () {
     //===== Review =====
     Route::get('/reviews/product/{id}', [ReviewController::class, 'getByProduct']);
     Route::post('/reviews', [ReviewController::class, 'createReview']);
-    
-    // ===== CATEGORY (USER + ADMIN: CHỈ XEM) =====
+
+    // ===== Discount (USER + ADMIN: CHỈ XEM) =====
+    Route::prefix('discounts')->group(function () {
+        Route::get('/', [DiscountController::class, 'index']);
+        Route::get('{id}', [DiscountController::class, 'show']);
+        Route::post('/', [DiscountController::class, 'store']);
+        Route::put('{id}', [DiscountController::class, 'update']);
+        Route::delete('{id}', [DiscountController::class, 'destroy']);
+    });
+
+    Route::post('/orders/{orderId}/apply-discount', [OrderController::class, 'applyDiscount']);
+
+
 
 
     // ===== IMAGE UPLOAD (USER + ADMIN) =====
-Route::prefix('images')->group(function () {
+    Route::prefix('images')->group(function () {
         // upload 1 ảnh
         Route::post('/img-upload', [ImageUploadController::class, 'uploadSingle']);
 
@@ -103,7 +115,7 @@ Route::prefix('images')->group(function () {
     Route::put('/order/{id}', [OrderController::class, 'update']);
     Route::delete('/order/{id}', [OrderController::class, 'destroy']);
     Route::get('/orders/check/{userId}/{productId}', [OrderController::class, 'checkUserPurchased']);
-   
+
 
     // ===== ORDER DETAILS (USER + ADMIN) =====
     Route::post('/order-details', [OrderDetailController::class, 'store']);
@@ -142,14 +154,14 @@ Route::prefix('images')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:ADMIN'])->group(function () {
-  
+
         Route::get('/doanh-thu', [OrderController::class, 'doanhThu']);
 
         // ===== NOTIFICATIONS (CRUD) =====
         Route::post('/notifications', [NotificationController::class, 'store']);
         Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
         Route::put('/notifications/{id}', [NotificationController::class, 'update']);
-        
+
         // ===== PRODUCT (CRUD) =====
         Route::post('/products', [ProductController::class, 'store']);
         Route::put('/products/{id}', [ProductController::class, 'update']);
