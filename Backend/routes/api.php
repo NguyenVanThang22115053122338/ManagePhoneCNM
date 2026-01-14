@@ -106,6 +106,10 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/user/{id}', [NotificationController::class, 'getByUser']);
     Route::get('/notifications/role/{role}', [NotificationController::class, 'getByRole']);
+    
+    // ===== MARK NOTIFICATION AS READ =====
+    Route::put('/notifications/{notificationId}/read/{userId}', [NotificationController::class, 'markAsRead']);
+    Route::put('/notifications/read-all/{userId}', [NotificationController::class, 'markAllAsRead']);
 
     // ===== ORDERS (USER + ADMIN) =====
     Route::post('/order', [OrderController::class, 'store']);

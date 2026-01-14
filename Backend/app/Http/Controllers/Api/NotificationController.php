@@ -55,4 +55,16 @@ class NotificationController extends Controller
         $this->service->delete($id);
         return response()->noContent();
     }
+
+    // PUT /api/notifications/{notificationId}/read/{userId}
+    public function markAsRead($notificationId, $userId)
+    {
+        return $this->service->markAsRead($notificationId, $userId);
+    }
+
+    // PUT /api/notifications/read-all/{userId}
+    public function markAllAsRead($userId)
+    {
+        return $this->service->markAllAsRead($userId);
+    }
 }

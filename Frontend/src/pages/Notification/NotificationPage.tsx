@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './NotificationPage.css';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/NotificationComponet/LoadingSkeleton';
-import { 
-  Package, 
-  Percent, 
-  Bell, 
-  User, 
-  Info, 
-  Trash2 
+import {
+  Package,
+  Percent,
+  Bell,
+  User,
+  Info,
+  Trash2
 } from 'lucide-react';
 
 import { notificationService } from '../../services/NotificationService';
@@ -150,15 +150,6 @@ const NotificationsPage: React.FC = () => {
 
                 <div className="notification-actions">
                   {!notif.isRead && <span className="unread-dot"></span>}
-                  <button
-                    className="delete-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteNotification(notif.notificationId);
-                    }}
-                  >
-                    <Trash2 size={18} />
-                  </button>
                 </div>
               </div>
             ))}
