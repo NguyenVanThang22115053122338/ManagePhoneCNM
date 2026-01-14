@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import './NotificationPage.css';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSkeleton from '../../components/NotificationComponet/LoadingSkeleton';
-import { 
-  Package, 
-  Percent, 
-  Bell, 
-  User, 
-  Info, 
-  Trash2 
+import {
+  Package,
+  Percent,
+  Bell,
+  User,
+  Info,
+  Trash2
 } from 'lucide-react';
 
 import { notificationService } from '../../services/NotificationService';
@@ -49,11 +49,13 @@ const NotificationsPage: React.FC = () => {
   }, [userId]);
 
   const markAsRead = async (id: number) => {
+    if (!userId) return;
     try {
-      await notificationService.markAsRead(id);
+      await notificationService.markAsRead(id, userId);
       setNotifications(prev =>
         prev.map(notif => notif.notificationId === id ? { ...notif, isRead: true } : notif)
       );
+      window.dispatchEvent(new Event('notification-read'));
     } catch (err) {
       console.error('Lỗi đánh dấu đã đọc');
     }
@@ -64,6 +66,7 @@ const NotificationsPage: React.FC = () => {
     try {
       await notificationService.markAllAsRead(userId);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      window.dispatchEvent(new Event('notification-read'));
     } catch (err) {
       console.error('Lỗi đánh dấu tất cả');
     }
@@ -101,7 +104,6 @@ const NotificationsPage: React.FC = () => {
     }
   };
 
-  // Loading từ auth hoặc fetch
   if (authLoading || loading) return <LoadingSkeleton />;
 
   if (error) return <div className="error-message">{error}</div>;
@@ -150,15 +152,6 @@ const NotificationsPage: React.FC = () => {
 
                 <div className="notification-actions">
                   {!notif.isRead && <span className="unread-dot"></span>}
-                  <button
-                    className="delete-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      deleteNotification(notif.notificationId);
-                    }}
-                  >
-                    <Trash2 size={18} />
-                  </button>
                 </div>
               </div>
             ))}

@@ -39,18 +39,7 @@ const Header = () => {
     try {
       const data = await notificationService.getUserNotifications(user.userId);
 
-      const readKeys: string[] = JSON.parse(
-        localStorage.getItem(
-          `read_notification_keys_user_${user.userId}`
-        ) || "[]"
-      );
-
-      const buildBaseKey = (n: any) =>
-        `${n.notificationType}|${n.title}|${n.content}`;
-
-      const unread = data.filter(
-        n => !readKeys.includes(buildBaseKey(n))
-      ).length;
+      const unread = data.filter(n => !n.isRead).length;
 
       setUnreadCount(unread);
     } catch (err) {

@@ -12,7 +12,9 @@ class NotificationService
 {
     public function getAll()
     {
-        return NotificationResource::collection(Notification::all());
+        return NotificationResource::collection(
+    Notification::orderBy('NotificationID', 'desc')->get()
+);
     }
 
     public function getById(int $id)
@@ -27,6 +29,7 @@ class NotificationService
 
         $notifications = $user->notifications()
             ->withPivot('isRead')
+            ->orderBy('NotificationID', 'desc')
             ->get();
 
         return NotificationResource::collection($notifications);
@@ -148,5 +151,29 @@ class NotificationService
         $notification->users()->detach();
 
         $notification->delete();
+    }
+
+    public function markAsRead(int $notificationId, int $userId)
+    {
+        $user = User::findOrFail($userId);
+        $notification = Notification::findOrFail($notificationId);
+
+        if (!$user->notifications()->where('notification.NotificationID', $notificationId)->exists()) {
+            throw new RuntimeException('User không có thông báo này');
+        }
+
+        $user->notifications()->updateExistingPivot($notificationId, ['isRead' => true]);
+
+        return response()->json(['message' => 'Đã đánh dấu thông báo đã đọc']);
+    }
+
+    public function markAllAsRead(int $userId)
+    {
+        $user = User::findOrFail($userId);
+        DB::table('receivenotification')
+            ->where('UserID', $userId)
+            ->update(['isRead' => true]);
+
+        return response()->json(['message' => 'Đã đánh dấu tất cả thông báo đã đọc']);
     }
 }

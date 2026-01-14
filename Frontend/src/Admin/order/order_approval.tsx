@@ -3,50 +3,40 @@ import { useNavigate } from "react-router-dom";
 import styles from "./order_approval.module.css";
 
 import OrderService from "../../services/OrderService";
-import StatusService from "../../services/StatusService";
-import OrderDetailService from "../../services/OrderDetailService";
-import ProductService from "../../services/ProductService";
-
-import type {
-  OrderResponse,
-  IUser,
-} from "../../services/Interface";
+import type { OrderFullResponse } from "../../services/Interface";
 
 /* ================= HELPERS ================= */
-const mapTrangThai = (status: string) => {
-  switch (status) {
-    case "PENDING":
-      return "Chưa duyệt";
-    case "APPROVED":
-      return "Đã duyệt";
-    case "REJECTED":
-      return "Đã từ chối";
-    case "CANCELLED":
-      return "Đã hủy";
-    default:
-      return status;
-  }
-};
-
 const formatDate = (d?: string | null) => {
   if (!d || typeof d !== "string") return "—";
   return d.slice(0, 10).split("-").reverse().join("/");
 };
 
-/* ================= VIEW MODEL ================= */
-interface OrderRowVM {
-  orderId: number;
-  orderDate?: string | null;
-  status: string;
-  customerName: string;
-  productName: string;
-}
+const formatVND = (n: number) =>
+  `${Number(n || 0).toLocaleString("vi-VN")}đ`;
+
+const mapTrangThai = (status: string) => {
+  switch (status) {
+    case "PENDING": return "Chưa duyệt";
+    case "APPROVED": return "Đã duyệt";
+    case "CANCELLED": return "Đã hủy";
+    default: return status;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "PENDING": return styles.statusPending;
+    case "APPROVED": return styles.statusApproved;
+    case "CANCELLED": return styles.statusCancelled;
+    default: return "";
+  }
+};
 
 /* ================= COMPONENT ================= */
 const OrderApproval = () => {
   const navigate = useNavigate();
 
-  const [orders, setOrders] = useState<OrderRowVM[]>([]);
+  const [orders, setOrders] = useState<OrderFullResponse[]>([]);
   const [loading, setLoading] = useState(true);
 
   /* ===== PAGINATION ===== */
@@ -55,61 +45,40 @@ const OrderApproval = () => {
 
   /* ================= FETCH ================= */
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        setLoading(true);
-
-        // 1️⃣ lấy tất cả order
-        const rawOrders: OrderResponse[] = await OrderService.getAll();
-
-        // chỉ lấy đơn chưa duyệt
-        const pendingOrders = rawOrders.filter(
-          o => o.status === "PENDING"
-        );
-
-        // 2️⃣ build view model (NHẸ – có guard chống 404)
-        const rows: OrderRowVM[] = await Promise.all(
-          pendingOrders.map(async (order) => {
-            /* ===== USER ===== */
-            let customerName = "—";
-            if (order.userID) {
-              try {
-                const user: IUser = await StatusService.getUserById(order.userID);
-                customerName = user.fullName ?? "—";
-              } catch {}
-            }
-
-            /* ===== PRODUCT (lấy sản phẩm đầu tiên) ===== */
-            let productName = "—";
-            try {
-              const details = await OrderDetailService.getByOrderId(order.orderID);
-              if (details.length > 0 && details[0].productId) {
-                const product = await ProductService.getProductById(details[0].productId);
-                productName = product.name ?? "—";
-              }
-            } catch {}
-
-            return {
-              orderId: order.orderID,
-              orderDate: order.orderDate ?? null,
-              status: order.status,
-              customerName,
-              productName,
-            };
-          })
-        );
-
-        setOrders(rows);
-      } catch (err) {
-        console.error(err);
-        alert("Không tải được danh sách đơn cần duyệt");
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchOrders();
   }, []);
+
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const data = await OrderService.getAll();
+      setOrders(data);
+    } catch (err) {
+      console.error(err);
+      alert("Không tải được danh sách đơn hàng");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= UPDATE STATUS ================= */
+  const handleStatusChange = async (orderId: number, newStatus: string) => {
+    try {
+      await OrderService.updateStatus(orderId, newStatus);
+
+      // Cập nhật local state
+      setOrders(prev =>
+        prev.map(order =>
+          order.orderId === orderId
+            ? { ...order, status: newStatus }
+            : order
+        )
+      );
+    } catch (err) {
+      console.error(err);
+      alert("Cập nhật trạng thái thất bại");
+    }
+  };
 
   /* ================= PAGED DATA ================= */
   const totalPages = Math.ceil(orders.length / pageSize);
@@ -125,73 +94,111 @@ const OrderApproval = () => {
 
   /* ================= RENDER ================= */
   return (
-    <div className={styles.container}>
-      <h1 className={styles.title}>Danh sách đơn cần duyệt</h1>
+    <div className={styles.page}>
+      <div className={styles.container}>
+        <h1 className={styles.title}>Quản lý đơn hàng</h1>
 
-      {loading ? (
-        <div className={styles.loading}>Đang tải dữ liệu...</div>
-      ) : (
-        <>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Mã đơn</th>
-                <th>Ngày đặt</th>
-                <th>Khách hàng</th>
-                <th>Sản phẩm</th>
-                <th>Trạng thái</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {pagedOrders.length > 0 ? (
-                pagedOrders.map((o) => (
-                  <tr
-                    key={o.orderId}
-                    style={{ cursor: "pointer" }}
-                    onClick={() =>
-                      navigate(`/admin/orders/${o.orderId}`)
-                    }
-                  >
-                    <td>#{o.orderId}</td>
-                    <td>{formatDate(o.orderDate)}</td>
-                    <td>{o.customerName}</td>
-                    <td>{o.productName}</td>
-                    <td>{mapTrangThai(o.status)}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className={styles.noData}>
-                    Không có đơn cần duyệt
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-
-          {/* ===== PAGINATION ===== */}
-          <div className={styles.pagination}>
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage(p => p - 1)}
-            >
-              ◀
-            </button>
-
-            <span>
-              Trang {currentPage} / {totalPages || 1}
-            </span>
-
-            <button
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage(p => p + 1)}
-            >
-              ▶
-            </button>
+        {loading ? (
+          <div className={styles.loading}>
+            <div className={styles.spinner}></div>
+            <p>Đang tải dữ liệu...</p>
           </div>
-        </>
-      )}
+        ) : (
+          <>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Mã đơn</th>
+                    <th>Ngày đặt</th>
+                    <th>Khách hàng</th>
+                    <th>Tên sản phẩm</th>
+                    <th>Số lượng</th>
+                    <th>Giá</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {pagedOrders.length > 0 ? (
+                    pagedOrders.map((order) => (
+                      <tr key={order.orderId}>
+                        <td className={styles.orderId}>#{order.orderId}</td>
+                        <td>{formatDate(order.orderDate)}</td>
+                        <td className={styles.customerName}>{order.userName}</td>
+                        <td className={styles.productName}>{order.products.map(p => p.name).join(", ")}</td>
+                        <td className={styles.amount}>{order.products.map(p => p.quantity).join(", ")}</td>
+                        {/* {order.products.map(p => p.quantity).reduce((a, b) => a + b)} */}
+                        <td className={styles.price}>{order.products.map(p => formatVND(p.price)).join(", ")}</td>
+                        <td>
+                          <span className={`${styles.paymentBadge} ${order.paymentStatus === "PAID"
+                            ? styles.paymentPaid
+                            : styles.paymentUnpaid
+                            }`}>
+                            {order.paymentStatus === "PAID" ? "Đã thanh toán" : "Chưa thanh toán"}
+                          </span>
+                        </td>
+                        <td>
+                          <select
+                            className={`${styles.statusSelect} ${getStatusColor(order.status)}`}
+                            value={order.status}
+                            onChange={(e) => handleStatusChange(order.orderId, e.target.value)}
+                          >
+                            <option value="PENDING">Chưa duyệt</option>
+                            <option value="APPROVED">Đã duyệt</option>
+                            <option value="CANCELLED">Đã hủy</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button
+                            className={styles.detailBtn}
+                            onClick={() => navigate(`/admin/orders/${order.orderId}`)}
+                          >
+                            Chi tiết
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className={styles.noData}>
+                        Không có đơn hàng nào
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+
+            {/* ===== PAGINATION ===== */}
+            {totalPages > 1 && (
+              <div className={styles.pagination}>
+                <button
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(p => p - 1)}
+                  className={styles.paginationBtn}
+                >
+                  ◀ Trước
+                </button>
+
+                <span className={styles.paginationInfo}>
+                  Trang {currentPage} / {totalPages}
+                </span>
+
+                <button
+                  disabled={currentPage >= totalPages}
+                  onClick={() => setCurrentPage(p => p + 1)}
+                  className={styles.paginationBtn}
+                >
+                  Sau ▶
+                </button>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };

@@ -38,12 +38,12 @@ export const notificationService = {
     return Array.isArray(res.data) ? res.data : res.data?.data ?? [];
   },
 
-  markAsRead: async (id: number) => {
-    return axiosClient.put(`/api/notifications/${id}/read`);
+  markAsRead: async (notificationId: number, userId: number) => {
+    return axiosClient.put(`/api/notifications/${notificationId}/read/${userId}`);
   },
 
   markAllAsRead: async (userId: number) => {
-    return axiosClient.put(`/api/notifications/user/${userId}/read-all`);
+    return axiosClient.put(`/api/notifications/read-all/${userId}`);
   },
 
   deleteNotification: async (id: number) => {

@@ -16,7 +16,7 @@ class OrderRequest extends FormRequest
            'orderDate'    => 'nullable|date',
             'status'        => 'nullable|string|max:50',
             'paymentStatus' => 'nullable|string|max:50',
-            'userID'        => 'required|exists:user,UserID'
+            'userID'        => 'nullable|exists:user,UserID'
         ];
     }
 }
