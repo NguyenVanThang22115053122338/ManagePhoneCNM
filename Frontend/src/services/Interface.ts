@@ -438,3 +438,7 @@ export interface OrderSummaryResponse {
     totalAmount: number;
 }
 
+export interface CategoryDropdownProps {
+    categories: ICategory[];
+    onClose: () => void;
+  }

@@ -5,19 +5,20 @@ import { normalizeProduct } from "../adapter/normalizeProduct";
 const productService = {
   getAllProducts: async (
     keyword?: string,
-    categoryId?: string
+    categoryId?: string,
+    brandId?: string
   ): Promise<IProduct[]> => {
     try {
       const params = new URLSearchParams();
 
       if (keyword) params.set("keyword", keyword);
       if (categoryId) params.set("categoryId", categoryId);
+      if (brandId) params.set("brandId", brandId);
 
       const response = await axiosClient.get(
         `/api/products?${params.toString()}`
       );
 
-      // Laravel Resource Collection => { data: [...] }
       const raw = response.data?.data;
 
       if (!Array.isArray(raw)) {
@@ -32,24 +33,19 @@ const productService = {
     }
   },
 
-
-
   async getProductById(id: number): Promise<IProduct> {
     const res = await axiosClient.get(`/api/products/${id}`);
-
     return normalizeProduct(res.data.data);
   },
 
-
   async createProduct(product: IProduct): Promise<IProduct> {
     const res = await axiosClient.post("/api/products", product);
-    return normalizeProduct(res.data.data); // 🔥 FIX
+    return normalizeProduct(res.data.data);
   },
-
 
   async updateProduct(id: number, product: IProduct): Promise<IProduct> {
     const res = await axiosClient.put(`/api/products/${id}`, product);
-    return normalizeProduct(res.data.data); // 🔥 FIX
+    return normalizeProduct(res.data.data);
   },
 
   async deleteProduct(id: number): Promise<void> {
@@ -82,7 +78,7 @@ const productService = {
 
     const formData = new FormData();
     files.forEach(file => {
-      formData.append("files[]", file); // 👈 chuẩn Laravel
+      formData.append("files[]", file);
     });
 
     const res = await axiosClient.post(
@@ -90,7 +86,7 @@ const productService = {
       formData,
       {
         headers: {
-          Authorization: `Bearer ${token}`, // 🔥 BẮT BUỘC
+          Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },

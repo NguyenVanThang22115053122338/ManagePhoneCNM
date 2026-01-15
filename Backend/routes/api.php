@@ -37,6 +37,7 @@ Route::post('/user/verify-email', [UserController::class, 'verifyEmail']);
 Route::post('/user/resend-code', [UserController::class, 'resendCode']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::get('/categories/{id}/brands', [CategoryController::class, 'getBrands']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{id}', [ProductController::class, 'show']);
 

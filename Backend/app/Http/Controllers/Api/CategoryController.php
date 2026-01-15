@@ -56,4 +56,10 @@ class CategoryController extends Controller
         $this->service->delete($id);
         return response()->json(['message' => 'Deleted']);
     }
+
+    public function getBrands(int $id)
+    {
+        $brands = $this->service->getBrandsByCategory($id);
+        return response()->json($brands);
+    }
 }
