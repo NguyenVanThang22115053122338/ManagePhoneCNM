@@ -43,7 +43,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
             onMouseEnter={() => handleMouseEnter(index)}
             onClick={() => handleCategoryClick(cat.categoryId)}
           >
-            {cat.description}
+            {cat.categoryName}
           </div>
         ))}
       </div>
@@ -55,7 +55,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
             className={`tab-content ${activeTab === index ? 'active' : ''}`}
           >
             <div className="header-title" onClick={() => handleCategoryClick(cat.categoryId)}>
-              <span>{cat.description}</span>
+              <span>{cat.categoryName}</span>
               <i className="fas fa-angle-right angle-icon"></i>
             </div>
 

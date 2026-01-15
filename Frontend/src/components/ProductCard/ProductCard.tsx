@@ -49,7 +49,7 @@ const ProductCard: React.FC<{ product: IProduct }> = ({ product }) => {
       await orderDetailService.create({
         orderID: orderId,
         productID: product.productId!, // lấy từ props / state
-        quantity: quantity || 1,
+        quantity: quantity || 3,
       });
   
       navigate(`/order/${orderId}`);
