@@ -14,7 +14,7 @@ const Home: React.FC = () => {
     if (paymentStatus === "success") {
       alert(`Thanh toán thành công. Mã đơn hàng: ${orderId}`);
 
-      localStorage.removeItem("cartId");
+      // localStorage.removeItem("cartId");
 
       navigate("/", { replace: true });
     }

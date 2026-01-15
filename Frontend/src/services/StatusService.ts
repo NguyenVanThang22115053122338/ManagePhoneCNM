@@ -2,7 +2,7 @@ import axiosClient from "./AxiosClient";
 import type { IUser, OrderResponse } from "./Interface";
 
 /* ================= ORDER STATUS ================= */
-export type OrderStatus = "PENDING" | "APPROVED" | "CANCELLED";
+export type OrderStatus = "PENDING" | "APPROVED" |  "SHIPPING" | "COMPLETED" | "CANCELLED";
 
 const OrderService = {
   /* ================= GET ================= */

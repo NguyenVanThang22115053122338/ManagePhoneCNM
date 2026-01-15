@@ -18,6 +18,8 @@ const mapTrangThai = (status: string) => {
   switch (status) {
     case "PENDING": return "Chưa duyệt";
     case "APPROVED": return "Đã duyệt";
+    case "SHIPPING": return "Đang giao";
+    case "COMPLETED": return "Hoàn thành";
     case "CANCELLED": return "Đã hủy";
     default: return status;
   }
@@ -27,6 +29,8 @@ const getStatusColor = (status: string) => {
   switch (status) {
     case "PENDING": return styles.statusPending;
     case "APPROVED": return styles.statusApproved;
+    case "SHIPPING": return styles.statusShipping;
+    case "COMPLETED": return styles.statusCompleted;
     case "CANCELLED": return styles.statusCancelled;
     default: return "";
   }
@@ -148,6 +152,8 @@ const OrderApproval = () => {
                           >
                             <option value="PENDING">Chưa duyệt</option>
                             <option value="APPROVED">Đã duyệt</option>
+                            <option value="SHIPPING">Đang giao</option>
+                            <option value="COMPLETED">Đã giao</option>
                             <option value="CANCELLED">Đã hủy</option>
                           </select>
                         </td>

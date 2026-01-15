@@ -1,0 +1,31 @@
+.statLayout {
+  width: 100%;
+  min-height: 100vh;
+  padding: 24px ;
+  background:
+    radial-gradient(1100px 500px at 10% -10%, rgba(59,130,246,0.20), transparent 55%),
+    radial-gradient(900px 420px at 90% 0%, rgba(16,185,129,0.18), transparent 50%),
+    radial-gradient(900px 520px at 50% 120%, rgba(99,102,241,0.10), transparent 50%),
+    #f6f8fc;
+}
+
+.header {
+  margin-bottom: 12px;
+}
+
+.kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #475569;
+}
+
+.title {
+  margin-top: 6px;
+  font-size: 26px;
+  font-weight: 900;
+}
+  
+.content {
+  margin-top: 16px;
+}

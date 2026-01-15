@@ -97,8 +97,7 @@ const CartPage: React.FC = () => {
         const items: CartItem[] = await Promise.all(
           Object.values(grouped).map(async (item: any) => {
             const fullProduct = await productService.getProductById(item.productId);
-
-            return {
+return {
               ...fullProduct,              // có productImages (Cloudinary)
               quantity: item.quantity,
               cartDetailsIds: item.cartDetailsIds,
@@ -214,7 +213,7 @@ const CartPage: React.FC = () => {
       navigate(`/order/${orderId}`);
     } catch (err) {
       console.error(err);
-      alert("Đặt hàng thất bại");
+alert("Đặt hàng thất bại");
     } finally {
       setIsPlacingOrder(false);
     }
@@ -311,7 +310,7 @@ const CartPage: React.FC = () => {
           <h2>Thông tin đặt hàng</h2>
 
           <form
-            className="checkout-form"
+className="checkout-form"
             onSubmit={(e) => e.preventDefault()}
           >
             <input

@@ -535,13 +535,3 @@ export interface SalesAndQuantityResponse {
   years?: number[];
 }
 
-    mode: StatisticMode;
-    year?: number;
-    month?: number;
-    data?: YearStatisticItem[] | MonthStatisticItem[];
-    tongDoanhThu?: number;
-    tongDonHang?: number;
-    totalOrders?: number;
-    revenue?: number;
-    years?: number[];
-}
