@@ -7,9 +7,9 @@ import IP from "../../assets/img/ip.png";
 import { useAuth } from "../../context/AuthContext";
 import cartDetailService from "../../services/CartDetailService";
 import orderService from "../../services/OrderService"; 
-import reviewService from "../../services/ReviewService";
+// import reviewService from "../../services/ReviewService";
 import ReviewSection from "../ReviewPage/ReviewSection";
-import type { IReview } from "../../services/Interface";
+// import type { IReview } from "../../services/Interface";
 import ProductReviewPage from "../ReviewPage/ProductReviewPage";
 import {ShoppingCart} from 'lucide-react';
 

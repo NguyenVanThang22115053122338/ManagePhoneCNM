@@ -7,7 +7,7 @@ import orderDetailService from "../../services/OrderDetailService";
 import cartDetailService from "../../services/CartDetailService";
 
 import { useAuth } from "../../context/AuthContext";
-import { normalizeProduct } from "../../adapter/normalizeProduct";
+// import { normalizeProduct } from "../../adapter/normalizeProduct";
 import productService from "../../services/ProductService";
 
 import type { IProduct, CartDetailResponse } from "../../services/Interface";
@@ -25,6 +25,18 @@ const CartPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+
+  // 🚀 NEW: State for delivery info
+  const [deliveryPhone, setDeliveryPhone] = useState(user?.sdt || "");
+  const [deliveryAddress, setDeliveryAddress] = useState(user?.address || "");
+
+  // 🚀 Sync with user data when it changes
+  useEffect(() => {
+    if (user) {
+      setDeliveryPhone(user.sdt || "");
+      setDeliveryAddress(user.address || "");
+    }
+  }, [user]);
 
   const getImageUrl = (images?: any[]) => {
     if (!images || images.length === 0) return "/no-image.png";
@@ -136,11 +148,20 @@ const CartPage: React.FC = () => {
     }
   };
 
-
-
   // ================= CONFIRM ORDER =================
   const handleConfirmOrder = async () => {
     if (isPlacingOrder) return;
+
+    // ✅ Validate delivery info
+    if (!deliveryPhone.trim()) {
+      alert("Vui lòng nhập số điện thoại nhận hàng");
+      return;
+    }
+
+    if (!deliveryAddress.trim()) {
+      alert("Vui lòng nhập địa chỉ nhận hàng");
+      return;
+    }
 
     try {
       setIsPlacingOrder(true);
@@ -161,10 +182,13 @@ const CartPage: React.FC = () => {
       const userObj = JSON.parse(userStr);
       const cartId = Number(cartIdStr);
 
+      // 🚀 UPDATED: Include delivery info
       const order = await orderService.create({
         userID: userObj.userId,
         status: "PENDING",
         paymentStatus: "UNPAID",
+        deliveryPhone: deliveryPhone.trim(),
+        deliveryAddress: deliveryAddress.trim(),
       });
 
       // BÂY GIỜ TS OK
@@ -184,6 +208,8 @@ const CartPage: React.FC = () => {
 
 
       await cartDetailService.deleteByCartId(cartId);
+
+      localStorage.removeItem("cartId");
       window.dispatchEvent(new Event("cart-updated"));
       setCartItems([]);
       navigate(`/order/${orderId}`);
@@ -297,8 +323,16 @@ const CartPage: React.FC = () => {
             />
             <input
               type="text"
-              placeholder="Số điện thoại *"
-              defaultValue={user?.sdt}
+              placeholder="Số điện thoại nhận hàng *"
+              value={deliveryPhone}
+              onChange={(e) => setDeliveryPhone(e.target.value)}
+              required
+            />
+            <input
+              type="text"
+              placeholder="Địa chỉ nhận hàng *"
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
               required
             />
             <input

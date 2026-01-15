@@ -158,7 +158,7 @@ export interface CartDTO {
 }
 
 export interface ResourceResponse<T> {
-  data: T;
+    data: T;
 }
 
 export type AddToCartRequest = CartDetailRequestDTO;
@@ -215,7 +215,10 @@ export interface OrderRequest {
     status: string;
     paymentStatus: string;
     orderDate?: string;
+    deliveryPhone?: string;
+    deliveryAddress?: string;
 }
+
 
 
 export interface OrderFullResponse {
@@ -223,6 +226,8 @@ export interface OrderFullResponse {
     orderDate: string;
     status: string;
     paymentStatus: string;
+    deliveryPhone?: string | null;
+    deliveryAddress?: string | null;
     userId: number;
     userName: string;
     userEmail: string;
@@ -237,6 +242,7 @@ export interface OrderFullResponse {
         imageUrl?: string | null;
     }[];
 }
+
 
 
 
@@ -441,4 +447,4 @@ export interface OrderSummaryResponse {
 export interface CategoryDropdownProps {
     categories: ICategory[];
     onClose: () => void;
-  }
+}

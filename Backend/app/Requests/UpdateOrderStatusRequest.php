@@ -15,6 +15,8 @@ class UpdateOrderStatusRequest extends FormRequest
     {
         return [
             'status' => 'required|in:PENDING,APPROVED,CANCELLED',
+            'deliveryAddress' => 'nullable|string|max:500',
+            'deliveryPhone' => 'nullable|string|max:20',
         ];
     }
 }

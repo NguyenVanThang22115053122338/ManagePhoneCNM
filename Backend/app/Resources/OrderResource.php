@@ -18,6 +18,10 @@ class OrderResource extends JsonResource
             'status' => $this->Status,
             'paymentStatus' => $this->PaymentStatus,
 
+            // ✅ thông tin giao hàng
+            'deliveryAddress' => $this->DeliveryAddress,
+            'deliveryPhone' => $this->DeliveryPhone,
+
             // ✅ thông tin user
             'userId' => $this->UserID,
             'userName' => $this->whenLoaded('user', fn() => $this->user->FullName ?? null),

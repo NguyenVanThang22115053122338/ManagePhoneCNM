@@ -19,6 +19,10 @@ class OrderService
             'PaymentStatus' => $data['paymentStatus'] ?? 'UNPAID',
             'UserID'        => $data['userID'],
 
+            // thông tin giao hàng
+            'DeliveryAddress' => $data['deliveryAddress'] ?? null,
+            'DeliveryPhone'   => $data['deliveryPhone'] ?? null,
+
             // snapshot mặc định
             'SubTotal'        => 0,
             'DiscountCode'   => null,
@@ -81,6 +85,14 @@ class OrderService
 
         if (isset($data['paymentStatus'])) {
             $order->PaymentStatus = $data['paymentStatus'];
+        }
+
+        if (isset($data['deliveryAddress'])) {
+            $order->DeliveryAddress = $data['deliveryAddress'];
+        }
+
+        if (isset($data['deliveryPhone'])) {
+            $order->DeliveryPhone = $data['deliveryPhone'];
         }
 
         $order->save();
