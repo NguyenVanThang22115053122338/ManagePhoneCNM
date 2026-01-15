@@ -15,9 +15,12 @@ const PLACEHOLDER_IMG =
 
 const ORDER_STATUS_LABEL: Record<string, string> = {
   PENDING: "Chờ xử lý",
-  APPROVED: "Hoàn thành",
+  APPROVED: "Đã duyệt",
+  SHIPPING: "Đang giao",
+  COMPLETED: "Đã giao",
   CANCELLED: "Đã huỷ",
 };
+
 
 const PAYMENT_STATUS_LABEL: Record<string, string> = {
   UNPAID: "Chưa thanh toán",
@@ -29,9 +32,12 @@ const PAYMENT_STATUS_LABEL: Record<string, string> = {
 const STATUS_TABS = [
   { key: "ALL", label: "Tất cả" },
   { key: "PENDING", label: "Chờ xử lý" },
-  { key: "APPROVED", label: "Hoàn Thành" },
+  { key: "APPROVED", label: "Đã duyệt" },
+  { key: "SHIPPING", label: "Đang giao" },
+  { key: "COMPLETED", label: "Đã giao" },
   { key: "CANCELLED", label: "Đã hủy" }
 ];
+
 
 const OrderHistoryPage: React.FC = () => {
   useEffect(() => {
@@ -75,17 +81,22 @@ const OrderHistoryPage: React.FC = () => {
   };
 
   const getStatusClass = (status: string) => {
-    switch (status) {
-      case "APPROVED":
-        return "green";
-      case "PENDING":
-        return "orange";
-      case "CANCELLED":
-        return "red";
-      default:
-        return "gray";
-    }
-  };
+  switch (status) {
+    case "APPROVED":
+      return "green";
+    case "SHIPPING":
+      return "blue";
+    case "COMPLETED":
+      return "darkgreen";
+    case "PENDING":
+      return "orange";
+    case "CANCELLED":
+      return "red";
+    default:
+      return "gray";
+  }
+};
+
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);

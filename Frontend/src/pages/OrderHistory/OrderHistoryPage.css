@@ -459,3 +459,13 @@ body {
   background: #dc2626;
   color: #fff;
 }
+
+.badge.blue {
+  background: #2196f3;
+  color: #fff;
+}
+
+.badge.darkgreen {
+  background: #2e7d32;
+  color: #fff;
+}

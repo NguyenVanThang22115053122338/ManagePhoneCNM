@@ -94,7 +94,7 @@ const OrderPage: React.FC = () => {
         console.error(err);
         alert("Không thể tải đơn hàng");
       } finally {
-        setLoading(false);
+setLoading(false);
       }
     };
 
@@ -153,7 +153,7 @@ const OrderPage: React.FC = () => {
 
     try {
       const res = await paymentService.createPayPalPayment(Number(orderId));
-
+      
       if (res.approvalUrl) {
         window.location.href = res.approvalUrl;
       } else {
@@ -202,8 +202,7 @@ const OrderPage: React.FC = () => {
             <span className="customer-name">{user?.fullName}</span>
             <span className="phone">{user?.sdt}</span>
           </div>
-
-          <div className="delivery-info">
+<div className="delivery-info">
             <div className="info-label">Số điện thoại nhận hàng:</div>
             <input
               type="text"
