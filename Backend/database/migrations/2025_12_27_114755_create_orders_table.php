@@ -13,6 +13,8 @@ return new class extends Migration {
             $table->timestamp('Order_Date');
             $table->string('Status');
             $table->string('PaymentStatus');
+            $table->string('DeliveryAddress')->nullable();
+            $table->string('DeliveryPhone')->nullable();
 
             $table->unsignedBigInteger('UserID');
 

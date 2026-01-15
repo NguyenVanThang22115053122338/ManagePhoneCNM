@@ -13,10 +13,12 @@ class OrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-           'orderDate'    => 'nullable|date',
-            'status'        => 'nullable|string|max:50',
-            'paymentStatus' => 'nullable|string|max:50',
-            'userID'        => 'nullable|exists:user,UserID'
+           'orderDate'       => 'nullable|date',
+            'status'         => 'nullable|string|max:50',
+            'paymentStatus'  => 'nullable|string|max:50',
+            'userID'         => 'nullable|exists:user,UserID',
+            'deliveryAddress'=> 'nullable|string|max:500',
+            'deliveryPhone'  => 'nullable|string|max:20'
         ];
     }
 }
