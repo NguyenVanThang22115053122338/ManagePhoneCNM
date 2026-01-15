@@ -108,8 +108,7 @@ export const getAllUsers = async (): Promise<IUser[]> => {
   return res.data.data;
 };
 
-export const updateUser = async (
-  sdt: string,
+export const updateProfile = async (
   data: {
     fullName?: string;
     email?: string;
@@ -136,17 +135,54 @@ export const updateUser = async (
       formData.append('avatar', avatarFile);
     }
 
-    // debug
-    for (const [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
-    // 🔥 ĐỔI put → post
     const res = await axiosClient.post<UpdateUserResponse>(
-      `/api/user/update`,
+      `/api/user/profile`,
       formData
     );
 
+    return res.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(
+        error.response?.data?.message || 'Cập nhật profile thất bại'
+      );
+    }
+    throw new Error('Cập nhật profile thất bại');
+  }
+};
+
+export const updateUserByAdmin = async (
+  userId: string | number,
+  data: {
+    fullName?: string;
+    email?: string;
+    address?: string;
+  },
+  avatarFile?: File | null
+): Promise<UpdateUserResponse> => {
+  try {
+    const formData = new FormData();
+
+    if (data.fullName !== undefined) {
+      formData.append('fullName', data.fullName.trim());
+    }
+
+    if (data.email !== undefined) {
+      formData.append('email', data.email.trim());
+    }
+
+    if (data.address !== undefined) {
+      formData.append('address', data.address.trim());
+    }
+
+    if (avatarFile) {
+      formData.append('avatar', avatarFile);
+    }
+
+    const res = await axiosClient.post<UpdateUserResponse>(
+      `/api/admin/user/${userId}`,
+      formData
+    );
 
     return res.data;
   } catch (error: unknown) {
@@ -158,7 +194,6 @@ export const updateUser = async (
     throw new Error('Cập nhật người dùng thất bại');
   }
 };
-
 
 export const deleteUser = async (sdt: string): Promise<DeleteUserResponse> => {
   try {
@@ -221,7 +256,8 @@ export const changePassword = async (
 };
 
 export const userService = {
-  updateUser,
+  updateProfile,
+  updateUserByAdmin ,
   updatePhone,
   changePassword,
 };

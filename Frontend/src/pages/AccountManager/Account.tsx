@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Account.css';
 import { useAuth } from '../../context/AuthContext';
 import type { IUser } from '../../services/Interface';
-import { userService } from '../../services/UserService';
+import { updateProfile, userService } from '../../services/UserService';
 import { normalizeUser } from '../../utils/normalizeUser';
 
 const AccountPage: React.FC = () => {
@@ -65,44 +65,37 @@ const AccountPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!userId || !user) return;
-
+    if (!user) return;
+  
     setSaving(true);
     try {
       const dto: any = {};
-
+  
       if (fullName.trim() !== (user.fullName || '')) dto.fullName = fullName.trim();
       if (email.trim() !== (user.email || '')) dto.email = email.trim();
       if (address.trim() !== (user.address || '')) dto.address = address.trim();
-
-      // 1️⃣ update info + avatar
+  
       let updatedUser = user;
-
+  
       if (Object.keys(dto).length > 0 || avatarFile) {
-        const identifier = user.sdt || user.email!;
-        const res = await userService.updateUser(
-          identifier,
-          dto,
-          avatarFile || undefined
-        );
-
+        const res = await updateProfile(dto, avatarFile || undefined);
+  
         const backendUser = res.user ?? res;
         updatedUser = normalizeUser(backendUser);
       }
-
-      // 2️⃣ update phone (google user thêm / user thường đổi)
+  
       if (sdt && sdt !== user.sdt) {
         const phoneRes = await userService.updatePhone(sdt);
         updatedUser = { ...updatedUser, sdt: phoneRes.sdt };
       }
-
+  
       setUser(updatedUser);
       updateUserContext(updatedUser);
-
+  
       setAvatarFile(null);
       alert('Cập nhật thông tin thành công!');
       setIsEditing(false);
-
+  
     } catch (err: any) {
       console.error(err);
       alert(err.message || 'Cập nhật thất bại');
@@ -152,7 +145,6 @@ const AccountPage: React.FC = () => {
         <main className="account-main">
           <h2 className="page-title">Thông tin tài khoản</h2>
 
-          {/* Avatar lớn + upload */}
           <div className="profile-header" style={{ marginBottom: '30px' }}>
             <div
               className="avatar-large"
@@ -187,7 +179,6 @@ const AccountPage: React.FC = () => {
             onChange={handleFileChange}
           />
 
-          {/* Phần form thông tin cá nhân */}
           <div className="info-card change-password">
             <div className="card-header">
               <h3>Thông tin cá nhân</h3>

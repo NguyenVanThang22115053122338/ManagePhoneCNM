@@ -12,6 +12,7 @@ import Shopping_cardPage from "./pages/WishlistPage/WishlistPage";
 import ProductDetail from "./pages/DetailProduct/DetailProductPage";
 import CartPage from "./pages/CartPage/CartPage";
 import OrderHistoryPage from "./pages/OrderHistory/OrderHistoryPage";
+import NotificationsPage from "./components/NotificationDropdown/NotificationDropdown.tsx";
 import OrderPage from "./pages/Order/OrderPage";
 import ProductReviewPage from "./pages/ReviewPage/ProductReviewPage";
 import AboutPage from "./pages/About/AboutPage";
@@ -88,6 +89,7 @@ function App() {
             <Route path="/account" element={<AccountPage />} />
             <Route path="/cartShop" element={<CartPage />} />
             <Route path="/historyOrder" element={<OrderHistoryPage />} />
+            {/* <Route path="/notification" element={<NotificationsPage />} /> */}
             <Route path="/order/:orderId" element={<OrderPage />} />
             <Route path="/Shopping_card" element={<Shopping_cardPage />} />
             <Route path="discount" element={<DiscountsPage />} />
