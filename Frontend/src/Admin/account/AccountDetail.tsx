@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { updateUser } from "../../services/UserService";
+import { updateUserByAdmin } from "../../services/UserService";
 import type { IUser } from "../../services/Interface";
 import styles from "./account_detail.module.css";
 
@@ -18,7 +18,6 @@ const AccountDetail = () => {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Redirect nếu không có account
   useEffect(() => {
     console.log('🔍 Account data from location.state:', account);
     
@@ -35,7 +34,6 @@ const AccountDetail = () => {
       userId: account.userId
     });
     
-    // Set initial values
     setFullName(account.fullName || "");
     setEmail(account.email || "");
     setAddress(account.address || "");
@@ -58,53 +56,51 @@ const AccountDetail = () => {
       alert("Không có thông tin tài khoản");
       return;
     }
-
-    // Validation
+  
     if (!fullName.trim()) {
       alert("Vui lòng nhập họ tên");
       return;
     }
-
+  
     if (!email.trim()) {
       alert("Vui lòng nhập email");
       return;
     }
-
-    // Email validation
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       alert("Email không hợp lệ");
       return;
     }
-
-    // Kiểm tra identifier (SĐT hoặc email)
-    const identifier = (account.sdt || account.email);
-    if (!identifier || identifier.trim() === "") {
-      alert("Không tìm thấy số điện thoại hoặc email của tài khoản");
-      console.error("❌ Identifier is empty:", identifier);
+  
+    // Lấy userId để gọi API admin
+    const userId = account.userId;
+    if (!userId) {
+      alert("Không tìm thấy ID của tài khoản");
+      console.error("❌ userId is missing:", account);
       return;
     }
-
+  
     try {
       setIsLoading(true);
       
-      // Tạo DTO giống như client - chỉ gửi các field thay đổi
       const dto: any = {};
       if (fullName.trim() !== (account.fullName || '')) dto.fullName = fullName.trim();
       if (email.trim() !== (account.email || '')) dto.email = email.trim();
       if (address.trim() !== (account.address || '')) dto.address = address.trim();
-
+  
       console.log('📝 Updating account:', {
-        identifier,
+        userId,
         dto,
         hasAvatar: !!avatarFile,
         avatarFileName: avatarFile?.name
       });
-
-      const res = await updateUser(identifier, dto, avatarFile || undefined);
+  
+      // Gọi API admin với userId
+      const res = await updateUserByAdmin(userId, dto, avatarFile || undefined);
       
       console.log('✅ Update response:', res);
-
+  
       alert("Cập nhật tài khoản thành công!");
       navigate("/admin/manage_account");
     } catch (err: any) {
