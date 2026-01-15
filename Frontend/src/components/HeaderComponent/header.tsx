@@ -101,46 +101,39 @@ const Header = () => {
     loadUnreadCount();
   }, [location.pathname, user]);
 
+  // useEffect(() => {
+  //   const syncUnread = () => loadUnreadCount();
+  //   window.addEventListener("focus", syncUnread);
+  //   window.addEventListener("notification-read", syncUnread);
+  //   const reload = () => loadCartCount();
+  //   window.addEventListener("cart-updated", reload);
+
+  //   return () => {
+  //     window.removeEventListener("cart-updated", reload);
+  //   };
+  // }, [user]);
+
+  const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
+  const avatarUrl = useMemo(() => user?.avatar || "src/assets/img/default-avatar.png", [user]);
+
   useEffect(() => {
-    const syncUnread = () => loadUnreadCount();
-    window.addEventListener("focus", syncUnread);
-    window.addEventListener("notification-read", syncUnread);
+    if (!user) {
+      setCartCount(0);
+      return;
+    }
+
+    loadCartCount();
+
     const reload = () => loadCartCount();
     window.addEventListener("cart-updated", reload);
+    window.addEventListener("focus", reload);
 
     return () => {
       window.removeEventListener("cart-updated", reload);
+      window.removeEventListener("focus", reload);
     };
   }, [user]);
 
-const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
-  const avatarUrl = useMemo(() => user?.avatar || "src/assets/img/default-avatar.png", [user]);
-
-  const syncCartCount = () => {
-    try {
-      const raw = localStorage.getItem("cart_items");
-      const cart = raw ? JSON.parse(raw) : [];
-      const total = cart.reduce((sum: number, item: { quantity?: number }) => sum + (item.quantity || 0), 0);
-      setCartCount(total);
-    } catch (e) {
-      console.error("Sync cart failed", e);
-      setCartCount(0);
-    }
-  };
-
-  useEffect(() => {
-    // Chạy lần đầu khi load trang hoặc khi user thay đổi
-    syncCartCount();
-
-    // Lắng nghe các sự kiện để cập nhật số lượng giỏ hàng tức thì
-    window.addEventListener("cart-updated", syncCartCount);
-    window.addEventListener("focus", syncCartCount);
-
-    return () => {
-      window.removeEventListener("cart-updated", syncCartCount);
-      window.removeEventListener("focus", syncCartCount);
-    };
-  }, [user, location.pathname]); // Gộp thêm dependency từ code của bạn bạn để chắc chắn hơn
 
   // SỬA TẠI ĐÂY: Tải danh mục và tải luôn toàn bộ brands
   useEffect(() => {
@@ -148,15 +141,15 @@ const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
       try {
         const cats = await CategoryService.getCategories();
         setCategories(cats);
-        
+
         if (cats.length > 0) {
           setIsLoadingBrands(true);
-          const brandPromises = cats.map(cat => 
+          const brandPromises = cats.map(cat =>
             CategoryService.getBrandsByCategory(cat.categoryId)
               .then(brands => ({ id: cat.categoryId, brands }))
               .catch(() => ({ id: cat.categoryId, brands: [] }))
           );
-          
+
           const results = await Promise.all(brandPromises);
           const brandMap: Record<number, Brand[]> = {};
           results.forEach(res => {
@@ -403,11 +396,11 @@ const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
               <span>Tất cả danh mục</span>
 
               {showCategoryMenu && (
-                <CategoryDropdown 
-                  categories={categories} 
-                  brandsByCategory={brandsByCategory} 
-                  isLoadingBrands={isLoadingBrands} 
-                  onClose={() => setShowCategoryMenu(false)} 
+                <CategoryDropdown
+                  categories={categories}
+                  brandsByCategory={brandsByCategory}
+                  isLoadingBrands={isLoadingBrands}
+                  onClose={() => setShowCategoryMenu(false)}
                 />
               )}
             </div>

@@ -7,7 +7,7 @@ import orderDetailService from "../../services/OrderDetailService";
 import cartDetailService from "../../services/CartDetailService";
 
 import { useAuth } from "../../context/AuthContext";
-import { normalizeProduct } from "../../adapter/normalizeProduct";
+// import { normalizeProduct } from "../../adapter/normalizeProduct";
 import productService from "../../services/ProductService";
 
 import type { IProduct, CartDetailResponse } from "../../services/Interface";
@@ -148,8 +148,6 @@ const CartPage: React.FC = () => {
     }
   };
 
-
-
   // ================= CONFIRM ORDER =================
   const handleConfirmOrder = async () => {
     if (isPlacingOrder) return;
@@ -210,6 +208,8 @@ const CartPage: React.FC = () => {
 
 
       await cartDetailService.deleteByCartId(cartId);
+
+      localStorage.removeItem("cartId");
       window.dispatchEvent(new Event("cart-updated"));
       setCartItems([]);
       navigate(`/order/${orderId}`);
