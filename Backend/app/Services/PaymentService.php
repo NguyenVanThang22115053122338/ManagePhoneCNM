@@ -4,64 +4,80 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Payment;
+use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
 
 class PaymentService
 {
+    /**
+     * Tạo PayPal payment và trả approval URL
+     */
     public function createPayment(int $orderId): string
     {
-        $order = Order::findOrFail($orderId);
+        return DB::transaction(function () use ($orderId) {
 
-        $details = $order->orderDetails;
-        if ($details->isEmpty()) {
-            throw new \RuntimeException('Order không có sản phẩm');
-        }
+            $order = Order::with('orderDetails.product')
+                ->lockForUpdate()
+                ->findOrFail($orderId);
 
-        $totalVnd = $details->sum(
-            fn($d) =>
-            $d->product->price * $d->Quantity
-        );
+            if ($order->orderDetails->isEmpty()) {
+                throw new \RuntimeException('Order không có sản phẩm');
+            }
 
-        $rate = app(FxRateService::class)->getUsdVndRate();
+            // 🔥 ENSURE SNAPSHOT (KHÔNG TIN FE)
+            if ((float)$order->TotalAmount <= 0) {
+                app(OrderService::class)->applyDiscount($order, null);
+                $order->refresh();
+            }
 
-        if (!$rate || $rate <= 0) {
-            throw new \RuntimeException('FX rate unavailable');
-        }
+            if ((float)$order->TotalAmount <= 0) {
+                throw new \RuntimeException('Order totalAmount không hợp lệ');
+            }
 
-        $totalUsd = round($totalVnd / $rate, 2);
+            $totalVnd = (float) $order->TotalAmount;
 
-        $paypal = app(PayPalService::class)->createOrder(
-            $totalUsd,
-            "USD",
-            "Thanh toán Order #{$orderId}"
-        );
+            $rate = app(FxRateService::class)->getUsdVndRate();
+            if (!$rate || $rate <= 0) {
+                throw new \RuntimeException('FX rate unavailable');
+            }
 
-        $existing = Payment::where('orderId', $orderId)
-            ->whereIn('status', ['CREATED', 'APPROVED'])
-            ->first();
+            $totalUsd = round($totalVnd / $rate, 2);
 
-        if ($existing) {
-            return app(PayPalService::class)->createOrder(
+            $existing = Payment::where('orderId', $orderId)
+                ->whereIn('status', ['CREATED', 'APPROVED'])
+                ->lockForUpdate()
+                ->first();
+
+            if ($existing) {
+                if ((float)$existing->amount !== $totalUsd) {
+                    $existing->update(['status' => 'CANCELLED']);
+                } else {
+                    return app(PayPalService::class)
+                        ->getApproveUrl($existing->paypalOrderId);
+                }
+            }
+
+            $paypal = app(PayPalService::class)->createOrder(
                 $totalUsd,
-                "USD",
+                'USD',
                 "Thanh toán Order #{$orderId}"
-            )['approve_url'];
-        }
+            );
 
+            Payment::create([
+                'orderId'       => $orderId,
+                'paypalOrderId' => $paypal['id'],
+                'amount'        => $totalUsd,
+                'currency'      => 'USD',
+                'status'        => 'CREATED'
+            ]);
 
-        Payment::create([
-            'orderId'        => $orderId,
-            'paypalOrderId'  => $paypal['id'],
-            'amount'         => $totalUsd,
-            'currency'       => 'USD',
-            'status'         => 'CREATED'
-        ]);
-
-        return $paypal['approve_url'];
+            return $paypal['approve_url'];
+        });
     }
 
-
-
+    /**
+     * Capture PayPal payment
+     */
     public function completePayment(string $paypalOrderId): Payment
     {
         return DB::transaction(function () use ($paypalOrderId) {
@@ -74,7 +90,7 @@ class PaymentService
                 return $payment;
             }
 
-            // 🔥 CAPTURE TẠI ĐÂY
+            // 🔥 Capture PayPal
             $capture = app(PayPalService::class)
                 ->captureOrder($paypalOrderId);
 
@@ -86,11 +102,13 @@ class PaymentService
                 throw new \RuntimeException('Missing PayPal capture id');
             }
 
+            // ✅ Update payment
             $payment->update([
                 'paypalCaptureId' => $capture['capture_id'],
                 'status' => 'COMPLETED',
             ]);
 
+            // ✅ Update order
             $payment->order()->update([
                 'PaymentStatus' => 'PAID'
             ]);
@@ -99,18 +117,27 @@ class PaymentService
         });
     }
 
-
+    /**
+     * Cancel payment
+     */
     public function cancelPayment(string $paypalOrderId): void
     {
         Payment::where('paypalOrderId', $paypalOrderId)
+            ->whereIn('status', ['CREATED', 'APPROVED'])
             ->update(['status' => 'CANCELLED']);
     }
 
+    /**
+     * Get payment by order
+     */
     public function getByOrderId(int $orderId): Payment
     {
         return Payment::where('orderId', $orderId)->firstOrFail();
     }
 
+    /**
+     * Get full payment + order
+     */
     public function getFullPayment(int $orderId): array
     {
         return [

@@ -30,7 +30,7 @@ use App\Http\Controllers\Api\DiscountController;
 
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/login', [UserController::class, 'login']);
-Route::get('/paypal/return', [PaymentController::class, 'return']);
+Route::get('/paypal/return', [PaymentController::class, 'paypalReturn']);
 Route::get('/paypal/cancel', [PaymentController::class, 'cancel']);
 Route::post('/user/login-google', [UserController::class, 'loginWithGoogle']);
 Route::post('/user/verify-email', [UserController::class, 'verifyEmail']);
@@ -52,7 +52,7 @@ Route::middleware(['jwt'])->group(function () {
 
     // ===== USER INFO =====
     Route::get('/user/me', [UserController::class, 'me']);
-    Route::post('/user/{sdt}', [UserController::class, 'updateUser']);
+    Route::post('/user/update', [UserController::class, 'updateUser']);
     Route::delete('/user/{sdt}', [UserController::class, 'deleteUser']);
     Route::post('/users', [UserController::class, 'createUser']);
     // ===== PRODUCT (USER + ADMIN: CHỈ XEM) =====
@@ -87,7 +87,11 @@ Route::middleware(['jwt'])->group(function () {
 
     Route::post('/orders/{orderId}/apply-discount', [OrderController::class, 'applyDiscount']);
 
+    Route::post('/user/change-password', [UserController::class, 'changePassword'])
+        ->middleware('jwt');
 
+    Route::post('/user/update-phone', [UserController::class, 'updatePhone'])
+        ->middleware('jwt');
 
 
     // ===== IMAGE UPLOAD (USER + ADMIN) =====
@@ -106,7 +110,7 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::get('/notifications/user/{id}', [NotificationController::class, 'getByUser']);
     Route::get('/notifications/role/{role}', [NotificationController::class, 'getByRole']);
-    
+
     // ===== MARK NOTIFICATION AS READ =====
     Route::put('/notifications/{notificationId}/read/{userId}', [NotificationController::class, 'markAsRead']);
     Route::put('/notifications/read-all/{userId}', [NotificationController::class, 'markAllAsRead']);

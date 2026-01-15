@@ -37,18 +37,31 @@ class PaymentController extends Controller
         );
     }
 
-public function return()
+public function paypalReturn()
 {
-    $paypalOrderId = request('token'); // token chính là order_id của PayPal
+    $paypalOrderId = request('token');
 
     if (!$paypalOrderId) {
-        abort(400, 'Missing PayPal order id');
+        return redirect(env('FE_BASE_URL') . '/?payment=failed');
     }
 
-    $payment = $this->service->completePayment($paypalOrderId);
+    try {
+        $payment = $this->service->completePayment($paypalOrderId);
 
-    return redirect(env('FE_BASE_URL') . '/payment/success');
+        return redirect(
+            env('FE_BASE_URL')
+            . '/?payment=success&orderId=' . $payment->orderId
+        );
+    } catch (\Throwable $e) {
+        logger()->error('PayPal return error', [
+            'error' => $e->getMessage(),
+            'token' => $paypalOrderId
+        ]);
+
+        return redirect(env('FE_BASE_URL') . '/?payment=failed');
+    }
 }
+
 
 
     public function cancel()
