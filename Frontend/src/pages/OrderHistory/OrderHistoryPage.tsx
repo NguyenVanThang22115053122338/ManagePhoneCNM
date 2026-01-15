@@ -254,7 +254,7 @@ const OrderHistoryPage: React.FC = () => {
                         className="review-btn header-review-btn"
                         onClick={() =>
                           navigate(
-                            `/product/${selectedOrder.products?.[0]?.productID}/reviews?orderId=${selectedOrder.orderId}`
+                            `/product-detail/${selectedOrder.products?.[0]?.productID}`
                           )
                         }
                       >
