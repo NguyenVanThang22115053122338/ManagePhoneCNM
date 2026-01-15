@@ -1,3 +1,5 @@
+// Header.tsx - Phần sửa đổi
+
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { UserCog, ShoppingCart, History, LogOut, Bell, Search, BadgePercent } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -7,12 +9,12 @@ import productService from "../../services/ProductService";
 import type { ICategory, IProduct, Brand } from "../../services/Interface";
 import { notificationService } from "../../services/NotificationService";
 import CategoryDropdown from '../CategoryDropdown/CategoryDropdown';
+import NotificationDropdown from '../NotificationDropdown/NotificationDropdown';// Component mới
 import './header.css';
 import Logo from "../../assets/img/logo.png";
 import cartDetailService from "../../services/CartDetailService";
 import cartService from '../../services/CartService';
 import type { CartDetailResponse } from "../../services/Interface";
-
 
 const Header = () => {
   const navigate = useNavigate();
@@ -32,6 +34,12 @@ const Header = () => {
 
   const [cartCount, setCartCount] = useState(0);
   const [unreadCount, setUnreadCount] = useState(0);
+  
+  // THÊM STATE MỚI CHO NOTIFICATION DROPDOWN
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationBtnRef = useRef<HTMLButtonElement>(null);
+
+  // ... (giữ nguyên các hàm loadUnreadCount, loadCartCount)
 
   const loadUnreadCount = async () => {
     if (!user?.userId) {
@@ -47,7 +55,6 @@ const Header = () => {
 
       const buildBaseKey = (n: any) => `${n.notificationType}|${n.title}|${n.content}`;
       const unread = data.filter(n => !readKeys.includes(buildBaseKey(n))).length;
-
 
       setUnreadCount(unread);
     } catch (err) {
@@ -88,7 +95,6 @@ const Header = () => {
         )
       ).size;
 
-
       setCartCount(uniqueProductCount);
     } catch (err) {
       console.error("Load cart count failed", err);
@@ -96,22 +102,19 @@ const Header = () => {
     }
   };
 
-
+  // THÊM EFFECT ĐỂ CẬP NHẬT UNREAD COUNT KHI ĐỌC THÔNG BÁO
   useEffect(() => {
     loadUnreadCount();
+    
+    const handleNotificationRead = () => loadUnreadCount();
+    window.addEventListener("notification-read", handleNotificationRead);
+    
+    return () => {
+      window.removeEventListener("notification-read", handleNotificationRead);
+    };
   }, [location.pathname, user]);
 
-  // useEffect(() => {
-  //   const syncUnread = () => loadUnreadCount();
-  //   window.addEventListener("focus", syncUnread);
-  //   window.addEventListener("notification-read", syncUnread);
-  //   const reload = () => loadCartCount();
-  //   window.addEventListener("cart-updated", reload);
-
-  //   return () => {
-  //     window.removeEventListener("cart-updated", reload);
-  //   };
-  // }, [user]);
+  // ... (giữ nguyên các useEffect và hàm khác)
 
   const displayName = useMemo(() => user?.fullName || "Người dùng", [user]);
   const avatarUrl = useMemo(() => user?.avatar || "src/assets/img/default-avatar.png", [user]);
@@ -134,8 +137,6 @@ const Header = () => {
     };
   }, [user]);
 
-
-  // SỬA TẠI ĐÂY: Tải danh mục và tải luôn toàn bộ brands
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -317,7 +318,13 @@ const Header = () => {
             </div>
 
             <div className="header-actions">
-              <button className="action-btn" title="Thông báo" onClick={() => navigate('/notification')}>
+              {/* THAY ĐỔI BUTTON THÔNG BÁO */}
+              <button 
+                ref={notificationBtnRef}
+                className="action-btn" 
+                title="Thông báo" 
+                onClick={() => setShowNotifications(!showNotifications)}
+              >
                 <Bell size={20} />
                 {unreadCount > 0 && <span className="action-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>}
               </button>
@@ -414,6 +421,16 @@ const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* THÊM NOTIFICATION DROPDOWN */}
+      {user && (
+        <NotificationDropdown
+          userId={user.userId}
+          isOpen={showNotifications}
+          onClose={() => setShowNotifications(false)}
+          anchorRef={notificationBtnRef}
+        />
+      )}
     </header>
   );
 };
