@@ -444,81 +444,80 @@ export interface OrderSummaryResponse {
 export interface CategoryDropdownProps {
     categories: ICategory[];
     onClose: () => void;
-  }
+}
 
-  export interface OrderStatisticItem {
-  year: number;
-  month: number;
-  day?: number | null;
-  totalOrders: number;
-  revenue: number;
+export interface OrderStatisticItem {
+    year: number;
+    month: number;
+    day?: number | null;
+    totalOrders: number;
+    revenue: number;
 }
 
 export interface OrderStatusStatistic {
-  availableYears: number[];
-  selectedYear?: number | null;
-  selectedMonth?: number | null;
-  selectedDay?: number | null;
-  totalOrders: number;
-  completedOrders: number;
-  cancelledOrders: number;
+    availableYears: number[];
+    selectedYear?: number | null;
+    selectedMonth?: number | null;
+    selectedDay?: number | null;
+    totalOrders: number;
+    completedOrders: number;
+    cancelledOrders: number;
 }
 
 export interface InventoryStatisticResponse {
-  availableYears: number[];
-  selectedYear: number | null;
-  selectedMonth: number | null;
-  selectedDay: number | null;
-  items: InventoryStatisticItem[];
+    availableYears: number[];
+    selectedYear: number | null;
+    selectedMonth: number | null;
+    selectedDay: number | null;
+    items: InventoryStatisticItem[];
 }
 
 export interface InventoryStatisticItem {
-  product: {
-    productId: number;
-    productName: string;
-    imageUrl?: string;
-    quantity: number;
-  };
-  supplier: {
-    supplierName?: string | null;
-  };
-  batch: {
-    batchId: number;
-    expiryDate?: string | null;
-  };
+    product: {
+        productId: number;
+        productName: string;
+        imageUrl?: string;
+        quantity: number;
+    };
+    supplier: {
+        supplierName?: string | null;
+    };
+    batch: {
+        batchId: number;
+        expiryDate?: string | null;
+    };
 }
 
 export interface InventoryStatisticResponse {
-  availableYears: number[];
-  selectedYear: number | null;
-  selectedMonth: number | null;
-  selectedDay: number | null;
-  items: InventoryStatisticItem[];
+    availableYears: number[];
+    selectedYear: number | null;
+    selectedMonth: number | null;
+    selectedDay: number | null;
+    items: InventoryStatisticItem[];
 }
 
 export type StatisticMode = "YEAR" | "MONTH" | "DAY";
 
 export interface YearStatisticItem {
-  month: number;
-  totalOrders: number;
-  revenue: number;
+    month: number;
+    totalOrders: number;
+    revenue: number;
 }
 
 export interface MonthStatisticItem {
-  day: number;
-  totalOrders: number;
-  revenue: number;
+    day: number;
+    totalOrders: number;
+    revenue: number;
 }
 
 export interface SalesAndQuantityResponse {
-  mode: StatisticMode;
-  year?: number;
-  month?: number;
-  data?: YearStatisticItem[] | MonthStatisticItem[];
-  tongDoanhThu?: number;
-  tongDonHang?: number;
-  totalOrders?: number;
-  revenue?: number;
-  years?: number[];
-}
+    mode: StatisticMode;
+    year?: number;
+    month?: number;
+    data?: YearStatisticItem[] | MonthStatisticItem[];
+    tongDoanhThu?: number;
+    tongDonHang?: number;
+    totalOrders?: number;
+    revenue?: number;
+    years?: number[];
 }
