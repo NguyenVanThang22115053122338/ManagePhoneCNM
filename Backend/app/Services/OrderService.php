@@ -36,33 +36,33 @@ class OrderService
     /* ================= GET ================= */
 
     public function getById(int $id): Order
-{
-    $order = Order::with(['user', 'orderDetails.product'])->findOrFail($id);
+    {
+        $order = Order::with(['user', 'orderDetails.product'])->findOrFail($id);
 
-    if ((float) $order->SubTotal === 0.0) {
-        $this->applyDiscount($order, null);
-        $order->refresh();
-    }
-
-    return $order;
-}
-
-    public function getByUser(int $userId)
-{
-    $orders = Order::with(['orderDetails.product'])
-        ->where('UserID', $userId)
-        ->orderByDesc('Order_Date')
-        ->get();
-
-    foreach ($orders as $order) {
         if ((float) $order->SubTotal === 0.0) {
-            $this->applyDiscount($order, null); // tính snapshot
+            $this->applyDiscount($order, null);
             $order->refresh();
         }
+
+        return $order;
     }
 
-    return $orders;
-}
+    public function getByUser(int $userId)
+    {
+        $orders = Order::with(['orderDetails.product'])
+            ->where('UserID', $userId)
+            ->orderByDesc('Order_Date')
+            ->get();
+
+        foreach ($orders as $order) {
+            if ((float) $order->SubTotal === 0.0) {
+                $this->applyDiscount($order, null); // tính snapshot
+                $order->refresh();
+            }
+        }
+
+        return $orders;
+    }
 
 
 
@@ -203,51 +203,128 @@ class OrderService
 
     /* ================= STATISTIC ================= */
 
-    public function getDoanhThuDonHang(int $year): array
-    {
+    public function getDoanhThuDonHang(
+    ?int $year,
+    ?int $month = null,
+    ?int $day = null
+): array {
+
+    if (!$year) {
+        throw new \InvalidArgumentException('Year is required');
+    }
+
+    // ===== MODE: NGÀY =====
+    if ($month && $day) {
+        $date = sprintf('%04d-%02d-%02d', $year, $month, $day);
+
+        $row = DB::table('order')
+            ->whereDate('Order_Date', $date)
+            ->selectRaw('
+                COUNT(*) as totalOrders,
+                SUM(TotalAmount) as revenue
+            ')
+            ->first();
+
         return [
-            'data'         => $this->getMonthlyRevenue($year),
-            'tongDoanhThu' => $this->getTotalRevenue($year)['tongDoanhThu'],
-            'tongDonHang'  => $this->getTotalRevenue($year)['tongDonHang'],
-            'years'        => $this->getAvailableYears(),
+            'mode' => 'DAY',
+            'date' => $date,
+            'totalOrders' => (int)($row->totalOrders ?? 0),
+            'revenue' => (float)($row->revenue ?? 0)
         ];
     }
+
+    // ===== MODE: THÁNG =====
+    if ($month) {
+        $data = DB::table('order')
+            ->selectRaw('
+                DAY(Order_Date) as day,
+                COUNT(*) as totalOrders,
+                SUM(TotalAmount) as revenue
+            ')
+            ->whereYear('Order_Date', $year)
+            ->whereMonth('Order_Date', $month)
+            ->groupByRaw('DAY(Order_Date)')
+            ->orderBy('day')
+            ->get();
+
+        return [
+            'mode' => 'MONTH',
+            'year' => $year,
+            'month' => $month,
+            'data' => $data,
+            'tongDoanhThu' => (float)$data->sum('revenue'),
+            'tongDonHang' => (int)$data->sum('totalOrders')
+        ];
+    }
+
+    // ===== MODE: NĂM =====
+    $data = DB::table('order')
+        ->selectRaw('
+            MONTH(Order_Date) as month,
+            COUNT(*) as totalOrders,
+            SUM(TotalAmount) as revenue
+        ')
+        ->whereYear('Order_Date', $year)
+        ->groupByRaw('MONTH(Order_Date)')
+        ->orderBy('month')
+        ->get();
+
+    return [
+        'mode' => 'YEAR',
+        'year' => $year,
+        'data' => $data,
+        'tongDoanhThu' => (float)$data->sum('revenue'),
+        'tongDonHang' => (int)$data->sum('totalOrders'),
+        'years' => $this->getAvailableYears()
+    ];
+}
+
 
     private function getMonthlyRevenue(int $year)
     {
         return DB::table('order')
             ->selectRaw('
-                MONTH(Order_Date) as thang,
-                COUNT(*) as soLuong,
-                SUM(TotalAmount) as doanhThu
-            ')
+            MONTH(Order_Date) as thang,
+            COUNT(*) as soLuong,
+            SUM(COALESCE(TotalAmount, 0)) as doanhThu
+        ')
             ->whereYear('Order_Date', $year)
             ->groupByRaw('MONTH(Order_Date)')
             ->orderBy('thang')
-            ->get();
+            ->get()
+            ->map(fn($row) => [
+                'thang'    => (int) $row->thang,
+                'soLuong' => (int) $row->soLuong,
+                'doanhThu' => (float) $row->doanhThu,
+            ]);
     }
+
 
     private function getTotalRevenue(int $year): array
     {
         $total = DB::table('order')
-            ->whereYear('Order_Date', $year)
-            ->selectRaw('
-                COUNT(*) as tongDonHang,
-                SUM(TotalAmount) as tongDoanhThu
-            ')
-            ->first();
+    ->whereYear('Order_Date', $year)
+    ->selectRaw('
+        COUNT(*) as tongDonHang,
+        COALESCE(SUM(TotalAmount), 0) as tongDoanhThu
+    ')
+    ->first();
 
-        return [
-            'tongDoanhThu' => (float) ($total->tongDoanhThu ?? 0),
-            'tongDonHang'  => (int) ($total->tongDonHang ?? 0),
-        ];
+return [
+    'tongDoanhThu' => (float) ($total->tongDoanhThu ?? 0),
+    'tongDonHang'  => (int) ($total->tongDonHang ?? 0),
+];
+
     }
+
 
     private function getAvailableYears()
     {
         return DB::table('order')
-            ->selectRaw('DISTINCT YEAR(Order_Date) as year')
-            ->orderByDesc('year')
-            ->pluck('year');
+    ->whereNotNull('Order_Date')
+    ->selectRaw('DISTINCT YEAR(Order_Date) as year')
+    ->orderByDesc('year')
+    ->pluck('year');
+
     }
 }
