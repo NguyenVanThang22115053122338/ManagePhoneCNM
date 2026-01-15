@@ -22,6 +22,10 @@ class Order extends Model
         'PaymentStatus',
         'UserID',
 
+        /* ===== DELIVERY INFO ===== */
+        'DeliveryAddress',  // địa chỉ giao hàng
+        'DeliveryPhone',    // số điện thoại nhận hàng
+
         /* ===== DISCOUNT SNAPSHOT ===== */
         'DiscountCode',     // VD: NEWYEAR2026
         'DiscountType',     // PERCENT | FIXED
