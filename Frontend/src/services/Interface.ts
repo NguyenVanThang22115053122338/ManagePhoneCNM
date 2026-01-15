@@ -200,8 +200,14 @@ export interface Notification {
     content: string;           // message thực tế
     isRead: boolean;
     // createdAt có thể có hoặc không, tùy backend trả về
-    // createdAt?: string;
+    createdAt?: string;
 }
+export interface NotificationDropdownProps {
+    userId: number;
+    isOpen: boolean;
+    onClose: () => void;
+    anchorRef: React.RefObject<HTMLElement | null>;
+  }
 export interface OrderProduct {
     productID: number;
     name: string;
