@@ -256,6 +256,47 @@ body {
   color: #475569;
 }
 
+/* ================= DELIVERY INFO ================= */
+.ohp-delivery-info {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border-left: 4px solid #2563eb;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.ohp-delivery-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 12px 0;
+}
+
+.delivery-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.delivery-row:last-child {
+  margin-bottom: 0;
+}
+
+.delivery-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  min-width: 140px;
+}
+
+.delivery-value {
+  font-size: 14px;
+  color: #0f172a;
+  font-weight: 500;
+}
+
+
 /* ================= PRODUCTS ================= */
 .ohp-products {
   display: flex;

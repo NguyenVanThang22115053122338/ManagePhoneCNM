@@ -254,7 +254,7 @@ const OrderHistoryPage: React.FC = () => {
                         className="review-btn header-review-btn"
                         onClick={() =>
                           navigate(
-                            `/product/${selectedOrder.products?.[0]?.productID}/reviews?orderId=${selectedOrder.orderId}`
+                            `/product-detail/${selectedOrder.products?.[0]?.productID}`
                           )
                         }
                       >
@@ -275,6 +275,25 @@ const OrderHistoryPage: React.FC = () => {
                     </span>
 
                   </div>
+
+                  {/* 🚀 NEW: Delivery Information */}
+                  {(selectedOrder.deliveryPhone || selectedOrder.deliveryAddress) && (
+                    <div className="ohp-delivery-info">
+                      <h3>Thông tin giao hàng</h3>
+                      {selectedOrder.deliveryPhone && (
+                        <div className="delivery-row">
+                          <span className="delivery-label">📞 Số điện thoại:</span>
+                          <span className="delivery-value">{selectedOrder.deliveryPhone}</span>
+                        </div>
+                      )}
+                      {selectedOrder.deliveryAddress && (
+                        <div className="delivery-row">
+                          <span className="delivery-label">📍 Địa chỉ:</span>
+                          <span className="delivery-value">{selectedOrder.deliveryAddress}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="ohp-products">
                     {safeArray(selectedOrder.products).map(p => (
