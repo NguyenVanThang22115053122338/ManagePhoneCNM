@@ -209,7 +209,6 @@ const CartPage: React.FC = () => {
 
       await cartDetailService.deleteByCartId(cartId);
 
-      localStorage.removeItem("cartId");
       window.dispatchEvent(new Event("cart-updated"));
       setCartItems([]);
       navigate(`/order/${orderId}`);
