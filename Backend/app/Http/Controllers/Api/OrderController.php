@@ -83,13 +83,31 @@ class OrderController extends Controller
     }
 
     public function doanhThu(Request $request)
-    {
-        $year = (int) $request->query('year', now()->year);
+{
+    try {
+        $year  = $request->query('year');
+        $month = $request->query('month');
+        $day   = $request->query('day');
 
-        $result = $this->orderService->getDoanhThuDonHang($year);
-
-        return new DoanhThuDonHangResource($result);
+        return response()->json(
+            $this->orderService->getDoanhThuDonHang(
+                $year ? (int)$year : null,
+                $month ? (int)$month : null,
+                $day ? (int)$day : null
+            )
+        );
+    } catch (\Throwable $e) {
+        return response()->json([
+            'message' => 'Statistic error',
+            'error'   => $e->getMessage(),
+            'file'    => $e->getFile(),
+            'line'    => $e->getLine(),
+        ], 500);
     }
+}
+
+
+
 
     public function applyDiscount(Request $request, int $orderId)
     {
