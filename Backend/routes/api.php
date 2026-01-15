@@ -123,6 +123,9 @@ Route::middleware(['jwt'])->group(function () {
     Route::get('/order/user/{userId}', [OrderController::class, 'byUser']);
     Route::put('/order/{id}', [OrderController::class, 'update']);
     Route::delete('/order/{id}', [OrderController::class, 'destroy']);
+    Route::get('/order/doanh-thu', [OrderController::class, 'doanhThu']);
+    Route::get('/order/{id}', [OrderController::class, 'show'])
+        ->whereNumber('id');
     Route::get('/order/check/{userId}/{productId}', [OrderController::class, 'checkUserPurchased']);
 
 
@@ -164,7 +167,7 @@ Route::middleware(['jwt'])->group(function () {
     */
     Route::middleware(['role:ADMIN'])->group(function () {
 
-        Route::get('/doanh-thu', [OrderController::class, 'doanhThu']);
+
 
         // ===== NOTIFICATIONS (CRUD) =====
         Route::post('/notifications', [NotificationController::class, 'store']);

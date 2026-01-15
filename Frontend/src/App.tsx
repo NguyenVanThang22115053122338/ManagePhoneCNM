@@ -138,8 +138,9 @@ function App() {
 
           <Route
             path="sales_and_quantity"
-            element={<Sales_And_Quantity data={[]} danhSachNam={[]} tongDoanhThu={0} tongDonHang={0} />}
+            element={<Sales_And_Quantity />}
           />
+          {/* <Route path="/Admin/sales_and_quantity" element={<Sales_And_Quantity />} /> */}
           <Route path="product_value_over_time" element={<ProductValueOverTime />} />
           <Route path="product_quantity_by_supplier" element={<ProductQuantityBySupplier model={[]} />} />
           <Route path="inventory_quantity" element={<InventoryQuantity model={[]} danhSachNam={[]} />} />

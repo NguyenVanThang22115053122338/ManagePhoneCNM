@@ -3,14 +3,14 @@ import type { SalesAndQuantityResponse } from "./Interface";
 import type { OrderStatusStatistic } from "./Interface";
 import type { InventoryStatisticResponse } from "./Interface";
 
-export const StatisticService = {
+const StatisticService = {
   async getSalesAndQuantity(params: {
     year: number;
     month?: number;
     day?: number;
   }): Promise<SalesAndQuantityResponse> {
     const res = await axiosClient.get<SalesAndQuantityResponse>(
-      "/api/doanh-thu",
+      "/api/order/doanh-thu",
       {
         params: {
           year: params.year,
@@ -61,3 +61,5 @@ export const StatisticService = {
     return res.data;
   }
 };
+
+export default StatisticService;
