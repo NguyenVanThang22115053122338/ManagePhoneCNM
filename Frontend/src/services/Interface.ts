@@ -379,29 +379,29 @@ export interface MonthlyOrderStatistic {
 //     cancelledOrders: number;
 // }
 
-// export interface InventoryStatisticResponse {
-//     availableYears: number[];
-//     selectedYear: number | null;
-//     selectedMonth: number | null;
-//     selectedDay: number | null;
-//     items: InventoryStatisticItem[];
-// }
+export interface InventoryStatisticResponse {
+    availableYears: number[];
+    selectedYear: number | null;
+    selectedMonth: number | null;
+    selectedDay: number | null;
+    items: InventoryStatisticItem[];
+}
 
-// export interface InventoryStatisticItem {
-//     product: {
-//         productId: number;
-//         productName: string;
-//         imageUrl?: string;
-//         quantity: number;
-//     };
-//     supplier: {
-//         supplierName?: string | null;
-//     };
-//     batch: {
-//         batchId: number;
-//         expiryDate?: string | null;
-//     };
-// }
+export interface InventoryStatisticItem {
+    product: {
+        productId: number;
+        productName: string;
+        imageUrl?: string;
+        quantity: number;
+    };
+    supplier: {
+        supplierName?: string | null;
+    };
+    batch: {
+        batchId: number;
+        expiryDate?: string | null;
+    };
+}
 
 export interface Discount {
     id?: number;
@@ -471,37 +471,37 @@ export interface OrderStatusStatistic {
 //   selectedDay: number | null;
 //   items: InventoryStatisticItem[];
 // }
-export interface InventoryStatisticResponse {
-    availableYears: number[];
-    selectedYear: number | null;
-    selectedMonth: number | null;
-    selectedDay: number | null;
-    items: InventoryStatisticItem[];
-}
+// export interface InventoryStatisticResponse {
+//     availableYears: number[];
+//     selectedYear: number | null;
+//     selectedMonth: number | null;
+//     selectedDay: number | null;
+//     items: InventoryStatisticItem[];
+// }
 
-export interface InventoryStatisticItem {
-    product: {
-        productId: number;
-        productName: string;
-        imageUrl?: string;
-        quantity: number;
-    };
-    supplier: {
-        supplierName?: string | null;
-    };
-    batch: {
-        batchId: number;
-        expiryDate?: string | null;
-    };
-}
+// export interface InventoryStatisticItem {
+//     product: {
+//         productId: number;
+//         productName: string;
+//         imageUrl?: string;
+//         quantity: number;
+//     };
+//     supplier: {
+//         supplierName?: string | null;
+//     };
+//     batch: {
+//         batchId: number;
+//         expiryDate?: string | null;
+//     };
+// }
 
-export interface InventoryStatisticResponse {
-    availableYears: number[];
-    selectedYear: number | null;
-    selectedMonth: number | null;
-    selectedDay: number | null;
-    items: InventoryStatisticItem[];
-}
+// export interface InventoryStatisticResponse {
+//     availableYears: number[];
+//     selectedYear: number | null;
+//     selectedMonth: number | null;
+//     selectedDay: number | null;
+//     items: InventoryStatisticItem[];
+// }
 
 export type StatisticMode = "YEAR" | "MONTH" | "DAY";
 
@@ -529,13 +529,4 @@ export interface SalesAndQuantityResponse {
   years?: number[];
 }
 
-    mode: StatisticMode;
-    year?: number;
-    month?: number;
-    data?: YearStatisticItem[] | MonthStatisticItem[];
-    tongDoanhThu?: number;
-    tongDonHang?: number;
-    totalOrders?: number;
-    revenue?: number;
-    years?: number[];
-}
+
