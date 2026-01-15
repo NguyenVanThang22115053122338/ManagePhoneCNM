@@ -20,12 +20,27 @@ interface OrderSummary {
   totalAmount: number;
 }
 
+interface OrderData {
+  orderID: number;
+  orderDate: string;
+  status: string;
+  paymentStatus?: string;
+  deliveryPhone?: string;
+  deliveryAddress?: string;
+  userID?: number;
+}
+
 const OrderPage: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const { user } = useAuth();
 
   const [orderDetails, setOrderDetails] = useState<OrderDetailItem[]>([]);
   const [orderSummary, setOrderSummary] = useState<OrderSummary | null>(null);
+  const [order, setOrder] = useState<OrderData | null>(null);
+
+  const [deliveryPhone, setDeliveryPhone] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const [discountCode, setDiscountCode] = useState("");
   const [applying, setApplying] = useState(false);
@@ -39,8 +54,13 @@ const OrderPage: React.FC = () => {
       try {
         setLoading(true);
 
-        // 1️⃣ Lấy order snapshot (lúc này SubTotal có thể = 0)
-        const order = await orderService.getById(Number(orderId));
+        // 1️⃣ Lấy order snapshot
+        const orderData = await orderService.getById(Number(orderId));
+        setOrder(orderData);
+
+        // Khởi tạo delivery info từ order
+        setDeliveryPhone(orderData.deliveryPhone || "");
+        setDeliveryAddress(orderData.deliveryAddress || "");
 
         // 2️⃣ Lấy order details + product
         const details = await orderDetailService.getByOrderId(Number(orderId));
@@ -106,6 +126,27 @@ const OrderPage: React.FC = () => {
     }
   };
 
+  /* ================= UPDATE DELIVERY INFO ================= */
+  const updateDeliveryInfo = async () => {
+    if (!orderId) return;
+
+    try {
+      setIsUpdating(true);
+
+      await orderService.update(Number(orderId), {
+        deliveryPhone,
+        deliveryAddress,
+      });
+
+      alert("Cập nhật thông tin giao hàng thành công!");
+    } catch (err) {
+      console.error(err);
+      alert("Không thể cập nhật thông tin giao hàng");
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   /* ================= PAYPAL ================= */
   const handlePayPalPayment = async () => {
     if (!orderId) return;
@@ -161,6 +202,37 @@ const OrderPage: React.FC = () => {
             <span className="customer-name">{user?.fullName}</span>
             <span className="phone">{user?.sdt}</span>
           </div>
+
+          <div className="delivery-info">
+            <div className="info-label">Số điện thoại nhận hàng:</div>
+            <input
+              type="text"
+              className="delivery-input"
+              value={deliveryPhone}
+              onChange={(e) => setDeliveryPhone(e.target.value)}
+              placeholder="Nhập số điện thoại nhận hàng"
+            />
+          </div>
+
+          <div className="delivery-info">
+            <div className="info-label">Địa chỉ giao hàng:</div>
+            <input
+              type="text"
+              className="delivery-input"
+              value={deliveryAddress}
+              onChange={(e) => setDeliveryAddress(e.target.value)}
+              placeholder="Nhập địa chỉ giao hàng"
+            />
+          </div>
+
+          <button
+            className="update-delivery-btn"
+            onClick={updateDeliveryInfo}
+            disabled={isUpdating || !deliveryPhone || !deliveryAddress}
+          >
+            {isUpdating ? "Đang cập nhật..." : "Cập nhật thông tin giao hàng"}
+          </button>
+
           <div className="email-label">EMAIL</div>
           <div className="email">{user?.email}</div>
         </div>
