@@ -277,9 +277,12 @@ export interface OrderResponse {
     orderID: number;
     orderDate: string;
     status: string;
+    paymentStatus?: string;
     paymentMethod?: string;
     userID?: number;
     note?: string;
+    deliveryPhone?: string;
+    deliveryAddress?: string;
 }
 
 export interface ISupplier {
