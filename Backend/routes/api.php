@@ -53,7 +53,8 @@ Route::middleware(['jwt'])->group(function () {
 
     // ===== USER INFO =====
     Route::get('/user/me', [UserController::class, 'me']);
-    Route::post('/user/update', [UserController::class, 'updateUser']);
+    Route::post('/user/profile', [UserController::class, 'updateProfile']);
+    Route::post('/admin/user/{userId}', [UserController::class, 'updateUser']);
     Route::delete('/user/{sdt}', [UserController::class, 'deleteUser']);
     Route::post('/users', [UserController::class, 'createUser']);
     // ===== PRODUCT (USER + ADMIN: CHỈ XEM) =====

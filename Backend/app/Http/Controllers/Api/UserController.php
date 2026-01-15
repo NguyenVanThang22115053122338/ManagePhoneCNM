@@ -154,7 +154,7 @@ class UserController extends Controller
     }
 
     //User
-    public function updateUser(UpdateUserRequest $req)
+    public function updateUser(UpdateUserRequest $req, $userId)
     {
         try {
             $data = $req->validated();
@@ -167,13 +167,37 @@ class UserController extends Controller
                 $data['avatar'] = $uploadResult['url'];
             }
 
-            // 🔥 LẤY USER TỪ JWT – KHÔNG DÙNG $sdt NỮA
+            // Admin update user theo userId
+            $user = User::findOrFail($userId);
+            $result = $this->userService->updateUser($user, $data);
+
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+    public function updateProfile(UpdateUserRequest $req)
+    {
+        try {
+            $data = $req->validated();
+
+            if ($req->hasFile('avatar')) {
+                $uploadResult = $this->cloudinaryService->uploadImage(
+                    $req->file('avatar'),
+                    'avatars'
+                );
+                $data['avatar'] = $uploadResult['url'];
+            }
+
+            // Lấy user từ JWT (chính họ)
             $jwtUser = $req->attributes->get('jwt_user');
             $user = User::where('Email', $jwtUser->sub)
                 ->orWhere('SDT', $jwtUser->sub)
                 ->firstOrFail();
 
-            $result = $this->userService->updateUserByJwt($user, $data);
+            $result = $this->userService->updateUser($user, $data);
 
             return response()->json($result, 200);
         } catch (\Exception $e) {

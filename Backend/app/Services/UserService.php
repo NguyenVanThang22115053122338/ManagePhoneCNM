@@ -159,42 +159,41 @@ class UserService
     }
 
     //User
-    public function updateUserByJwt(User $user, array $data)
-{
-    $updateData = [];
+    public function updateUser(User $user, array $data)
+    {
+        $updateData = [];
 
-    if (array_key_exists('fullName', $data)) {
-        $updateData['FullName'] = $data['fullName'];
-    }
-
-    if (array_key_exists('email', $data)) {
-        // check trùng email
-        $exists = User::where('Email', $data['email'])
-            ->where('UserID', '!=', $user->UserID)
-            ->exists();
-        if ($exists) {
-            throw new \Exception('Email đã tồn tại');
+        if (array_key_exists('fullName', $data)) {
+            $updateData['FullName'] = $data['fullName'];
         }
-        $updateData['Email'] = $data['email'];
-    }
 
-    if (array_key_exists('address', $data)) {
-        $updateData['Address'] = $data['address'];
-    }
+        if (array_key_exists('email', $data)) {
+            $exists = User::where('Email', $data['email'])
+                ->where('UserID', '!=', $user->UserID)
+                ->exists();
+            if ($exists) {
+                throw new \Exception('Email đã tồn tại');
+            }
+            $updateData['Email'] = $data['email'];
+        }
 
-    if (array_key_exists('avatar', $data)) {
-        $updateData['Avatar'] = $data['avatar'];
-    }
+        if (array_key_exists('address', $data)) {
+            $updateData['Address'] = $data['address'];
+        }
 
-    if (!empty($updateData)) {
-        $user->update($updateData);
-    }
+        if (array_key_exists('avatar', $data)) {
+            $updateData['Avatar'] = $data['avatar'];
+        }
 
-    return [
-        'user' => $user->fresh(),
-        'message' => 'Cập nhật thành công'
-    ];
-}
+        if (!empty($updateData)) {
+            $user->update($updateData);
+        }
+
+        return [
+            'user' => $user->fresh(),
+            'message' => 'Cập nhật thành công'
+        ];
+    }
 
 
     public function createUser(array $data)
