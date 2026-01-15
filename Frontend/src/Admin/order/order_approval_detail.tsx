@@ -142,6 +142,16 @@ const OrderDetailPage = () => {
             </div>
 
             <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Số điện thoại nhận hàng</div>
+              <div className={styles.infoValue}>{order.deliveryPhone}</div>
+            </div>
+
+            <div className={styles.infoItem}>
+              <div className={styles.infoLabel}>Địa chỉ nhận hàng</div>
+              <div className={styles.infoValue}>{order.deliveryAddress}</div>
+            </div>
+
+            <div className={styles.infoItem}>
               <div className={styles.infoLabel}>Email</div>
               <div className={styles.infoValue}>{order.userEmail}</div>
             </div>
