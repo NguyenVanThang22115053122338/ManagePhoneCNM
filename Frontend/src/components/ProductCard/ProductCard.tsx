@@ -100,9 +100,9 @@ const ProductCard: React.FC<{ product: IProduct }> = ({ product }) => {
             loading="lazy"
           />
 
-          {isOutOfStock && (
+          {/* {isOutOfStock && (
             <span className="sold-out-badge">Hết hàng</span>
-          )}
+          )} */}
         </div>
 
         <div className="product-body">

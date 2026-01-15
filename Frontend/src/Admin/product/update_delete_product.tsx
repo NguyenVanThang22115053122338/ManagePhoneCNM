@@ -165,7 +165,7 @@ const UpdateDeleteProduct: React.FC = () => {
                 <option key={s.supplierId} value={s.supplierId}>{s.supplierName}</option>
               ))}
             </select>
-          </div>x 
+          </div>
           <div className={styles.pdEdit__field}>
             <label>Mô tả</label>
             <textarea name="description" value={product.description ?? ""} onChange={handleChange} />

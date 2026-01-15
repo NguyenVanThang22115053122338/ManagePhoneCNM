@@ -277,10 +277,10 @@ const AccountPage: React.FC = () => {
                 <label>Phương thức</label>
                 <p>{user.email ? 'Google' : 'Số điện thoại & Mật khẩu'}</p>
               </div>
-              <div className="info-item">
+              {/* <div className="info-item">
                 <label>Vai trò</label>
                 <p>{user.role === 1 ? 'Quản trị viên' : 'Khách hàng'}</p>
-              </div>
+              </div> */}
             </div>
           </div>
 
