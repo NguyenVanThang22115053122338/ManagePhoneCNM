@@ -2,27 +2,49 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Account.css';
 import { useAuth } from '../../context/AuthContext';
 import type { IUser } from '../../services/Interface';
-import { updateUser } from '../../services/UserService';
+import { userService } from '../../services/UserService';
+import { normalizeUser } from '../../utils/normalizeUser';
 
 const AccountPage: React.FC = () => {
-  const { user: authUser, loading: authLoading, updateUserContext } = useAuth();
+  const {
+    user: authUser,
+    loading: authLoading,
+    updateUserContext
+  } = useAuth();
+
+  const [user, setUser] = useState<IUser | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [sdt, setSdt] = useState('');
+
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const userId = authUser?.userId;
+
   useEffect(() => {
-    if (authUser) {
-      setFullName(authUser.fullName || '');
-      setEmail(authUser.email || '');
-      setAddress(authUser.address || '');
+    if (!authUser) {
+      setUser(null);
+      return;
     }
-  }, [authUser?.fullName, authUser?.email, authUser?.address]);
+
+    setUser(authUser);
+    setFullName(authUser.fullName || '');
+    setEmail(authUser.email || '');
+    setAddress(authUser.address || '');
+    setAvatarPreview(authUser.avatar || null);
+    setSdt(authUser.sdt || '');
+  }, [authUser]);
 
   const handleAvatarClick = () => {
     if (isEditing) {
@@ -43,59 +65,80 @@ const AccountPage: React.FC = () => {
   };
 
   const handleSave = async () => {
-    if (!authUser) return;
+    if (!userId || !user) return;
 
     setSaving(true);
     try {
       const dto: any = {};
-      if (fullName.trim() !== (authUser.fullName || '')) dto.fullName = fullName.trim();
-      if (email.trim() !== (authUser.email || '')) dto.email = email.trim();
-      if (address.trim() !== (authUser.address || '')) dto.address = address.trim();
 
-      const identifier = (authUser.sdt || authUser.email)!;
-      const res = await updateUser(identifier, dto, avatarFile || undefined);
-      
-      const backendData: any = res.user ?? res; // ✅ Dùng any vì backend response khác format
+      if (fullName.trim() !== (user.fullName || '')) dto.fullName = fullName.trim();
+      if (email.trim() !== (user.email || '')) dto.email = email.trim();
+      if (address.trim() !== (user.address || '')) dto.address = address.trim();
 
-      // ✅ Chuyển đổi từ backend format (PascalCase) sang IUser format (camelCase)
-      const normalizedUser: IUser = {
-        userId: backendData.UserID || authUser.userId,
-        sdt: backendData.SDT || authUser.sdt,
-        fullName: backendData.FullName,
-        email: backendData.Email,
-        address: backendData.Address,
-        avatar: backendData.Avatar,
-        role: backendData.RoleID || authUser.role,
-      };
+      // 1️⃣ update info + avatar
+      let updatedUser = user;
 
-      // ✅ Cập nhật context với data đã chuẩn hóa
-      updateUserContext(normalizedUser);
-      
+      if (Object.keys(dto).length > 0 || avatarFile) {
+        const identifier = user.sdt || user.email!;
+        const res = await userService.updateUser(
+          identifier,
+          dto,
+          avatarFile || undefined
+        );
+
+        const backendUser = res.user ?? res;
+        updatedUser = normalizeUser(backendUser);
+      }
+
+      // 2️⃣ update phone (google user thêm / user thường đổi)
+      if (sdt && sdt !== user.sdt) {
+        const phoneRes = await userService.updatePhone(sdt);
+        updatedUser = { ...updatedUser, sdt: phoneRes.sdt };
+      }
+
+      setUser(updatedUser);
+      updateUserContext(updatedUser);
+
       setAvatarFile(null);
-
       alert('Cập nhật thông tin thành công!');
       setIsEditing(false);
 
     } catch (err: any) {
-      console.error('❌ Lỗi cập nhật:', err);
-      alert(err.response?.data?.message || 'Cập nhật thất bại!');
+      console.error(err);
+      alert(err.message || 'Cập nhật thất bại');
     } finally {
       setSaving(false);
     }
   };
 
-  const handleCancel = () => {
-    if (authUser) {
-      setFullName(authUser.fullName || '');
-      setEmail(authUser.email || '');
-      setAddress(authUser.address || '');
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      alert("Mật khẩu xác nhận không khớp");
+      return;
     }
-    setAvatarPreview(null);
-    setAvatarFile(null);
-    setIsEditing(false);
+
+    try {
+      setChangingPassword(true);
+
+      await userService.changePassword(
+        newPassword,
+        user?.sdt ? oldPassword : null
+      );
+
+      alert("Đổi mật khẩu thành công");
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (e: any) {
+      alert(e.message || "Đổi mật khẩu thất bại");
+    } finally {
+      setChangingPassword(false);
+    }
   };
 
-  if (authLoading || !authUser) {
+
+
+  if (authLoading || !user) {
     return (
       <div className="account-container">
         <div className="loading">Đang tải thông tin tài khoản...</div>
@@ -103,29 +146,28 @@ const AccountPage: React.FC = () => {
     );
   }
 
-  const displayAvatar = avatarPreview || authUser.avatar;
-
   return (
     <div className="account-container">
       <div className="account-wrapper">
         <main className="account-main">
           <h2 className="page-title">Thông tin tài khoản</h2>
 
+          {/* Avatar lớn + upload */}
           <div className="profile-header" style={{ marginBottom: '30px' }}>
             <div
               className="avatar-large"
               onClick={handleAvatarClick}
               style={{ cursor: isEditing ? 'pointer' : 'default' }}
             >
-              {displayAvatar ? (
+              {avatarPreview || user.avatar ? (
                 <img
-                  src={displayAvatar}
+                  src={avatarPreview || user.avatar!}
                   alt="Avatar"
                   className="avatar-img"
                 />
               ) : (
                 <div className="avatar-fallback">
-                  {authUser.sdt?.slice(-3) || '???'}
+                  {user.sdt.slice(-3)}
                 </div>
               )}
               {isEditing && (
@@ -145,16 +187,18 @@ const AccountPage: React.FC = () => {
             onChange={handleFileChange}
           />
 
-          <div className="info-card">
+          {/* Phần form thông tin cá nhân */}
+          <div className="info-card change-password">
             <div className="card-header">
               <h3>Thông tin cá nhân</h3>
               {!isEditing ? (
-                <button className="edit-btn" onClick={() => setIsEditing(true)}>
+                <button className="account-btn" onClick={() => setIsEditing(true)}>
+                  <i className="fa-solid fa-pen"></i>
                   Chỉnh sửa
                 </button>
               ) : (
                 <div className="edit-actions">
-                  <button className="cancel-btn" onClick={handleCancel}>
+                  <button className="cancel-btn" onClick={() => setIsEditing(false)}>
                     Hủy
                   </button>
                   <button className="save-btn" onClick={handleSave} disabled={saving}>
@@ -176,7 +220,26 @@ const AccountPage: React.FC = () => {
 
               <div className="info-item">
                 <label>Số điện thoại</label>
-                <p className="readonly-text">{authUser.sdt}</p>
+
+                {isEditing ? (
+                  <>
+                    <input
+                      type="text"
+                      value={sdt}
+                      onChange={(e) => setSdt(e.target.value)}
+                      disabled={!!user.googleId}
+                      placeholder="Nhập số điện thoại"
+                    />
+
+                    {user.googleId && (
+                      <small className="hint">
+                        Tài khoản Google không thể đổi số điện thoại
+                      </small>
+                    )}
+                  </>
+                ) : (
+                  <p>{sdt}</p>
+                )}
               </div>
 
               <div className="info-item">
@@ -204,6 +267,7 @@ const AccountPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Thông tin đăng nhập giữ nguyên */}
           <div className="info-card">
             <div className="card-header">
               <h3>Thông tin đăng nhập</h3>
@@ -211,14 +275,84 @@ const AccountPage: React.FC = () => {
             <div className="info-grid">
               <div className="info-item">
                 <label>Phương thức</label>
-                <p>{authUser.email ? 'Google' : 'Số điện thoại & Mật khẩu'}</p>
+                <p>{user.email ? 'Google' : 'Số điện thoại & Mật khẩu'}</p>
               </div>
               <div className="info-item">
                 <label>Vai trò</label>
-                <p>{authUser.role === 1 ? 'Khách hàng' : 'Quản trị viên'}</p>
+                <p>{user.role === 1 ? 'Quản trị viên' : 'Khách hàng'}</p>
               </div>
             </div>
           </div>
+
+          {!user.googleId && (
+            <div className="info-card change-password">
+              <div className="card-header">
+                <h3>Đổi mật khẩu</h3>
+              </div>
+
+              <div className="info-grid">
+                <div className="info-item full-width">
+                  <label>Mật khẩu hiện tại</label>
+                  <input
+                    type="password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="info-item">
+                  <label>Mật khẩu mới</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="info-item">
+                  <label>Xác nhận mật khẩu mới</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+
+                <div className="info-item full-width">
+                  <button
+                    className="save-btn"
+                    disabled={changingPassword}
+                    onClick={async () => {
+                      if (newPassword !== confirmPassword) {
+                        alert("Mật khẩu xác nhận không khớp");
+                        return;
+                      }
+
+                      try {
+                        setChangingPassword(true);
+                        await userService.changePassword(
+                          newPassword,
+                          user?.sdt ? oldPassword : null
+                        );
+
+                        alert("Đổi mật khẩu thành công");
+                        setOldPassword("");
+                        setNewPassword("");
+                        setConfirmPassword("");
+                      } catch (e: any) {
+                        alert(e.response?.data || "Đổi mật khẩu thất bại");
+                      } finally {
+                        setChangingPassword(false);
+                      }
+                    }}
+                  >
+                    {changingPassword ? "Đang xử lý..." : "Đổi mật khẩu"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
         </main>
       </div>
     </div>

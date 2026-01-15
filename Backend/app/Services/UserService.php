@@ -120,7 +120,7 @@ class UserService
     public function verifyEmailCode(string $email, string $code)
     {
         $user = User::where('Email', $email)->first();
-        
+
         if (!$user) {
             throw new \Exception('User not found', 404);
         }
@@ -132,7 +132,7 @@ class UserService
         if ($user->code_expires_at < now()) {
             throw new \Exception('Code expired', 400);
         }
-        
+
         $user->is_verified = true;
         $user->code = null;
         $user->code_expires_at = null;
@@ -159,46 +159,43 @@ class UserService
     }
 
     //User
-    public function updateUser(string $sdt, array $data)
-    {
-        // ✅ Tìm theo SDT trước, nếu không có thì tìm theo Email
-        $user = User::where('SDT', $sdt)->first();
-        
-        if (!$user) {
-            $user = User::where('Email', $sdt)->first();
-        }
-    
-        if (!$user) {
-            throw new \Exception("User không tồn tại");
-        }
-    
-        $updateData = [];
-    
-        if (array_key_exists('fullName', $data)) {
-            $updateData['FullName'] = $data['fullName'];
-        }
-    
-        if (array_key_exists('email', $data)) {
-            $updateData['Email'] = $data['email'];
-        }
-    
-        if (array_key_exists('address', $data)) {
-            $updateData['Address'] = $data['address'];
-        }
-    
-        if (array_key_exists('avatar', $data)) {
-            $updateData['Avatar'] = $data['avatar'];
-        }
-    
-        if (!empty($updateData)) {
-            $user->update($updateData);
-        }
-    
-        return [
-            'user' => $user->fresh(),
-            'message' => 'Cập nhật thành công'
-        ];
+    public function updateUserByJwt(User $user, array $data)
+{
+    $updateData = [];
+
+    if (array_key_exists('fullName', $data)) {
+        $updateData['FullName'] = $data['fullName'];
     }
+
+    if (array_key_exists('email', $data)) {
+        // check trùng email
+        $exists = User::where('Email', $data['email'])
+            ->where('UserID', '!=', $user->UserID)
+            ->exists();
+        if ($exists) {
+            throw new \Exception('Email đã tồn tại');
+        }
+        $updateData['Email'] = $data['email'];
+    }
+
+    if (array_key_exists('address', $data)) {
+        $updateData['Address'] = $data['address'];
+    }
+
+    if (array_key_exists('avatar', $data)) {
+        $updateData['Avatar'] = $data['avatar'];
+    }
+
+    if (!empty($updateData)) {
+        $user->update($updateData);
+    }
+
+    return [
+        'user' => $user->fresh(),
+        'message' => 'Cập nhật thành công'
+    ];
+}
+
 
     public function createUser(array $data)
     {
@@ -217,8 +214,8 @@ class UserService
             'Email' => $data['email'],
             'Address' => $data['diaChi'] ?? null,
             'Avatar' => $data['avatar'] ?? null,
-            'RoleID' => $data['roleId'] ?? 1, 
-            'is_verified' => 1, 
+            'RoleID' => $data['roleId'] ?? 1,
+            'is_verified' => 1,
         ]);
 
         return [
@@ -226,5 +223,36 @@ class UserService
             'message' => 'Tạo tài khoản thành công. Mật khẩu mặc định: 123456'
         ];
     }
+
+    public function changePassword(User $user, string $oldPassword, string $newPassword)
+    {
+        // Google user chưa set password → cho set luôn
+        if (!$user->Password) {
+            $user->Password = Hash::make($newPassword);
+            $user->save();
+            return;
+        }
+
+        if (!Hash::check($oldPassword, $user->Password)) {
+            throw new \Exception('Mật khẩu cũ không đúng');
+        }
+
+        $user->Password = Hash::make($newPassword);
+        $user->save();
+    }
+
+    public function updatePhone(User $user, string $sdt)
+{
+    $exists = User::where('SDT', $sdt)
+        ->where('UserID', '!=', $user->UserID)
+        ->exists();
+
+    if ($exists) {
+        throw new \Exception('SĐT đã tồn tại');
+    }
+
+    $user->SDT = $sdt;
+    $user->save();
+}
 
 }

@@ -58,6 +58,7 @@ export interface IUser {
     address?: string;
     avatar?: string | null;
     role?: number;
+    googleId?: string | null;
     createdAt?: string;
     updatedAt?: string;
 }

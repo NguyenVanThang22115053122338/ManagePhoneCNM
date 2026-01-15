@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use GuzzleHttp\Client;
 
 class PayPalService
 {
@@ -23,9 +22,10 @@ class PayPalService
         $this->clientSecret = config('services.paypal.client_secret');
     }
 
-    /**
-     * Lấy access token OAuth2
-     */
+    /* =====================================================
+       OAUTH TOKEN
+       ===================================================== */
+
     public function getAccessToken(): string
     {
         $res = Http::asForm()
@@ -35,30 +35,30 @@ class PayPalService
             ]);
 
         if (!$res->successful()) {
-            throw new \RuntimeException("PayPal token error: " . $res->body());
+            throw new \RuntimeException(
+                'PayPal token error: ' . $res->body()
+            );
         }
 
         return $res->json('access_token');
     }
 
+    /* =====================================================
+       CREATE ORDER
+       ===================================================== */
+
     /**
-     * Tạo PayPal Order (lấy approval URL)
-     * return: ['id' => '...', 'approve_url' => '...']
+     * @return array{id:string, approve_url:string}
      */
-    public function createOrder(float $amount, string $currency, string $description): array
-    {
+    public function createOrder(
+        float $amount,
+        string $currency,
+        string $description
+    ): array {
         $token = $this->getAccessToken();
 
-        $base = rtrim(env('FE_BASE_URL', 'http://localhost:5173'), '/');
-        $returnUrl = $base . '/payment/success';
-        $cancelUrl = $base . '/payment/cancel';
-
-        // Nếu bạn muốn dùng APP_BASE_URL riêng:
-        $appBaseUrl = env('APP_BASE_URL');
-        if ($appBaseUrl) {
-            $returnUrl = rtrim($appBaseUrl, '/') . '/api/paypal/return';
-            $cancelUrl = rtrim($appBaseUrl, '/') . '/api/paypal/cancel';
-        }
+        // 🔥 PayPal PHẢI redirect về BACKEND
+        $appBaseUrl = rtrim(env('APP_BASE_URL'), '/');
 
         $payload = [
             'intent' => 'CAPTURE',
@@ -72,9 +72,8 @@ class PayPalService
                 ]
             ],
             'application_context' => [
-                'return_url' => $returnUrl,
-                'cancel_url' => $cancelUrl,
-                // optional:
+                'return_url' => $appBaseUrl . '/api/paypal/return',
+                'cancel_url' => $appBaseUrl . '/api/paypal/cancel',
                 'user_action' => 'PAY_NOW'
             ]
         ];
@@ -84,12 +83,14 @@ class PayPalService
             ->post($this->baseUrl . '/v2/checkout/orders', $payload);
 
         if (!$res->successful()) {
-            throw new \RuntimeException("PayPal create order error: " . $res->body());
+            throw new \RuntimeException(
+                'PayPal create order error: ' . $res->body()
+            );
         }
 
         $json = $res->json();
-        $approveUrl = null;
 
+        $approveUrl = null;
         foreach (($json['links'] ?? []) as $link) {
             if (($link['rel'] ?? '') === 'approve') {
                 $approveUrl = $link['href'] ?? null;
@@ -98,7 +99,9 @@ class PayPalService
         }
 
         if (!$approveUrl) {
-            throw new \RuntimeException("Không lấy được approve link từ PayPal: " . $res->body());
+            throw new \RuntimeException(
+                'Không lấy được approve URL từ PayPal'
+            );
         }
 
         return [
@@ -107,21 +110,22 @@ class PayPalService
         ];
     }
 
+    /* =====================================================
+       CAPTURE ORDER
+       ===================================================== */
+
     /**
-     * Capture PayPal Order
-     * return: ['status' => 'COMPLETED', 'capture_id' => '...']
+     * @return array{status:?string, capture_id:?string, raw:array}
      */
     public function captureOrder(string $paypalOrderId): array
     {
         $token = $this->getAccessToken();
 
         $res = Http::withToken($token)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-            ])
+            ->acceptJson()
             ->post(
                 $this->baseUrl . "/v2/checkout/orders/{$paypalOrderId}/capture",
-                new \stdClass() // 🔥 JSON body = {}
+                new \stdClass() // body {}
             );
 
         if (!$res->successful()) {
@@ -135,12 +139,15 @@ class PayPalService
         return [
             'status' => $json['status'] ?? null,
             'capture_id' =>
-            $json['purchase_units'][0]['payments']['captures'][0]['id'] ?? null,
+                $json['purchase_units'][0]['payments']['captures'][0]['id']
+                ?? null,
             'raw' => $json,
         ];
     }
 
-
+    /* =====================================================
+       GET ORDER (USED TO RESUME PAYMENT)
+       ===================================================== */
 
     public function getOrder(string $paypalOrderId): array
     {
@@ -151,9 +158,30 @@ class PayPalService
             ->get($this->baseUrl . "/v2/checkout/orders/{$paypalOrderId}");
 
         if (!$res->successful()) {
-            throw new \RuntimeException("PayPal get order error: " . $res->body());
+            throw new \RuntimeException(
+                'PayPal get order error: ' . $res->body()
+            );
         }
 
         return $res->json();
+    }
+
+    /* =====================================================
+       GET APPROVE URL (RESUME PAYMENT)
+       ===================================================== */
+
+    public function getApproveUrl(string $paypalOrderId): string
+    {
+        $order = $this->getOrder($paypalOrderId);
+
+        foreach (($order['links'] ?? []) as $link) {
+            if (($link['rel'] ?? '') === 'approve') {
+                return $link['href'];
+            }
+        }
+
+        throw new \RuntimeException(
+            'Không tìm thấy approve URL từ PayPal'
+        );
     }
 }

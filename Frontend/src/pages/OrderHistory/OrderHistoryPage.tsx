@@ -187,8 +187,8 @@ const OrderHistoryPage: React.FC = () => {
             <div className="ohp-list">
               {filteredOrders.map(order => (
                 <div
-                  key={order.orderID}
-                  className={`ohp-card ${selectedOrder?.orderID === order.orderID
+                  key={order.orderId}
+                  className={`ohp-card ${selectedOrder?.orderId === order.orderId
                     ? "ohp-active"
                     : ""
                     }`}
@@ -209,7 +209,7 @@ const OrderHistoryPage: React.FC = () => {
 
                       setSelectedOrder({
                         ...order,
-                        orderID: oid,   // chuẩn hóa lại
+                        orderId: oid,   // chuẩn hóa lại
                         products,
                       });
                     } catch (err) {
@@ -220,7 +220,7 @@ const OrderHistoryPage: React.FC = () => {
                   <div className="ohp-card-header">
                     <div>
                       <div className="ohp-order-id">
-                        Đơn #{order.orderID}
+                        Đơn #{order.orderId}
                       </div>
                       <div className="ohp-order-date">
                         {formatDate(order.orderDate)}
@@ -246,7 +246,7 @@ const OrderHistoryPage: React.FC = () => {
                 <>
                   <div className="ohp-detail-header">
                     <h2 className="ohp-detail-title">
-                      Đơn hàng #{selectedOrder.orderID}
+                      Đơn hàng #{selectedOrder.orderId}
                     </h2>
 
                     {selectedOrder.status === "APPROVED" && (
@@ -254,7 +254,7 @@ const OrderHistoryPage: React.FC = () => {
                         className="review-btn header-review-btn"
                         onClick={() =>
                           navigate(
-                            `/product/${selectedOrder.products?.[0]?.productID}/reviews?orderId=${selectedOrder.orderID}`
+                            `/product/${selectedOrder.products?.[0]?.productID}/reviews?orderId=${selectedOrder.orderId}`
                           )
                         }
                       >
@@ -279,7 +279,7 @@ const OrderHistoryPage: React.FC = () => {
                   <div className="ohp-products">
                     {safeArray(selectedOrder.products).map(p => (
                       <div
-                        key={`${p.productID}-${selectedOrder.orderID}`}
+                        key={`${p.productID}-${selectedOrder.orderId}`}
                         className="od-product"
                       >
                         <img
@@ -337,7 +337,7 @@ const OrderHistoryPage: React.FC = () => {
                         <button
                           className="ohp-btn pay"
                           onClick={() =>
-                            navigate(`/order/${selectedOrder.orderID}`)
+                            navigate(`/order/${selectedOrder.orderId}`)
                           }
                         >
                           💳 Thanh toán
@@ -353,12 +353,12 @@ const OrderHistoryPage: React.FC = () => {
                             if (!ok) return;
 
                             try {
-                              await OrderUserService.cancelOrder(selectedOrder.orderID);
+                              await OrderUserService.cancelOrder(selectedOrder.orderId);
 
                               // cập nhật UI ngay
                               setOrders(prev =>
                                 prev.map(o =>
-                                  o.orderID === selectedOrder.orderID
+                                  o.orderId === selectedOrder.orderId
                                     ? { ...o, status: "CANCELLED" }
                                     : o
                                 )
