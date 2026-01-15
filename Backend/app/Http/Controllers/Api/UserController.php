@@ -153,51 +153,35 @@ class UserController extends Controller
         }
     }
 
-    public function me(Request $request)
-    {
-        $jwtUser = $request->attributes->get('jwt_user');
-
-        if (!$jwtUser) {
-            return response()->json(['message' => 'Unauthorized'], 401);
-        }
-        $user = $this->userService->findByCredentials($jwtUser->sub);
-
-        if (!$user) {
-            return response()->json(['message' => 'User not found'], 404);
-        }
-
-        return response()->json($user);
-    }
-
     //User
     public function updateUser(UpdateUserRequest $req)
-{
-    try {
-        $data = $req->validated();
+    {
+        try {
+            $data = $req->validated();
 
-        if ($req->hasFile('avatar')) {
-            $uploadResult = $this->cloudinaryService->uploadImage(
-                $req->file('avatar'),
-                'avatars'
-            );
-            $data['avatar'] = $uploadResult['url'];
+            if ($req->hasFile('avatar')) {
+                $uploadResult = $this->cloudinaryService->uploadImage(
+                    $req->file('avatar'),
+                    'avatars'
+                );
+                $data['avatar'] = $uploadResult['url'];
+            }
+
+            // 🔥 LẤY USER TỪ JWT – KHÔNG DÙNG $sdt NỮA
+            $jwtUser = $req->attributes->get('jwt_user');
+            $user = User::where('Email', $jwtUser->sub)
+                ->orWhere('SDT', $jwtUser->sub)
+                ->firstOrFail();
+
+            $result = $this->userService->updateUserByJwt($user, $data);
+
+            return response()->json($result, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 400);
         }
-
-        // 🔥 LẤY USER TỪ JWT – KHÔNG DÙNG $sdt NỮA
-        $jwtUser = $req->attributes->get('jwt_user');
-        $user = User::where('Email', $jwtUser->sub)
-            ->orWhere('SDT', $jwtUser->sub)
-            ->firstOrFail();
-
-        $result = $this->userService->updateUserByJwt($user, $data);
-
-        return response()->json($result, 200);
-    } catch (\Exception $e) {
-        return response()->json([
-            'message' => $e->getMessage()
-        ], 400);
     }
-}
 
     public function deleteUser($identifier)
     {
@@ -284,6 +268,22 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Cập nhật SĐT thành công',
             'sdt' => $user->SDT
+        ]);
+    }
+
+    public function me(Request $request)
+    {
+        $jwtUser = $request->attributes->get('jwt_user');
+
+        $user = User::where('Email', $jwtUser->sub)
+            ->orWhere('SDT', $jwtUser->sub)
+            ->firstOrFail();
+
+        $cart = $this->userService->getOrCreateCart($user);
+
+        return response()->json([
+            'user' => $user,
+            'cart' => $cart
         ]);
     }
 }
